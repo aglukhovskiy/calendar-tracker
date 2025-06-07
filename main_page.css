@@ -1,0 +1,730 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #222;
+    background-color: #f7f9fb;
+}
+
+.container {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    margin-bottom: 20px;
+}
+
+h1 {
+    margin-bottom: 15px;
+    color: #1a1a1a;
+}
+
+.controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+button {
+    padding: 8px 16px;
+    background-color: #e3f0ff;
+    color: #1976d2;
+    border: 1px solid #b6d4fa;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, border 0.2s;
+    font-weight: 500;
+}
+
+button:hover {
+    background-color: #d0e7ff;
+    color: #125ea7;
+    border-color: #90c2f7;
+}
+
+button:disabled {
+    background-color: #f0f0f0;
+    color: #b0b0b0;
+    border-color: #e0e0e0;
+    cursor: not-allowed;
+}
+
+/* === ОСНОВНОЙ LAYOUT === */
+.main-content {
+    display: flex;
+    gap: 24px;
+    flex-wrap: nowrap;
+}
+
+.calendar-container {
+    flex: 1;
+    min-width: 0;
+    border-radius: 8px;
+    background: #fff;
+    border: 1px solid #e0e4ea;
+    box-shadow: 0 2px 8px rgba(60, 120, 200, 0.04);
+    padding: 0;
+    overflow: hidden;
+}
+
+.pomodoro-sidebar {
+    width: 320px;
+    flex-shrink: 0;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(60,120,200,0.07);
+    padding: 24px 18px;
+    color: #222;
+}
+
+/* === ШАПКА КАЛЕНДАРЯ === */
+.calendar-header-row {
+    display: flex;
+    height: 60px;
+}
+
+.time-header {
+    width: 60px;
+    min-width: 60px;
+    max-width: 60px;
+    flex: none !important;
+}
+
+.days-header {
+    flex: 1;
+    display: flex;
+    background: #f0f4fa;
+    border-bottom: 1px solid #e0e4ea;
+}
+
+.day-header {
+    flex: 1;
+    border-right: 1px solid #e0e4ea;
+    background: #f0f4fa;
+    color: #1976d2;
+    text-align: center;
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    padding: 5px;
+    min-height: 60px;
+    transition: background 0.2s;
+}
+
+.day-header:last-child { 
+    border-right: none; 
+}
+
+.day-header:hover {
+    background-color: #e3f0ff;
+}
+
+.day-name {
+    font-weight: bold;
+    color: #1976d2;
+    margin-bottom: 2px;
+}
+
+.day-date {
+    font-size: 12px;
+    color: #8a99a8;
+    margin-bottom: 15px;
+}
+
+.day-header-icons {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    display: flex;
+    gap: 5px;
+    font-size: 14px;
+    align-items: center;
+    background: rgba(227, 240, 255, 0.9);
+    padding: 2px 4px;
+    border-radius: 4px;
+}
+
+.calories-icon {
+    color: #ff9800;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    white-space: nowrap;
+}
+
+.comment-icon {
+    color: #4caf50;
+}
+
+/* === ТЕЛО КАЛЕНДАРЯ === */
+.calendar-body-container {
+    display: flex;
+    height: 768px;
+}
+
+/* === ВАЖНО: КОНТЕЙНЕР ДЛЯ ПРОКРУТКИ === */
+#week-grid-scroll-container {
+    flex: 1;
+    overflow-y: auto;
+    width: 100%;
+}
+
+/* === СОДЕРЖИМОЕ, КОТОРОЕ СКРОЛЛИТСЯ === */
+.scrollable-content {
+    display: flex;
+    width: 100%;
+}
+
+/* === КОЛОНКА ВРЕМЕНИ === */
+.time-slots-container {
+    width: 60px;
+    min-width: 60px;
+    flex-shrink: 0;
+    background: #f4f4f7;
+    border-right: 1px solid #e3e4ea;
+}
+
+.time-slot {
+    height: 48px;
+    min-height: 48px;
+    max-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 10px;
+    color: #999;
+    font-size: 13px;
+    border-bottom: 1px solid #e0e4ea;
+    background: #f7f9fb;
+}
+
+/* === СЕТКА ДНЕЙ === */
+.week-grid {
+    flex: 1;
+    display: flex;
+}
+
+.day-column {
+    flex: 1;
+    min-width: 0;
+    position: relative;
+    border-right: 1px solid #e0e4ea;
+}
+
+.day-column:last-child {
+    border-right: none;
+}
+
+.hour-cell {
+    height: 48px;
+    min-height: 48px;
+    max-height: 48px;
+    border-bottom: 1px solid #e0e4ea;
+    position: relative;
+}
+
+/* === СОБЫТИЯ === */
+.calendar-event {
+    position: absolute;
+    left: 3px;
+    right: 3px;
+    border-radius: 6px;
+    background: #e6eaf6;
+    color: #222;
+    font-size: 13px;
+    z-index: 10;
+    box-shadow: 0 2px 6px rgba(180,190,210,.09);
+    padding: 2px 12px 2px 6px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.calendar-event:hover {
+    background-color: #e0e0e0;
+    z-index: 11;
+}
+
+.calendar-event.project-event {
+    background: #1976d2;
+    color: #fff;
+    font-weight: 500;
+}
+
+.calendar-event.project-event:hover {
+    background-color: #355bb2;
+}
+
+.event-title {
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    margin-bottom: 0;
+    padding: 0 2px;
+}
+
+.event-description {
+    font-size: 11px;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.calendar-event.project-event .event-description {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* === ИНДИКАТОР ТЕКУЩЕГО ВРЕМЕНИ === */
+.current-time-indicator {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #1976d2;
+    z-index: 5;
+    pointer-events: none;
+    border-radius: 2px;
+}
+
+/* === ТАЙМЕР И СЕКУНДОМЕР === */
+.timer-display, #sidebar-timer-display {
+    font-size: 2.5rem;
+    text-align: center;
+    margin: 20px 0;
+    font-weight: bold;
+    color: #1976d2 !important;
+    background: #e3f0ff;
+    border-radius: 8px;
+    text-shadow: 0 1px 6px #fff, 0 0 2px #b6d4fa;
+    box-shadow: 0 1px 4px #e3f0ff;
+}
+
+.timer-controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.timer-paused { 
+    color:#ffd600 !important;
+}
+
+#start-pomodoro, #pause-pomodoro, #stop-pomodoro {
+    background-color: #e3f0ff !important;
+    color: #1976d2 !important;
+    border: 1px solid #b6d4fa !important;
+    border-radius: 6px !important;
+    font-weight: 500;
+    min-width: 80px;
+    padding: 8px 0;
+    font-size: 1.1em;
+    transition: background 0.2s, color 0.2s, border 0.2s;
+}
+
+#start-pomodoro:hover, #pause-pomodoro:hover, #stop-pomodoro:hover {
+    background-color: #d0e7ff !important;
+    color: #125ea7 !important;
+    border-color: #90c2f7 !important;
+}
+
+#start-pomodoro:disabled, #pause-pomodoro:disabled, #stop-pomodoro:disabled {
+    background-color: #f0f0f0 !important;
+    color: #b0b0b0 !important;
+    border-color: #e0e0e0 !important;
+}
+
+/* === УПРАВЛЕНИЕ ПРОЕКТАМИ === */
+.project-management {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e0e4ea;
+    background: transparent;
+}
+
+.project-management h3 {
+    color: #1976d2;
+    margin-bottom: 15px;
+}
+
+#project-stats {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #f7f9fb;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #1976d2;
+    box-shadow: none;
+    border: 1px solid #e0e4ea;
+}
+
+.project-stats-item { 
+    margin-bottom: 5px; 
+    color: #1976d2; 
+}
+
+#add-project {
+    background-color: #e3f0ff !important;
+    color: #1976d2 !important;
+    border: 1px solid #b6d4fa !important;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: background 0.2s, color 0.2s, border 0.2s;
+    box-shadow: none;
+}
+
+#add-project:hover {
+    background-color: #d0e7ff !important;
+    color: #125ea7 !important;
+    border-color: #90c2f7 !important;
+}
+
+#add-project:disabled {
+    background-color: #f0f0f0 !important;
+    color: #b0b0b0 !important;
+    border-color: #e0e0e0 !important;
+}
+
+/* === РЕГУЛЯРНЫЕ СОБЫТИЯ === */
+.regular-event-management {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e4ea;
+}
+
+.regular-event-management h3 {
+    color: #4caf50;
+    margin-bottom: 15px;
+}
+
+.weekday-selector {
+    display: flex;
+    justify-content: space-between;
+    gap: 5px;
+}
+
+.weekday-btn {
+    flex: 1;
+    text-align: center;
+    padding: 8px 4px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+    user-select: none;
+}
+
+.weekday-btn.selected {
+    background-color: #4caf50;
+    color: white;
+    border-color: #4caf50;
+}
+
+.calendar-event.regular {
+    background-color: #e0e0e0;
+    color: #555;
+    border: 1px dashed #b0b0b0;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.calendar-event.regular.completed {
+    background-color: #28a745;
+    border-color: #208335;
+    color: white;
+    opacity: 0.8;
+}
+
+.calendar-event.regular.not-completed {
+    background-color: #dc3545;
+    border-color: #b32a38;
+    color: white;
+}
+
+/* === ПУЛЬСАЦИЯ АКТИВНОГО СОБЫТИЯ === */
+.calendar-event.live {
+    animation: pulsate-override 1.8s infinite ease-in-out !important;
+    z-index: 10 !important;
+}
+
+@keyframes pulsate-override {
+  0% {
+    transform: scale(1.0);
+    box-shadow: 0 0 8px 3px rgba(255, 215, 0, 0.7);
+  }
+  50% {
+    transform: scale(1.03);
+    box-shadow: 0 0 16px 8px rgba(255, 190, 0, 0.8);
+  }
+  100% {
+    transform: scale(1.0);
+    box-shadow: 0 0 8px 3px rgba(255, 215, 0, 0.7);
+  }
+}
+
+/* === СЕГОДНЯШНИЙ ДЕНЬ === */
+.day-header.today-header, .day-column.current-day {
+    background: #b6d4fa !important;
+    border: 2px solid #1976d2 !important;
+    box-shadow: 0 0 0 2px #e3f0ff;
+    color: #0d305a !important;
+    z-index: 2;
+}
+
+.day-header.today-header .day-name, 
+.day-header.today-header .day-date, 
+.day-header.today-header .day-header-icons {
+    color: #0d305a !important;
+}
+
+/* === ФОРМЫ И ПОЛЯ ВВОДА === */
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    color: #222;
+}
+
+input, textarea, select {
+    width: 100%;
+    padding: 8px;
+    background: #fff;
+    color: #222;
+    border: 1px solid #b6d4fa;
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+input:focus, textarea:focus, select:focus {
+    border-color: #1976d2;
+    box-shadow: 0 0 3px #b6d4fa;
+}
+
+/* === МОДАЛЬНЫЕ ОКНА === */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    position: relative;
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 20px;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.close-modal {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #aaa;
+    z-index: 1001;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.3s;
+}
+
+.close-modal:hover {
+    color: #333;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.modal-buttons { 
+    margin-top: 17px; 
+}
+
+/* === ДЕТАЛИ ДНЯ (МОДАЛЬНОЕ ОКНО) === */
+.day-detail-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(200, 220, 255, 0.25);
+    z-index: 1000;
+}
+
+.day-detail-content {
+    position: relative;
+    background-color: #fff;
+    margin: 7% auto;
+    padding: 24px;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(60, 120, 200, 0.10);
+}
+
+.calories-inputs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.day-comment {
+    margin-top: 20px;
+}
+
+.day-comment textarea {
+    min-height: 100px;
+    resize: vertical;
+    background: #f7f9fb;
+    border: 1px solid #e0e4ea;
+    border-radius: 6px;
+    color: #222;
+    padding: 8px;
+}
+
+.total-calories {
+    text-align: center;
+    font-size: 1.2em;
+    margin: 15px 0;
+    color: #ff9800;
+    font-weight: bold;
+}
+
+/* === ВЫБОР ДАТЫ (МОДАЛЬНОЕ ОКНО) === */
+.date-picker-modal {
+    display: none;
+    position: fixed !important;
+    z-index: 100;
+    left: 0; 
+    top: 0; 
+    right: 0; 
+    bottom: 0;
+    width: 100vw; 
+    height: 100vh;
+    background: rgba(0,0,0,0.6) !important;
+}
+
+.date-picker-content {
+    background: #fff;
+    border-radius: 9px;
+    margin: 50px auto;
+    max-width: 320px;
+    width: 95vw;
+    padding: 24px;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+    box-shadow: 0 5px 16px rgba(0,0,0,0.3);
+}
+
+#prev-month, #next-month {
+    cursor: pointer;
+    padding: 4px 10px;
+    background-color: #e3f0ff;
+    border-radius: 3px;
+    font-weight: bold;
+    color: #1976d2;
+}
+
+#month-title {
+    font-weight: bold;
+    font-size: 1.2em;
+    flex: none;
+}
+
+#prev-month { 
+    order: 0; 
+}
+
+#month-title { 
+    order: 1; 
+}
+
+#next-month { 
+    order: 2; 
+}
+
+/* === РЕГУЛЯРНЫЕ СОБЫТИЯ (МОДАЛЬНОЕ ОКНО) === */
+#regular-event-details {
+    padding: 20px 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+#regular-event-modal-title {
+    font-size: 1.4em;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #222;
+}
+
+#regular-event-details p {
+    font-size: 1em;
+    margin: 0;
+    color: #333;
+}
+
+#regular-event-details p strong {
+    color: #1976d2;
+    font-weight: bold;
+}
+
+/* === АДАПТИВНОСТЬ === */
+@media (max-width: 1100px) {
+    .main-content {
+        flex-direction: column;
+    }
+    .pomodoro-sidebar {
+        width: 100%;
+        margin-top: 20px;
+    }
+}
+
+/* === СКРОЛЛБАР === */
+#week-grid-scroll-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+#week-grid-scroll-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+#week-grid-scroll-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}

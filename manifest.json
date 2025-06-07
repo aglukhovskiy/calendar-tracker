@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "Stopwatch Widget Extension",
+  "version": "1.0",
+  "description": "A stopwatch widget extension with calendar integration",
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://*.supabase.co/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "images/icon16.png",
+      "48": "images/icon48.png",
+      "128": "images/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "dist/background.bundle.js"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["main_page.html", "main_page.css", "dist/main.bundle.js", "dist/popup.bundle.js", "dist/dayDetails.bundle.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

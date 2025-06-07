@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Data Import</title>
+</head>
+<body>
+    <script>
+        fetch('test_data.json')
+            .then(response => response.json())
+            .then(data => {
+                chrome.storage.local.set(data, () => {
+                    console.log('Test data loaded');
+                    window.close();
+                });
+            });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,1310 @@
+document.addEventListener('DOMContentLoaded', async () => {
+    // === Globals ===
+    let calendarEvents = [];
+    let projects = [];
+    let selectedProjectId = null;
+    let stopwatch = { isRunning: false, startTimestamp: null, elapsed: 0, liveEventId: null, projectId: null };
+    let stopwatchInterval = null;
+    let currentDate = new Date();
+    let currentWeekStart = getStartOfWeek(currentDate);
+    let editingEventId = null;
+
+    let allDayDetailsData = {}; // Кеш для данных о калориях и комментариях
+    const ALL_DAY_DETAILS_KEY = 'allDayDetails';
+    let dayDetailsManager = null; // Экземпляр класса DayDetails
+
+    // UI / DOM (без изменений, как в вашем коде)
+    const timerDisplay = document.getElementById('sidebar-timer-display');
+    const startBtn = document.getElementById('start-pomodoro');
+    const pauseBtn = document.getElementById('pause-pomodoro');
+    const stopBtn = document.getElementById('stop-pomodoro');
+    const selectProjectSel = document.getElementById('select-project');
+    const addProjectBtn = document.getElementById('add-project');
+    const newProjectNameInput = document.getElementById('project-name');
+    const projectsListContainer = document.getElementById('projects-list');
+    const projectStats = document.getElementById('project-stats');
+    const exportCsvBtn = document.getElementById('export-csv');
+    const importCsvBtn = document.getElementById('import-csv'); // убедимся, что он есть
+    const prevWeekBtn = document.getElementById('prev-week');
+    const nextWeekBtn = document.getElementById('next-week');
+    const currentWeekBtn = document.getElementById('current-week');
+    const openDatePickerBtn = document.getElementById('open-date-picker');
+    const daysHeaderContainer = document.querySelector('.days-header');
+    const weekGridContainer = document.querySelector('.week-grid');
+    const timeSlotsContainer = document.querySelector('.time-slots');
+    const eventModal = document.getElementById('event-modal');
+    const eventForm = document.getElementById('event-form');
+    const eventTitleInput = document.getElementById('event-title');
+    const eventDateInput = document.getElementById('event-date');
+    const eventStartInput = document.getElementById('event-start');
+    const eventEndInput = document.getElementById('event-end');
+    const eventDescriptionInput = document.getElementById('event-description');
+    const saveEventBtn = document.getElementById('save-event');
+    const deleteEventBtn = document.getElementById('delete-event');
+    const cancelEventBtn = document.getElementById('cancel-event');
+    
+    // const modalCloseBtns = document.querySelectorAll('.modal .close-modal'); // Переопределим ниже
+    // Центрированное всплывающее окно даты
+    const datePickerModal = document.getElementById('date-picker-modal');
+    const calendarGridDom = document.getElementById('calendar-grid');
+    const monthTitle = document.getElementById('month-title');
+    const prevMonthBtn = document.getElementById('prev-month');
+    const nextMonthBtn = document.getElementById('next-month');
+    const datePickerSelectBtn = document.getElementById('date-picker-select');
+    const datePickerTodayBtn = document.getElementById('date-picker-today');
+    const datePickerCancelBtn = document.getElementById('date-picker-cancel');
+    const weekdayHeader = document.getElementById('weekday-header');
+    const dayDetailModal = document.getElementById('day-detail-modal'); // Модалка деталей дня
+
+    // УНИВЕРСАЛЬНЫЕ ОБРАБОТЧИКИ ЗАКРЫТИЯ МОДАЛЬНЫХ ОКОН
+    document.querySelectorAll('.modal .close-modal, .date-picker-modal .close-modal, .day-detail-modal .close-modal').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const modalToClose = this.closest('.modal, .date-picker-modal, .day-detail-modal');
+            if (modalToClose) {
+                modalToClose.style.display = "none";
+                if (modalToClose.id === 'event-modal') {
+                    closeEventModal(); // Дополнительная логика для модалки событий
+                }
+                if (modalToClose.id === 'day-detail-modal' && dayDetailsManager) {
+                    dayDetailsManager.closeDayDetailModal(); // Используем метод класса
+                }
+            }
+        });
+    });
+
+    window.addEventListener('click', function(event) {
+        [eventModal, datePickerModal, dayDetailModal].forEach(modal => {
+            if (modal && event.target === modal) {
+                modal.style.display = "none";
+                if (modal.id === 'event-modal') closeEventModal();
+                if (modal.id === 'day-detail-modal' && dayDetailsManager) dayDetailsManager.closeDayDetailModal();
+            }
+        });
+    });
+    
+    // Остальные обработчики для date picker и т.д. из вашего кода main_page.js остаются...
+    // (код date picker modal handlers)
+    if (openDatePickerBtn) {
+        openDatePickerBtn.addEventListener('click', () => {
+           openDatePicker(); // Используем существующую функцию
+        });
+    }
+    // ... (datePickerCancelBtn, datePickerSelectBtn, datePickerTodayBtn listeners)
+
+
+    // ===== UTILS ===== (без изменений)
+    function formatDate(date) {
+        const d = new Date(date);
+        let month = '' + (d.getMonth() + 1);
+        let day = '' + d.getDate();
+        const year = d.getFullYear();
+        if (month.length < 2) month = '0' + month;
+        if (day.length < 2) day = '0' + day;
+        return [year, month, day].join('-');
+    }
+    function pad(x) { return x.toString().padStart(2, '0'); }
+    function getStartOfWeek(date) {
+        let d = new Date(date);
+        let day = d.getDay();
+        let diff = d.getDate() - day + (day === 0 ? -6 : 1);
+        d.setDate(diff);
+        d.setHours(0,0,0,0);
+        return d;
+    }
+    function getWeekDates(startDate) {
+        let week = [];
+        for(let i=0;i<7;i++) {
+            let d=new Date(startDate);
+            d.setDate(d.getDate()+i);
+            week.push(new Date(d));
+        }
+        return week;
+    }
+    function minutesSinceMidnight(dateObj) {
+        return dateObj.getHours()*60 + dateObj.getMinutes();
+    }
+    // function dtToLocalString(dt) { ... } // Если не используется, можно удалить
+    function localIso(dt) {
+        return dt.getFullYear() + '-' + pad(dt.getMonth()+1) + '-' + pad(dt.getDate()) + 'T' + pad(dt.getHours()) + ':' + pad(dt.getMinutes());
+    }
+    function localToDate(str) {
+        const [y,m,d] = [str.slice(0,4), str.slice(5,7), str.slice(8,10)];
+        const [hh,mm] = [str.slice(11,13), str.slice(14,16)];
+        return new Date(+y, +m-1, +d, +hh, +mm);
+    }
+    function getLocalDateString(dt) {
+        return `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`;
+    }
+
+    // ========== STOPWATCH ========== (без изменений, как в вашем коде)
+    // ... (весь код секции STOPWATCH) ...
+    function updateStopwatchUI() {
+        let ms = stopwatch.elapsed;
+        if(stopwatch.isRunning && stopwatch.startTimestamp)
+            ms += Date.now() - stopwatch.startTimestamp;
+        let sec = Math.floor(ms/1000), min = Math.floor(sec/60);
+        sec = sec%60;
+        let hours = Math.floor(min/60);
+        min = min%60;
+        
+        timerDisplay.textContent = `${hours > 0 ? pad(hours)+':' : ''}${pad(min)}:${pad(sec)}`;
+        timerDisplay.style.color="#fff"; 
+        startBtn.disabled = stopwatch.isRunning || !selectProjectSel.value;
+        pauseBtn.disabled = !stopwatch.isRunning;
+        stopBtn.disabled = (!stopwatch.isRunning && stopwatch.elapsed===0);
+    }
+    function persistStopwatchState() {
+        chrome.storage.local.set({stopwatch: {...stopwatch}});
+    }
+    function syncLiveCalendarEvent() {
+        if(!stopwatch.liveEventId) return;
+        const evIdx = calendarEvents.findIndex(ev=>ev.id === stopwatch.liveEventId);
+        if(evIdx === -1) { // Событие могло быть удалено
+            stopStopwatch(); // Останавливаем секундомер, если его события нет
+            return;
+        }
+        let ms = stopwatch.elapsed;
+        if (stopwatch.isRunning && stopwatch.startTimestamp)
+            ms += Date.now() - stopwatch.startTimestamp;
+        
+        let start = localToDate(calendarEvents[evIdx].startTime);
+        let durationMin = Math.ceil(ms/60000);
+        if (durationMin < 1 && ms > 0) durationMin = 1; // Если время есть, но меньше минуты, ставим 1 мин.
+        else if (ms === 0) durationMin = 0; // Если время 0, то и длительность 0. Отобразится как мин. 15 потом.
+
+        const end = new Date(start.getTime() + durationMin*60000);
+        calendarEvents[evIdx].endTime = localIso(end);
+        // calendarEvents[evIdx].date = getLocalDateString(start); // Дата не должна меняться при обновлении времени
+        chrome.storage.local.set({calendarEvents}); // Сохраняем только события
+        renderWeekGrid(currentWeekStart); // Обновляем только сетку
+    }
+    function handleLiveEventExpansion() {
+        if (!stopwatch.isRunning || !stopwatch.liveEventId) return;
+        syncLiveCalendarEvent();
+    }
+    function startStopwatch() {
+        if (stopwatch.isRunning || !selectProjectSel.value) return;
+        
+        stopwatch.isRunning = true;
+        stopwatch.startTimestamp = Date.now();
+        // stopwatch.elapsed = 0; // Сбрасываем только если это не "продолжить" (реализовать позже если нужно)
+        if (!stopwatch.elapsed) stopwatch.elapsed = 0; // Если не было паузы, начинаем с 0
+
+        stopwatch.projectId = selectProjectSel.value;
+        
+        const project = projects.find(p => p.id === stopwatch.projectId);
+        const now = new Date();
+        const liveEv = {
+            id: `live-${Date.now()}`,
+            title: `Работа: ${project ? project.name : "Без проекта"}`,
+            description: "Событие создано секундомером",
+            date: getLocalDateString(now),
+            startTime: localIso(now),
+            endTime: localIso(new Date(now.getTime() + 60000)), // Начнем с 1 мин для отображения
+            projectId: stopwatch.projectId,
+            isLive: true,
+            type: 'project' 
+        };
+        calendarEvents.push(liveEv);
+        stopwatch.liveEventId = liveEv.id;
+        chrome.storage.local.set({calendarEvents});
+        
+        if(stopwatchInterval) clearInterval(stopwatchInterval);
+        stopwatchInterval = setInterval(()=> {
+            updateStopwatchUI();
+            handleLiveEventExpansion();
+        }, 1000);
+        updateStopwatchUI();
+        persistStopwatchState();
+    }
+    function pauseStopwatch() {
+        if (!stopwatch.isRunning) return;
+        stopwatch.isRunning = false;
+        if (stopwatch.startTimestamp)
+            stopwatch.elapsed += Date.now() - stopwatch.startTimestamp;
+        stopwatch.startTimestamp = null;
+        clearInterval(stopwatchInterval);
+        updateStopwatchUI();
+        // Не вызываем finishLiveEvent при паузе, событие остается "живым"
+        syncLiveCalendarEvent(); // Финальная синхронизация времени события
+        persistStopwatchState();
+    }
+    function stopStopwatch() {
+        const wasRunning = stopwatch.isRunning;
+        stopwatch.isRunning = false;
+        if (wasRunning && stopwatch.startTimestamp) {
+             stopwatch.elapsed += Date.now() - stopwatch.startTimestamp;
+        }
+        stopwatch.startTimestamp = null;
+        clearInterval(stopwatchInterval);
+        
+        if (stopwatch.liveEventId) {
+            syncLiveCalendarEvent(); // Финальная синхронизация
+            finishLiveEvent(stopwatch.liveEventId); // Завершаем событие, убирая isLive
+        }
+        
+        stopwatch.elapsed = 0;
+        stopwatch.liveEventId = null; 
+        // stopwatch.projectId = null; // Решить, нужно ли сбрасывать проект
+        updateStopwatchUI();
+        persistStopwatchState();
+    }
+
+    function finishLiveEvent(eventIdToFinish) {
+        if (!eventIdToFinish) return;
+        const evIdx = calendarEvents.findIndex(ev => ev.id === eventIdToFinish);
+        if (evIdx > -1) {
+            calendarEvents[evIdx].isLive = false;
+            // Убедимся, что длительность корректна, если была нулевая
+            const start = localToDate(calendarEvents[evIdx].startTime);
+            const end = localToDate(calendarEvents[evIdx].endTime);
+            if (end <= start) {
+                 calendarEvents[evIdx].endTime = localIso(new Date(start.getTime() + 15*60000)); // Мин. 15 мин для отображения
+            }
+            chrome.storage.local.set({calendarEvents});
+            renderWeekGrid(currentWeekStart);
+        }
+    }
+    startBtn.addEventListener('click', startStopwatch);
+    pauseBtn.addEventListener('click', pauseStopwatch);
+    stopBtn.addEventListener('click', stopStopwatch);
+
+    function loadStopwatchState() {
+        chrome.storage.local.get('stopwatch', res => {
+            if (res.stopwatch) {
+                const oldProjectId = stopwatch.projectId;
+                stopwatch = {...stopwatch, ...res.stopwatch}; // Загружаем сохраненное состояние
+
+                if (stopwatch.liveEventId && !calendarEvents.find(ev => ev.id === stopwatch.liveEventId)) {
+                    // Если "живое" событие из хранилища не найдено, сбрасываем его
+                    stopwatch.liveEventId = null;
+                    stopwatch.isRunning = false; // Нечему работать
+                    // stopwatch.elapsed = 0; // Можно и время сбросить
+                }
+                 // Если проект был сменен пока таймер работал (редко, но возможно при ручном изменении storage)
+                if (stopwatch.isRunning && oldProjectId && stopwatch.projectId && oldProjectId !== stopwatch.projectId) {
+                   // stopStopwatch(); // Безопаснее остановить, или попытаться продолжить с новым проектом?
+                }
+            }
+            if (stopwatch.isRunning && stopwatch.projectId && stopwatch.liveEventId) {
+                // Восстанавливаем выбранный проект, если он соответствует секундомеру
+                if (selectProjectSel.value !== stopwatch.projectId ) {
+                    selectProjectSel.value = stopwatch.projectId;
+                    if (!selectProjectSel.value) { // Если такого проекта нет, останавливаем
+                        stopStopwatch();
+                        return;
+                    }
+                }
+                if (stopwatchInterval) clearInterval(stopwatchInterval);
+                stopwatchInterval = setInterval(()=> {
+                    updateStopwatchUI();
+                    handleLiveEventExpansion();
+                }, 1000);
+            } else {
+                if (stopwatchInterval) clearInterval(stopwatchInterval);
+            }
+            updateStopwatchUI();
+        });
+    }
+    
+    // ==== ПРОЕКТЫ ==== (без изменений, как в вашем коде)
+    // ... (весь код секции ПРОЕКТЫ) ...
+    function renderProjectSelectAndList() {
+        if (selectProjectSel) {
+            const currentSelectedVal = selectProjectSel.value;
+            selectProjectSel.innerHTML = `<option value="">-- Проект --</option>`;
+            projects.forEach(prj => {
+                const opt = document.createElement('option');
+                opt.value = prj.id;
+                opt.textContent = prj.name;
+                selectProjectSel.appendChild(opt);
+            });
+            // Восстанавливаем выбор, если он был и проект существует
+            if (projects.find(p => p.id === currentSelectedVal)) {
+                selectProjectSel.value = currentSelectedVal;
+            } else if (projects.find(p => p.id === selectedProjectId)) {
+                selectProjectSel.value = selectedProjectId;
+            } else {
+                selectProjectSel.value = ""; // Сбрасываем, если выбранного проекта нет
+            }
+        }
+        if (projectsListContainer) {
+            projectsListContainer.innerHTML = '';
+            projects.forEach(project => {
+                const div = document.createElement('div');
+                div.className = 'project-item';
+                div.innerHTML = `
+                    <span class="project-name-display">${project.name}</span>
+                    <button class="delete-project delete-project-btn" data-id="${project.id}" title="Удалить проект">🗑️</button>
+                `;
+                projectsListContainer.appendChild(div);
+            });
+        }
+        updateStopwatchUI();
+    }
+
+    if (selectProjectSel) {
+        selectProjectSel.addEventListener('change', e => {
+            const newProjectId = selectProjectSel.value;
+            if (stopwatch.isRunning && stopwatch.projectId !== newProjectId) {
+                
+                if (confirm("Секундомер активен для другого проекта. Остановить текущий и начать для нового, или отменить смену проекта? (ОК для остановки и смены, Отмена для сохранения текущей работы)")) {
+                    stopStopwatch();
+                    selectedProjectId = newProjectId;
+                    chrome.storage.local.set({selectedProjectId});
+                     // Опционально: сразу запустить для нового проекта, если были данные о времени
+                    // if (stopwatch.elapsed > 0) startStopwatch(); // Но это может быть нежелательно
+                } else {
+                    selectProjectSel.value = stopwatch.projectId; // Возвращаем старый проект
+                    return;
+                }
+            } else {
+                selectedProjectId = newProjectId;
+                chrome.storage.local.set({selectedProjectId});
+            }
+            renderProjectStats(selectedProjectId);
+            updateStopwatchUI();
+        });
+    }
+    if (projectsListContainer) {
+        projectsListContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('delete-project-btn')) {
+                const id = e.target.getAttribute("data-id");
+                const projectToDelete = projects.find(p => p.id === id);
+                if (projectToDelete && confirm(`Вы уверены, что хотите удалить проект "${projectToDelete.name}"? Связанные события останутся, но потеряют привязку к проекту.`)) {
+                    projects = projects.filter(p => p.id !== id);
+                    calendarEvents.forEach(ev => {
+                        if (ev.projectId === id) {
+                            ev.projectId = null; 
+                        }
+                    });
+
+                    if (selectedProjectId === id) {
+                        selectedProjectId = null;
+                        selectProjectSel.value = '';
+                    }
+                    if (stopwatch.projectId === id) {
+                        stopStopwatch();
+                    }
+                    chrome.storage.local.set({projects, calendarEvents, selectedProjectId});
+                    renderProjectSelectAndList();
+                    renderProjectStats(selectedProjectId); // Обновить статистику
+                }
+            }
+        });
+    }
+    if (addProjectBtn && newProjectNameInput) {
+        addProjectBtn.addEventListener('click', () => {
+            const val = newProjectNameInput.value.trim();
+            if (!val) { 
+                alert("Имя проекта не может быть пустым.");
+                return;
+            }
+            if (projects.find(p => p.name.toLowerCase() === val.toLowerCase())) {
+                alert("Проект с таким именем уже существует.");
+                return;
+            }
+            const id = `prj-${Date.now()}`;
+            projects.push({id, name: val});
+            chrome.storage.local.set({projects});
+            newProjectNameInput.value = '';
+            renderProjectSelectAndList();
+            selectProjectSel.value = id; // Автовыбор нового проекта
+            selectedProjectId = id;
+            chrome.storage.local.set({selectedProjectId: id});
+            renderProjectStats(id);
+        });
+    }
+    function renderProjectStats(projId) {
+        if (!projectStats) return;
+        projectStats.innerHTML = '';
+        if (!projId) {
+             projectStats.textContent = 'Проект не выбран.';
+            return;
+        }
+        const project = projects.find(p => p.id === projId);
+        if (!project) {
+            projectStats.textContent = 'Проект не найден.';
+            return;
+        }
+        let totalMin = 0;
+        calendarEvents.filter(ev => ev.projectId === projId && ev.type === 'project').forEach(ev => { // Считаем только события типа 'project'
+            let d = Math.max(0, Math.round((localToDate(ev.endTime) - localToDate(ev.startTime)) / 60000));
+            totalMin += d;
+        });
+        const hours = Math.floor(totalMin / 60);
+        const minutes = totalMin % 60;
+        projectStats.innerHTML = `<b>${project.name}</b>: ${hours > 0 ? `${hours} ч ` : ''}${minutes} мин.`;
+    }
+
+    // ==== КАЛЕНДАРЬ ====
+    function renderTimeSlots() {
+        // ... (без изменений)
+        if (!timeSlotsContainer) return;
+        timeSlotsContainer.innerHTML = '';
+        for (let h = 0; h < 24; h++) {
+            const div = document.createElement('div');
+            div.className = 'time-slot';
+            div.textContent = pad(h) + ':00';
+            timeSlotsContainer.appendChild(div);
+        }
+    }
+
+    function renderDaysHeader(weekStart) {
+        if (!daysHeaderContainer) return;
+        daysHeaderContainer.innerHTML = '';
+        const weekDates = getWeekDates(weekStart);
+        
+        weekDates.forEach(date => {
+            const dateStr = formatDate(date);
+            const dayData = allDayDetailsData[dateStr]; // Используем кешированные данные
+            const totalCalories = dayData && dayData.calories ? 
+                (dayData.calories.morning + dayData.calories.afternoon + dayData.calories.evening) : 0;
+            const commentExists = dayData && dayData.comment && dayData.comment.trim() !== '';
+
+            const dayHeader = document.createElement('div');
+            dayHeader.className = 'day-header';
+            dayHeader.setAttribute('data-date', dateStr);
+            if (formatDate(date) === formatDate(new Date())) { // Сравнение строк дат
+                dayHeader.classList.add('today-header');
+            }
+            dayHeader.innerHTML = `
+                <div class="day-name">${date.toLocaleDateString('ru-RU', { weekday: 'short' })}</div>
+                <div class="day-date">${pad(date.getDate())}.${pad(date.getMonth() + 1)}</div>
+                <div class="day-header-icons">
+                    <span class="calories-icon" style="display: ${totalCalories > 0 ? 'inline' : 'none'}">
+                        🔥 ${totalCalories > 0 ? totalCalories : ''}
+                    </span>
+                    <span class="comment-icon" style="display: ${commentExists ? 'inline' : 'none'}">📝</span>
+                </div>
+            `;
+            // Обработчик клика для открытия модалки деталей дня
+            dayHeader.addEventListener('click', () => {
+                if (dayDetailsManager) {
+                    dayDetailsManager.openDayDetailModal(dateStr);
+                }
+            });
+            daysHeaderContainer.appendChild(dayHeader);
+        });
+    }
+    function renderWeekGrid(weekStart) {
+        if (!weekGridContainer) return;
+        weekGridContainer.innerHTML = '';
+        const weekDates = getWeekDates(weekStart);
+    
+        for (let col = 0; col < 7; col++) {
+            const dayCol = document.createElement('div');
+            dayCol.className = 'day-column';
+            const dateStr = formatDate(weekDates[col]);
+            dayCol.dataset.date = dateStr;
+            if (dateStr === formatDate(new Date())) {
+                dayCol.classList.add('current-day');
+            }
+    
+            for (let h = 0; h < 24; h++) {
+                const hourCell = document.createElement('div');
+                hourCell.className = 'hour-cell';
+                hourCell.dataset.hour = h;
+                hourCell.dataset.date = dateStr;
+    
+                // =======================
+                // Только для РАЗМЕТКИ!
+                for (let q = 0; q < 4; q++) {
+                    const quarterCell = document.createElement('div');
+                    quarterCell.className = 'quarter-cell';
+                    quarterCell.dataset.quarter = q;
+                    hourCell.appendChild(quarterCell);
+                }
+                // =======================
+    
+                // Добавляем обработчик клика для ячейки часа
+                hourCell.addEventListener('click', function(e) {
+                    // Не создаём новое событие, если клик по событию
+                    if (e.target.closest('.event')) return;
+    
+                    const rect = this.getBoundingClientRect();
+                    const y = e.clientY - rect.top;
+                    const quarter = Math.floor(y / (this.offsetHeight / 4));
+                    const minute = quarter * 15;
+                    createEventAt(dateStr, h, minute);
+                });
+    
+                dayCol.appendChild(hourCell);
+            }
+            weekGridContainer.appendChild(dayCol);
+        }
+    
+        renderEvents();
+        updateCurrentTimeIndicator && updateCurrentTimeIndicator();
+    }
+    
+    
+
+    function renderEvents() {
+        // Очищаем только старые события из ячеек
+        weekGridContainer.querySelectorAll('.event').forEach(el => el.remove());
+
+        const weekStartStr = formatDate(currentWeekStart);
+        const weekEnd = new Date(currentWeekStart);
+        weekEnd.setDate(currentWeekStart.getDate() + 6);
+        const weekEndStr = formatDate(weekEnd);
+
+        calendarEvents.filter(ev => ev.date >= weekStartStr && ev.date <= weekEndStr)
+        .sort((a,b) => localToDate(a.startTime) - localToDate(b.startTime)) // Сортируем для правильного Z-index если перекрываются
+        .forEach(ev => {
+            const start = localToDate(ev.startTime);
+            const end = localToDate(ev.endTime);
+            const col = Array.from(weekGridContainer.children).find(dc => dc.dataset.date === ev.date);
+            if (!col) return;
+
+            let sMin = minutesSinceMidnight(start);
+            let eMin = minutesSinceMidnight(end);
+            
+            if (eMin <= sMin) eMin = sMin + 15; // Минимальная длительность 15 минут
+            let duration = eMin - sMin;
+            if (duration <= 0) duration = 15;
+
+            let h = start.getHours();
+            // Ищем ячейку часа в текущей колонке дня
+            let hourCell = col.querySelector(`.hour-cell[data-hour="${h}"]`);
+            if (!hourCell) return;
+
+            const eventEl = document.createElement('div');
+            eventEl.className = 'event';
+            eventEl.classList.add(ev.type === 'project' ? 'pomodoro-event' : 'regular-event'); // Используем тип события
+            if (ev.isLive) {
+                eventEl.classList.add('live-event-indicator'); // Для визуального отличия "живых" событий
+            }
+            
+            const hourCellHeight = hourCell.offsetHeight; // Обычно 60px из CSS
+            const topOffset = (start.getMinutes() / 60) * hourCellHeight;
+            const eventHeight = (duration / 60) * hourCellHeight;
+            
+            eventEl.style.top = `${topOffset}px`;
+            eventEl.style.height = `${Math.max(eventHeight, 15)}px`; // Минимальная высота, чтобы было видно
+            
+            eventEl.title = `${ev.title}\n${pad(start.getHours())}:${pad(start.getMinutes())} - ${pad(end.getHours())}:${pad(end.getMinutes())}${ev.description ? '\n' + ev.description : ''}`;
+            eventEl.innerHTML = `<div class="event-title">${ev.title||'Без названия'}</div>
+                                 <div class="event-time">${pad(start.getHours())}:${pad(start.getMinutes())} - ${pad(end.getHours())}:${pad(end.getMinutes())}</div>`;
+            if (ev.description) {
+                 eventEl.innerHTML += `<div class="event-description-preview">${ev.description.substring(0,30)}${ev.description.length > 30 ? '...' : ''}</div>`;
+            }
+
+            eventEl.addEventListener('click', function(ee) {
+                console.log("Клик по событию:", ev.id);
+                // Останавливаем всплытие и дальнейшую обработку
+                ee.stopPropagation();
+                ee.preventDefault(); 
+                
+                // Небольшая задержка, чтобы быть уверенным, что другие обработчики не сработают
+                setTimeout(() => {
+                    openEditEventModal(ev.id);
+                }, 10);
+                
+                // Дополнительно, добавляем возврат false для остановки обработки события
+                return false;
+            });
+            hourCell.appendChild(eventEl);
+        });
+    }
+
+    function createEventAt(date, hour, minute) {
+        const projectId = selectedProjectId || (projects.length > 0 ? projects[0].id : null); // Проект по умолчанию
+        const start = new Date(date + "T00:00:00"); // Используем "T00:00:00" чтобы избежать проблем с поясами при создании
+        start.setHours(hour, minute, 0, 0);
+        
+        // Длительность по умолчанию 1 час, или до конца часа
+        let end = new Date(start.getTime() + 60 * 60000); // +1 час
+        if (end.getDate() !== start.getDate()) { // Если переходит на следующий день
+             end = new Date(date + "T23:59:00"); // Ограничиваем текущим днем
+        }
+    
+        console.log(`createEventAt: date=${date}, hour=${hour}, minute=${minute}`);
+        console.log(`createEventAt: start=${start.toISOString()}, end=${end.toISOString()}`);
+    
+        const newEvent = {
+            id: `evt-${Date.now()}`,
+            title: "Новое событие",
+            description: "",
+            date,
+            startTime: localIso(start),
+            endTime: localIso(end),
+            projectId,
+            type: 'event' // Тип по умолчанию 'event'
+        };
+        console.log("Новое событие:", newEvent);
+        calendarEvents.push(newEvent);
+        chrome.storage.local.set({calendarEvents});
+        openEditEventModal(newEvent.id);
+    }
+    
+
+    function openEditEventModal(eventId) {
+        editingEventId = eventId;
+        const ev = calendarEvents.find(e => e.id === eventId);
+        if (!ev) return;
+        
+        eventModal.querySelector('#modal-header').textContent = ev.isLive ? "Редактирование (Live)" : "Редактировать событие";
+        eventTitleInput.value = ev.title;
+        eventDateInput.value = ev.date;
+        eventStartInput.value = ev.startTime.slice(11,16);
+        eventEndInput.value = ev.endTime.slice(11,16);
+        eventDescriptionInput.value = ev.description || '';
+        
+        // Заполнение селекта проекта в модалке события (если он есть в HTML)
+        const eventProjectSelect = eventModal.querySelector('#event-project-select'); 
+        if (eventProjectSelect) {
+            eventProjectSelect.innerHTML = '<option value="">-- Без проекта --</option>';
+            projects.forEach(p => {
+                const option = document.createElement('option');
+                option.value = p.id;
+                option.textContent = p.name;
+                if (p.id === ev.projectId) option.selected = true;
+                eventProjectSelect.appendChild(option);
+            });
+        }
+
+        deleteEventBtn.style.display = ev.isLive ? 'none' : 'inline-block'; // Нельзя удалять live-событие из этой формы
+        eventModal.style.display = 'block';
+    }
+    function closeEventModal() {
+        eventModal.style.display = 'none';
+        editingEventId = null;
+        if (eventForm) eventForm.reset(); // Сбрасываем форму
+    }
+    if (eventForm) {
+        eventForm.onsubmit = (e) => {
+            e.preventDefault();
+            const evIndex = calendarEvents.findIndex(e => e.id === editingEventId);
+            if (evIndex === -1) return;
+
+            const ev = calendarEvents[evIndex];
+
+            if (ev.isLive && (eventDateInput.value !== ev.date || eventStartInput.value !== ev.startTime.slice(11,16))) {
+                alert("Нельзя изменять дату или время начала активного события секундомера. Остановите секундомер для изменений.");
+                return;
+            }
+
+            ev.title = eventTitleInput.value.trim() || 'Без названия';
+            ev.description = eventDescriptionInput.value.trim();
+            
+            const newDate = eventDateInput.value;
+            let [sh, sm] = eventStartInput.value.split(':').map(Number);
+            let [eh, em] = eventEndInput.value.split(':').map(Number);
+
+            let dtStart = new Date(newDate + "T00:00:00"); // Для корректного создания даты
+            dtStart.setHours(sh, sm, 0, 0);
+            
+            let dtEnd = new Date(newDate + "T00:00:00");
+            dtEnd.setHours(eh, em, 0, 0);
+
+            if (dtEnd <= dtStart) {
+                dtEnd = new Date(dtStart.getTime() + 15*60000); // Мин. длительность 15 мин
+                // alert("Время окончания было скорректировано (минимальная длительность 15 минут).");
+            }
+            
+            ev.date = newDate;
+            ev.startTime = localIso(dtStart);
+            ev.endTime = localIso(dtEnd);
+
+            const eventProjectSelect = eventModal.querySelector('#event-project-select');
+            if (eventProjectSelect) ev.projectId = eventProjectSelect.value || null; // '' или null для "без проекта"
+
+            chrome.storage.local.set({calendarEvents});
+            closeEventModal();
+            renderWeekGrid(currentWeekStart);
+            renderProjectStats(selectedProjectId); 
+        };
+    }
+    if(cancelEventBtn) cancelEventBtn.addEventListener('click', (e) => { e.preventDefault(); closeEventModal(); });
+    if(deleteEventBtn) {
+        deleteEventBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (!editingEventId) return;
+            const evToDelete = calendarEvents.find(ev => ev.id === editingEventId);
+            if (evToDelete && evToDelete.isLive) {
+                 alert("Нельзя удалить активное событие секундомера. Остановите секундомер сначала.");
+                return;
+            }
+
+            if (confirm('Вы уверены, что хотите удалить это событие?')) {
+                calendarEvents = calendarEvents.filter(ev => ev.id !== editingEventId);
+                chrome.storage.local.set({calendarEvents});
+                closeEventModal();
+                renderWeekGrid(currentWeekStart);
+                renderProjectStats(selectedProjectId);
+            }
+        });
+    }
+
+    // ==== Календарь — выбор даты (Date Picker) ==== (без изменений, как в вашем коде)
+    let selectedPickerYear = currentDate.getFullYear();
+    let selectedPickerMonth = currentDate.getMonth();
+
+    function openDatePicker() { // Эта функция уже была, просто вызываем
+        selectedPickerYear = currentDate.getFullYear(); // Обновляем перед открытием
+        selectedPickerMonth = currentDate.getMonth();
+        datePickerModal.style.display = 'block';
+        // datePickerModal.style.position = 'fixed'; // Это лучше в CSS
+        // ...
+        renderDatePickerCalendar(selectedPickerYear, selectedPickerMonth);
+    }
+    // openDatePickerBtn.addEventListener('click', openDatePicker); // Уже назначено выше
+    if(datePickerCancelBtn) datePickerCancelBtn.addEventListener('click', ()=>datePickerModal.style.display='none');
+    if(datePickerTodayBtn) {
+        datePickerTodayBtn.addEventListener('click', ()=>{
+            const today = new Date();
+            selectedPickerYear = today.getFullYear();
+            selectedPickerMonth = today.getMonth();
+            renderDatePickerCalendar(selectedPickerYear, selectedPickerMonth);
+            // И сразу выбрать и закрыть
+            currentDate = new Date(formatDate(today) + "T00:00:00"); // Обновляем currentDate
+            currentWeekStart = getStartOfWeek(currentDate);
+            renderDaysHeader(currentWeekStart);
+            renderWeekGrid(currentWeekStart);
+            datePickerModal.style.display='none';
+        });
+    }
+    if(datePickerSelectBtn) {
+        datePickerSelectBtn.addEventListener('click', ()=>{
+            const sel = calendarGridDom.querySelector('.calendar-day.selected');
+            if(sel) {
+                const datestr = sel.dataset.date;
+                currentDate = new Date(datestr + "T00:00:00"); // Обновляем currentDate
+                currentWeekStart = getStartOfWeek(currentDate);
+                renderDaysHeader(currentWeekStart);
+                renderWeekGrid(currentWeekStart);
+                datePickerModal.style.display='none';
+            } else {
+                alert("Дата не выбрана.");
+            }
+        });
+    }
+    if(prevMonthBtn) {
+        prevMonthBtn.addEventListener('click', ()=>{
+            selectedPickerMonth--;
+            if(selectedPickerMonth<0) {selectedPickerMonth=11;selectedPickerYear--;}
+            renderDatePickerCalendar(selectedPickerYear, selectedPickerMonth);
+        });
+    }
+    if(nextMonthBtn) {
+        nextMonthBtn.addEventListener('click', ()=>{
+            selectedPickerMonth++;
+            if(selectedPickerMonth>11) {selectedPickerMonth=0;selectedPickerYear++;}
+            renderDatePickerCalendar(selectedPickerYear, selectedPickerMonth);
+        });
+    }
+
+    function renderDatePickerCalendar(year, month) {
+        if (!monthTitle || !calendarGridDom || !weekdayHeader) return; // Защита
+        monthTitle.textContent = `${new Date(year, month).toLocaleString('ru-RU', { month: 'long' })} ${year}`;
+        calendarGridDom.innerHTML = '';
+        if (weekdayHeader.children.length === 0) { // Рендерим заголовки дней недели один раз
+             ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(d=>weekdayHeader.innerHTML += `<span>${d}</span>`);
+        }
+        
+        const firstOfMonth = new Date(year, month, 1);
+        const lastOfMonth = new Date(year, month + 1, 0);
+        
+        let dayElements = [];
+        // Пустые ячейки для дней предыдущего месяца
+        let firstDayOfWeek = (firstOfMonth.getDay() + 6) % 7; // 0 (Пн) до 6 (Вс)
+        for (let i = 0; i < firstDayOfWeek; i++) {
+            dayElements.push(`<div class="calendar-day other-month"></div>`);
+        }
+
+        // Дни текущего месяца
+        for (let day = 1; day <= lastOfMonth.getDate(); day++) {
+            let dt = new Date(year, month, day);
+            let dateStr = formatDate(dt);
+            let classes = 'calendar-day';
+            if (dateStr === formatDate(currentDate)) classes += ' selected'; // Подсвечиваем текущую выбранную дату календаря
+            if (dateStr === formatDate(new Date())) classes += ' today-picker'; // Подсвечиваем сегодняшний день в пикере
+            dayElements.push(`<div class="${classes}" data-date="${dateStr}">${day}</div>`);
+        }
+        calendarGridDom.innerHTML = dayElements.join('');
+
+        // Обработчики для дней в пикере
+        calendarGridDom.querySelectorAll('.calendar-day:not(.other-month)').forEach(dayDiv => {
+            dayDiv.addEventListener('click', function() {
+                calendarGridDom.querySelectorAll('.calendar-day.selected').forEach(el => el.classList.remove('selected'));
+                this.classList.add('selected');
+                // Не меняем currentDate здесь, это произойдет при нажатии "Выбрать"
+            });
+        });
+    }
+
+
+    // ==== Неделя влево/вправо ==== (без изменений)
+    prevWeekBtn.addEventListener('click', ()=>{
+        currentDate.setDate(currentDate.getDate()-7); // Обновляем currentDate для корректного date picker
+        currentWeekStart.setDate(currentWeekStart.getDate()-7);
+        renderDaysHeader(currentWeekStart); renderWeekGrid(currentWeekStart);
+    });
+    nextWeekBtn.addEventListener('click', ()=>{
+        currentDate.setDate(currentDate.getDate()+7);
+        currentWeekStart.setDate(currentWeekStart.getDate()+7);
+        renderDaysHeader(currentWeekStart); renderWeekGrid(currentWeekStart);
+    });
+    currentWeekBtn.addEventListener('click', ()=>{
+        currentDate = new Date();
+        currentWeekStart = getStartOfWeek(currentDate);
+        renderDaysHeader(currentWeekStart); renderWeekGrid(currentWeekStart);
+    });
+
+    // ==== Экспорт / Импорт ====
+    if (exportCsvBtn) {
+        exportCsvBtn.addEventListener('click', exportToCSV); // async function
+    }    if (importCsvBtn) {
+        importCsvBtn.addEventListener('click', () => {
+            let fileInp = document.createElement('input');
+            fileInp.type = 'file';
+            fileInp.accept = '.csv'; // Фокусируемся на CSV
+            fileInp.style.display = 'none';
+
+            fileInp.addEventListener('change', function () {
+                if (!fileInp.files || fileInp.files.length === 0) {
+                    if (fileInp.parentNode) fileInp.remove();
+                    return;
+                }
+                const selectedFile = fileInp.files[0];
+                let reader = new FileReader();
+
+                reader.onload = function (e) {
+                    let txt = e.target.result;
+                    console.log(`Import (Per-Day): Raw text from file (${selectedFile.name}, size: ${txt.length}):\n` + txt.substring(0, 500) + (txt.length > 500 ? "..." : ""));
+                    
+                    const lines = txt.split(/\r\n|\n|\r/); // Более надежное разделение строк
+                    if (lines.length < 1) { // Нужен хотя бы заголовок
+                        alert("Файл пуст или не содержит строк.");
+                        if (fileInp.parentNode) fileInp.remove();
+                        return;
+                    }
+
+                    let importedCalendarEvents = [];
+                    let importedAllDayDetails = {};
+                    // Метаданные, если они будут найдены в конце (для совместимости со старым форматом или если мы их вернем)
+                    let importedProjects = [];
+                    let importedSelectedProjectId = null;
+                    let importedStopwatch = { isRunning: false, elapsed: 0, startTimestamp: null, liveEventId: null, projectId: null };
+
+                    let parseError = null;
+                    let headerMap = {};
+                    let headerProcessed = false;
+                    let dataLinesProcessed = 0;
+
+                    for (let i = 0; i < lines.length; i++) {
+                        let line = lines[i].trim();
+                        if (!line) continue;
+
+                        // Попытка найти и обработать JSON-блок с метаданными (если он есть в самом конце)
+                        // Этот блок будет обрабатываться, только если он действительно является последней значащей строкой
+                        // и содержит ожидаемые ключи.
+                        if (i === lines.length - 1 || (i === lines.length - 2 && !lines[lines.length - 1].trim())) { // Последняя или предпоследняя (если последняя пустая)
+                            if (line.startsWith('{') && line.endsWith('}')) {
+                                try {
+                                    const metadata = JSON.parse(line);
+                                    let processedAsMetadata = false;
+                                    if (metadata.projects !== undefined) { // Проверяем наличие ключа, даже если он пустой массив
+                                        importedProjects = metadata.projects;
+                                        processedAsMetadata = true;
+                                    }
+                                    if (metadata.selectedProjectId !== undefined) {
+                                        importedSelectedProjectId = metadata.selectedProjectId;
+                                        processedAsMetadata = true;
+                                    }
+                                    if (metadata.stopwatch !== undefined) {
+                                        importedStopwatch = metadata.stopwatch;
+                                        processedAsMetadata = true;
+                                    }
+                                    if (processedAsMetadata) {
+                                        console.log("Import (Per-Day): Processed trailing metadata JSON block:", metadata);
+                                        break; // Если это метаданные, выходим из цикла, больше данных CSV не ожидаем
+                                    }
+                                } catch (err) {
+                                     // Не наш JSON, или не метаданные. Это может быть строка данных с JSON событий дня.
+                                }
+                            }
+                        }
+
+                        // Обработка заголовка CSV. Должен быть первой непустой строкой.
+                        if (!headerProcessed) {
+                            // Более устойчивый парсер для заголовка (и данных)
+                            const headerFields = parseCsvLine(line);
+                            if (headerFields.length === 0 || (headerFields.length === 1 && !headerFields[0])) {
+                                console.warn("Import (Per-Day): Skipping empty or malformed header line:", line);
+                                continue; // Пропускаем, если строка заголовка пустая или невалидная
+                            }
+
+                            headerFields.forEach((h, idx) => headerMap[h.trim()] = idx); // Убираем лишние пробелы из имен заголовков
+                            
+                            const expectedHeaderEvents = "События Дня (JSON)"; // Используем актуальное имя колонки
+                            if (headerMap['Дата'] === undefined || headerMap[expectedHeaderEvents] === undefined) {
+                                parseError = `Неверный формат заголовка CSV. Отсутствуют обязательные колонки 'Дата' или '${expectedHeaderEvents}'.\nНайденные заголовки: ${Object.keys(headerMap).join(', ')}`;
+                                break;
+                            }
+                            headerProcessed = true;
+                            console.log("Import (Per-Day): Processed CSV Header:", headerMap);
+                            continue;
+                        }
+
+                        // Обработка строк данных CSV
+                        const fields = parseCsvLine(line);
+
+                        if (fields.length < Object.keys(headerMap).length) {
+                            console.warn("Import (Per-Day): Skipping malformed CSV line (not enough fields):", line, "Expected:", Object.keys(headerMap).length, "Got:", fields.length);
+                            continue;
+                        }
+                        
+                        const dateStr = fields[headerMap['Дата']];
+                        if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+                            console.warn("Import (Per-Day): Skipping line with invalid date format:", dateStr, "Line:", line);
+                            continue;
+                        }
+                        dataLinesProcessed++;
+
+                        // Извлекаем данные калорий и комментариев (используем ?? для пустых строк)
+                        importedAllDayDetails[dateStr] = {
+                            calories: {
+                                morning: parseInt(fields[headerMap['Калории утром']]) || 0,
+                                afternoon: parseInt(fields[headerMap['Калории днем']]) || 0,
+                                evening: parseInt(fields[headerMap['Калории вечером']]) || 0,
+                            },
+                            comment: fields[headerMap['Комментарий дня']] ?? '' // Пустая строка если undefined
+                        };
+
+                        const eventsJsonStr = fields[headerMap['События Дня (JSON)']];
+                        if (eventsJsonStr) {
+                            try {
+                                const eventsForDay = JSON.parse(eventsJsonStr);
+                                if (Array.isArray(eventsForDay)) {
+                                    eventsForDay.forEach(eventData => {
+                                        const newEvent = {
+                                            ...eventData,
+                                            id: `evt-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`, // Генерация нового ID
+                                            date: dateStr // Привязка к дате из строки CSV
+                                        };
+                                        importedCalendarEvents.push(newEvent);
+                                    });
+                                } else {
+                                    console.warn(`Import (Per-Day): Events JSON for date ${dateStr} is not an array:`, eventsForDay);
+                                }
+                            } catch (err) {
+                                console.error(`Import (Per-Day): Failed to parse events JSON for date ${dateStr}: "${eventsJsonStr}"`, err);
+                                parseError = `Ошибка парсинга JSON событий для даты ${dateStr}. Проверьте эту строку в CSV файле.`;
+                                // Решаем, прерывать ли импорт при ошибке в одной строке или продолжать
+                                // break; // Раскомментировать, если хотим прервать при первой ошибке в JSON событий
+                            }
+                        }
+                    } // конец for loop по строкам
+
+                    if (parseError) {
+                        alert(parseError);
+                        console.error("Import Error (Per-Day):", parseError);
+                        if (fileInp.parentNode) fileInp.remove();
+                        return;
+                    }
+
+                    if (!headerProcessed) {
+                        alert("Не удалось обработать заголовок CSV файла. Убедитесь, что файл не пуст и содержит корректные заголовки.");
+                        if (fileInp.parentNode) fileInp.remove();
+                        return;
+                    }
+                    
+                    // Если есть только заголовок, но нет строк данных и метаданных
+                    if (dataLinesProcessed === 0 && importedCalendarEvents.length === 0 && Object.keys(importedAllDayDetails).length === 0 && importedProjects.length === 0) {
+                         alert("Файл не содержит данных для импорта (только заголовок или пустые строки).");
+                         if (fileInp.parentNode) fileInp.remove();
+                         return;
+                    }
+
+                    console.log("Import (Per-Day): Aggregated calendarEvents:", importedCalendarEvents.length, "items");
+                    console.log("Import (Per-Day): Aggregated allDayDetails:", Object.keys(importedAllDayDetails).length, "days");
+                    console.log("Import (Per-Day): Aggregated projects (from metadata if any):", importedProjects.length, "items");
+
+                    const dataToStore = {
+                        projects: importedProjects, // Будут пустыми, если метаданных не было
+                        calendarEvents: importedCalendarEvents,
+                        selectedProjectId: importedSelectedProjectId, // Будет null, если метаданных не было
+                        stopwatch: importedStopwatch, // Будет по умолчанию, если метаданных не было
+                        [ALL_DAY_DETAILS_KEY]: importedAllDayDetails
+                    };
+
+                    console.log("Import (Per-Day): Data prepared for storage:", JSON.stringify(dataToStore, null, 2).substring(0,1000) + "...");
+
+                    chrome.storage.local.remove(
+                        ['calendarEvents', 'projects', 'selectedProjectId', 'stopwatch', ALL_DAY_DETAILS_KEY], 
+                        () => {
+                            console.log("Import (Per-Day): Old calendar data removed from storage.");
+                            chrome.storage.local.set(dataToStore, () => {
+                                if (chrome.runtime.lastError) {
+                                    console.error("Import (Per-Day): Error setting data to storage:", chrome.runtime.lastError);
+                                    alert("Произошла ошибка при сохранении импортированных данных: " + chrome.runtime.lastError.message);
+                                } else {
+                                    console.log("Import (Per-Day): New data successfully set to storage.");
+                                    alert("Данные успешно импортированы! Страница будет перезагружена.");
+                                    window.location.reload();
+                                }
+                            });
+                        }
+                    );
+
+                }; // конец reader.onload
+
+                reader.onerror = (err) => {
+                    alert("Ошибка чтения файла: " + err);
+                    console.error("FileReader error:", err);
+                    if (fileInp.parentNode) fileInp.remove();
+                };
+                reader.readAsText(selectedFile, "UTF-8"); // Явно указываем кодировку
+                
+                if (fileInp.parentNode) { // Удаляем input после начала чтения
+                    try { fileInp.remove(); } catch(e) { /*ignore*/ }
+                }
+            }); // конец fileInp.addEventListener
+            document.body.appendChild(fileInp);
+            fileInp.click();
+        });
+    }
+
+    // Простой CSV парсер строки. Учитывает кавычки.
+    function parseCsvLine(line) {
+        const fields = [];
+        let currentField = '';
+        let inQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            if (char === '"') {
+                // Если это экранированная кавычка (""), добавляем одну кавычку и идем дальше
+                if (inQuotes && i + 1 < line.length && line[i+1] === '"') {
+                    currentField += '"';
+                    i++; // Пропускаем следующую кавычку
+                } else {
+                    inQuotes = !inQuotes;
+                }
+            } else if (char === ';' && !inQuotes) {
+                fields.push(currentField);
+                currentField = '';
+            } else {
+                currentField += char;
+            }
+        }
+        fields.push(currentField); // Добавляем последнее поле
+        return fields;
+    }
+
+    async function exportToCSV() {
+        console.log("Export process started (Per-Day JSON, NO METADATA BLOCK).");
+        const result = await new Promise(resolve =>
+            chrome.storage.local.get([
+                'calendarEvents', /*'projects', 'selectedProjectId', 'stopwatch', */ ALL_DAY_DETAILS_KEY // Убрали запрос проектов и метаданных если они не нужны ВООБЩЕ в файле
+            ], data => {
+                console.log("Data fetched from storage for export:", data);
+                resolve(data);
+            })
+        );
+
+        const localCalendarEvents = result.calendarEvents || [];
+        const localAllDayDetails = result[ALL_DAY_DETAILS_KEY] || {};
+        // const localProjects = result.projects || []; // Если проекты все же нужны для привязки в событиях дня
+
+        // Если мы хотим просто список ID проектов, использованных в событиях, а не весь справочник
+        // Это компромисс, если полный список проектов не нужен в экспорте.
+        // Но для восстановления выпадающего списка проектов лучше иметь полный список.
+        // Если вы решите, что список проектов все же нужен, раскомментируйте его получение выше
+        // и передачу в JSON-блок в конце (если он вернется) или в каждую строку (не рекомендуется).
+
+        let allDatesSet = new Set(localCalendarEvents.map(ev => ev.date));
+        Object.keys(localAllDayDetails).forEach(dateStr => allDatesSet.add(dateStr));
+        let uniqueDates = Array.from(allDatesSet).sort();
+
+        let header = [
+            "Дата", "День недели",
+            "Калории утром", "Калории днем", "Калории вечером", "Комментарий дня",
+            "События Дня (JSON)" // Переименовал для ясности, что тут только события, не "проекты" как отдельные сущности
+        ];
+
+        let csvContent = '\uFEFF' + header.join(';') + '\n';
+
+        uniqueDates.forEach(dateStr => {
+            let dateObj = new Date(dateStr + "T00:00:00");
+            let dayOfWeek = dateObj.toLocaleDateString('ru-RU', { weekday: "short" });
+            
+            const details = localAllDayDetails[dateStr] || {};
+            const cals = details.calories || {};
+
+            const eventsForThisDay = localCalendarEvents
+                .filter(ev => ev.date === dateStr)
+                .map(ev => {
+                    return { // Только необходимые поля для восстановления события дня
+                        title: ev.title,
+                        description: ev.description,
+                        startTime: ev.startTime,
+                        endTime: ev.endTime,
+                        projectId: ev.projectId, // ID проекта, к которому событие привязано
+                        type: ev.type,
+                        isLive: ev.isLive 
+                        // id самого события не экспортируем, т.к. при импорте будем генерировать новый
+                    };
+                });
+            
+            const eventsJsonString = JSON.stringify(eventsForThisDay);
+            const escapedJsonString = eventsJsonString.replace(/"/g, '""');
+
+            let row = [
+                `"${dateStr}"`,
+                `"${dayOfWeek}"`,
+                `"${cals.morning || 0}"`,
+                `"${cals.afternoon || 0}"`,
+                `"${cals.evening || 0}"`,
+                `"${(details.comment || '').replace(/"/g, '""')}"`,
+                `"${escapedJsonString}"`
+            ];
+            
+            csvContent += row.join(';') + '\n';
+        });
+
+        // УБИРАЕМ JSON-БЛОК С МЕТАДАННЫМИ В КОНЦЕ ФАЙЛА
+        // console.log('Metadata backup object (NOT ADDED TO CSV):', JSON.stringify(metadataBackup, null, 2));
+        // csvContent += "\n" + JSON.stringify(metadataBackup) + "\n"; // Эта строка удалена
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `calendar_data_by_day_${formatDate(new Date()).replace(/-/g, '')}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        console.log("Export process finished (Per-Day JSON, STRICTLY NO METADATA BLOCK).");
+    }
+
+
+    // ------ СИНХРОНИЗАЦИЯ SCROLL -------- (без изменений)
+    const weekGridEl = document.querySelector('.calendar-scroll');
+    const timeSlotsScroll = document.querySelector('.time-slots-scroll');
+
+    if (weekGridEl && timeSlotsScroll) {
+        let scrollingSelf = false; // Флаг для предотвращения зацикливания
+        weekGridEl.addEventListener('scroll', () => {
+            if (scrollingSelf) return;
+            scrollingSelf = true;
+            timeSlotsScroll.scrollTop = weekGridEl.scrollTop;
+            requestAnimationFrame(() => scrollingSelf = false); // Сброс флага в следующем кадре
+        });
+        timeSlotsScroll.addEventListener('scroll', () => {
+            if (scrollingSelf) return;
+            scrollingSelf = true;
+            weekGridEl.scrollTop = timeSlotsScroll.scrollTop;
+           requestAnimationFrame(() => scrollingSelf = false);
+        });
+    }
+
+
+    // ==== Инициализация ====
+    function initialLoad() {
+        chrome.storage.local.get(
+            ['calendarEvents', 'projects', 'selectedProjectId', 'stopwatch', ALL_DAY_DETAILS_KEY], 
+            res => {
+                console.log("InitialLoad: Data fetched from storage:", JSON.stringify(res, null, 2));
+                calendarEvents = res.calendarEvents || [];
+                projects = res.projects || [];
+                // selectedProjectId может быть null, если не выбран или после очистки
+                selectedProjectId = res.selectedProjectId !== undefined ? res.selectedProjectId : null; 
+                stopwatch = res.stopwatch || { isRunning: false, elapsed: 0, startTimestamp: null, liveEventId: null, projectId: null };
+                allDayDetailsData = res[ALL_DAY_DETAILS_KEY] || {};
+
+                console.log(`InitialLoad: Loaded ${calendarEvents.length} events.`);
+                console.log(`InitialLoad: Loaded day details for ${Object.keys(allDayDetailsData).length} days.`);
+
+                renderProjectSelectAndList(); // Обновит select, selectedProjectId должен быть уже установлен
+                renderProjectStats(selectedProjectId);
+                renderTimeSlots(); 
+                renderDaysHeader(currentWeekStart); 
+                renderWeekGrid(currentWeekStart); 
+                loadStopwatchState();
+
+                if (typeof DayDetails === 'function' && !dayDetailsManager) {
+                    dayDetailsManager = new DayDetails();
+                }
+        });
+    }
+
+    
+    // Слушатель изменений в storage
+    chrome.storage.onChanged.addListener((changes, area) => {
+        if (area === "local") {
+            let UINeedsFullRefresh = false;
+            let headersNeedRefresh = false;
+
+            if ('stopwatch' in changes) {
+                loadStopwatchState(); // Это специфическая загрузка, не требует полного рефреша
+            }
+            if ('calendarEvents' in changes) {
+                calendarEvents = changes.calendarEvents.newValue || [];
+                renderWeekGrid(currentWeekStart); // Только сетку событий
+                renderProjectStats(selectedProjectId); // Статистика могла измениться
+            }
+            if ('projects' in changes) {
+                projects = changes.projects.newValue || [];
+                UINeedsFullRefresh = true; // Список проектов, выбор, статистика
+            }
+             if ('selectedProjectId' in changes) {
+                selectedProjectId = changes.selectedProjectId.newValue || null;
+                // renderProjectSelectAndList(); // Обновит селект
+                // renderProjectStats(selectedProjectId);
+                // updateStopwatchUI(); // Кнопки секундомера могут зависеть
+                 UINeedsFullRefresh = true; // Проще полный рефреш для этого
+            }
+            if (ALL_DAY_DETAILS_KEY in changes) {
+                allDayDetailsData = changes[ALL_DAY_DETAILS_KEY].newValue || {};
+                headersNeedRefresh = true;
+            }
+
+            if (UINeedsFullRefresh) {
+                initialLoad(); // Полная перезагрузка и рендер UI
+            } else if (headersNeedRefresh) {
+                renderDaysHeader(currentWeekStart); // Только заголовки
+            }
+        }
+    });
+
+    initialLoad();
+
+    function updateCurrentTimeIndicator() {
+        let indicator = weekGridContainer.querySelector('.current-time-indicator');
+        if (!indicator) {
+            indicator = document.createElement('div');
+            indicator.className = 'current-time-indicator';
+            // Его нужно добавлять в правильную колонку дня
+        }
+        const now = new Date();
+        const todayDateStr = formatDate(now);
+        const todayColumn = weekGridContainer.querySelector(`.day-column[data-date="${todayDateStr}"]`);
+
+        if (todayColumn) {
+            if (!indicator.parentNode) { // Если индикатор еще не добавлен
+                 // Ищем самый первый hour-cell в колонке, чтобы корректно спозиционировать индикатор относительно него
+                const firstHourCellInTodayColumn = todayColumn.querySelector('.hour-cell');
+                if (firstHourCellInTodayColumn) {
+                    firstHourCellInTodayColumn.appendChild(indicator); 
+                }
+            }
+            const minutes = now.getHours() * 60 + now.getMinutes();
+            const totalMinutesInDay = 24 * 60;
+            const percentageOfDay = (minutes / totalMinutesInDay);
+            
+            // Высота всей колонки (всех hour-cell)
+            // Это допущение, что все hour-cell одинаковой высоты и их 24
+            // Лучше получить высоту контейнера .day-column, если он имеет фиксированную высоту для 24ч
+            const dayColumnHeight = todayColumn.offsetHeight; 
+
+            indicator.style.top = `${percentageOfDay * dayColumnHeight}px`;
+            indicator.style.display = 'block';
+        } else {
+            indicator.style.display = 'none'; // Скрываем, если текущий день не на экране
+        }
+    }
+    setInterval(updateCurrentTimeIndicator, 60000); // Обновлять каждую минуту
+});
