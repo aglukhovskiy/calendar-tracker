@@ -23,7 +23,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["main_page.html", "main_page.css", "dist/main.bundle.js", "dist/popup.bundle.js", "dist/dayDetails.bundle.js"],
+      "resources": ["index.html", "main_page.css", "dist/main.bundle.js", "dist/popup.bundle.js", "dist/dayDetails.bundle.js"],
       "matches": ["<all_urls>"]
     }
   ]

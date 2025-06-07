@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     };
     calendarBtn.onclick = function () {
-        chrome.tabs.create({ url: chrome.runtime.getURL("main_page.html") });
+        chrome.tabs.create({ url: chrome.runtime.getURL("index.html") });
     };
 
     loadProjects();
