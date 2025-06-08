@@ -1,6 +1,12 @@
 import { createClient } from '@supabase/supabase-js'
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config'
 
+// Проверяем наличие необходимых переменных
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    console.error('Ошибка: SUPABASE_URL и SUPABASE_ANON_KEY должны быть определены');
+    throw new Error('SUPABASE_URL и SUPABASE_ANON_KEY должны быть определены');
+}
+
 // Initialize Supabase client
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 

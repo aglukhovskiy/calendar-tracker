@@ -1,7 +1,7 @@
 // Получите эти значения из настроек вашего проекта в Supabase
 // Project Settings -> API -> Project URL и anon/public key
-export const SUPABASE_URL = window.SUPABASE_URL || ''
-export const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || ''
+export const SUPABASE_URL = SUPABASE_URL || ''
+export const SUPABASE_ANON_KEY = SUPABASE_ANON_KEY || ''
 
 // Имена таблиц в базе данных
 export const TABLES = {
