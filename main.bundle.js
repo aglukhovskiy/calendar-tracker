@@ -9139,7 +9139,11 @@ function renderEvents(events) {
   document.querySelectorAll('.calendar-event').forEach(el => el.remove());
   events.forEach(event => {
     const eventDate = new Date(event.date);
-    const weekDate = weekDates.find(d => d.getFullYear() === eventDate.getFullYear() && d.getMonth() === eventDate.getMonth() && d.getDate() === eventDate.getDate());
+    const weekDate = weekDates.find(d => {
+      const d1 = new Date(d);
+      const d2 = new Date(eventDate);
+      return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
+    });
     if (!weekDate) {
       console.log('[RENDER EVENTS] Событие не входит в текущую неделю:', event);
       return;
@@ -9174,12 +9178,12 @@ function renderEvents(events) {
                 <div class="event-title">${event.title || 'Без названия'}</div>
             </div>
         `;
-    const dayColumn = document.querySelector(`.day-column[data-date="${event.date}"]`);
+    const dayColumn = document.querySelector(`.day-column[data-date="${formatDate(eventDate)}"]`);
     if (dayColumn) {
       dayColumn.appendChild(eventElement);
       console.log('[RENDER EVENTS] Событие добавлено в DOM:', event.id);
     } else {
-      console.error('[RENDER EVENTS] Не найден столбец для даты:', event.date);
+      console.error('[RENDER EVENTS] Не найден столбец для даты:', formatDate(eventDate));
     }
   });
 }
@@ -10375,12 +10379,15 @@ function renderWeekGrid(weekStart) {
   }
   weekGrid.innerHTML = '';
   const weekDates = getWeekDates(weekStart);
+  console.log('[RENDER WEEK GRID] Даты недели:', weekDates.map(d => formatDate(d)));
 
   // Создаем колонки для каждого дня недели
   weekDates.forEach(date => {
     const dayColumn = document.createElement('div');
     dayColumn.className = 'day-column';
-    dayColumn.setAttribute('data-date', formatDate(date));
+    const dateStr = formatDate(date);
+    dayColumn.setAttribute('data-date', dateStr);
+    console.log('[RENDER WEEK GRID] Создана колонка для даты:', dateStr);
 
     // Создаем ячейки для каждого часа
     for (let hour = 0; hour <= 23; hour++) {
@@ -10393,7 +10400,6 @@ function renderWeekGrid(weekStart) {
         if (e.target.closest('.calendar-event')) {
           return;
         }
-        const dateStr = dayColumn.getAttribute('data-date');
         openEventModal(null, dateStr, hour);
       });
       dayColumn.appendChild(hourCell);
