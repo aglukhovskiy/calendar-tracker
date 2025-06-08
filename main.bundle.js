@@ -8560,14 +8560,14 @@ const dom_elements_elements = {
 // Функция для инициализации DOM элементов
 function initializeElements() {
   dom_elements_elements.dayDetailModal = document.getElementById('day-detail-modal');
-  dom_elements_elements.dayDetailModalDateDisplay = document.getElementById('day-detail-date');
+  dom_elements_elements.dayDetailModalDateDisplay = document.getElementById('day-detail-modal-date-display');
   dom_elements_elements.caloriesMorningInput = document.getElementById('calories-morning');
   dom_elements_elements.caloriesAfternoonInput = document.getElementById('calories-afternoon');
   dom_elements_elements.caloriesEveningInput = document.getElementById('calories-evening');
   dom_elements_elements.commentInput = document.getElementById('day-comment');
   dom_elements_elements.totalCaloriesValueSpan = document.getElementById('total-calories-value');
-  dom_elements_elements.saveDayDetailsBtn = document.getElementById('save-day-details');
-  dom_elements_elements.cancelDayDetailsBtn = document.getElementById('cancel-day-details');
+  dom_elements_elements.saveDayDetailsBtn = document.getElementById('day-detail-save');
+  dom_elements_elements.cancelDayDetailsBtn = document.getElementById('day-detail-cancel');
 
   // Проверяем наличие всех необходимых элементов
   const missingElements = Object.entries(dom_elements_elements).filter(([_, element]) => !element).map(([name]) => name);
