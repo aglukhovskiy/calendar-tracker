@@ -8297,7 +8297,6 @@ const TABLES = {
 // Проверяем наличие необходимых переменных
 console.log('=== Supabase Configuration ===');
 console.log('SUPABASE_URL:', SUPABASE_URL ? `${SUPABASE_URL.substring(0, 10)}...` : 'undefined');
-console.log('SUPABASE_ANON_KEY:', SUPABASE_ANON_KEY ? `${SUPABASE_ANON_KEY.substring(0, 10)}...` : 'undefined');
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   console.error('Ошибка: SUPABASE_URL и SUPABASE_ANON_KEY должны быть определены');
   throw new Error('SUPABASE_URL и SUPABASE_ANON_KEY должны быть определены');
@@ -8305,7 +8304,7 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
 
 // Initialize Supabase client
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-console.log('Supabase client initialized');
+console.log('[SUPABASE] Client initialized successfully');
 
 // Database operations
 const db = {
