@@ -664,9 +664,7 @@ function renderEvents() {
         const eventDate = new Date(event.date);
         const isInWeek = weekDates.some(d => {
             const weekDate = new Date(d);
-            return weekDate.getFullYear() === eventDate.getFullYear() &&
-                   weekDate.getMonth() === eventDate.getMonth() &&
-                   weekDate.getDate() === eventDate.getDate();
+            return weekDate.toISOString().split('T')[0] === eventDate.toISOString().split('T')[0];
         });
         
         console.log('[RENDER EVENTS] Проверка события:', {
