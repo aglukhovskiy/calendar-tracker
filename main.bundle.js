@@ -9386,63 +9386,54 @@ document.addEventListener('DOMContentLoaded', async () => {
   console.log("DOM полностью загружен, начинаем инициализацию...");
   await initialLoad();
 
-  // Слушатель изменений в storage
-  storage_storage.onChanged.addListener(async (changes, area) => {
-    // Make listener async
-    if (area === "local") {
-      let eventsRefreshNeeded = false;
-      let projectsRefreshNeeded = false;
-      let dayHeadersRefreshNeeded = false;
-      let projectStatsRefreshNeeded = false;
+  // Слушатель изменений в storage только если мы в контексте расширения
+  if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
+    storage_storage.onChanged.addListener(async (changes, area) => {
+      if (area === "local") {
+        let eventsRefreshNeeded = false;
+        let projectsRefreshNeeded = false;
+        let dayHeadersRefreshNeeded = false;
+        let projectStatsRefreshNeeded = false;
+        if ('calendarEvents' in changes) {
+          calendarEvents = changes.calendarEvents.newValue || [];
+          console.log("[ON CHANGED] calendarEvents changed, new count:", calendarEvents.length);
+          eventsRefreshNeeded = true;
+          projectStatsRefreshNeeded = true;
+        }
+        if ('projects' in changes) {
+          projects = changes.projects.newValue || [];
+          projectsRefreshNeeded = true;
+          projectStatsRefreshNeeded = true;
+        }
+        if ('selectedProjectId' in changes) {
+          selectedProjectId = changes.selectedProjectId.newValue || null;
+          projectStatsRefreshNeeded = true;
+          if (selectProjectSel) selectProjectSel.value = selectedProjectId || "";
+        }
+        if (ALL_DAY_DETAILS_KEY in changes) {
+          allDayDetailsData = changes[ALL_DAY_DETAILS_KEY].newValue || {};
+          dayHeadersRefreshNeeded = true;
+        }
 
-      // Этот блок удален, чтобы предотвратить запуск второго таймера.
-      // Глобальный объект `stopwatch` уже содержит актуальное состояние.
-      /*
-      if ('stopwatch' in changes) {
-          // Этот вызов приводил к запуску второго таймера и дублированию событий.
-          await loadStopwatchState(); 
+        // Apply refreshes
+        if (projectsRefreshNeeded) {
+          renderProjectSelectAndList();
+          renderProjectsList();
+        }
+        if (eventsRefreshNeeded) {
+          renderEvents();
+        }
+        if (dayHeadersRefreshNeeded) {
+          renderDaysHeader(currentWeekStart);
+        }
+        if (projectStatsRefreshNeeded) {
+          renderProjectStats(selectedProjectId);
+        }
       }
-      */
+    });
+  }
 
-      if ('calendarEvents' in changes) {
-        // Обновляем глобальную переменную из storage, т.к. изменение могло прийти извне
-        calendarEvents = changes.calendarEvents.newValue || [];
-        console.log("[ON CHANGED] calendarEvents changed, new count:", calendarEvents.length);
-        eventsRefreshNeeded = true;
-        projectStatsRefreshNeeded = true;
-      }
-      if ('projects' in changes) {
-        // Используем данные из storage для обновления, так как это источник правды
-        projects = changes.projects.newValue || [];
-        projectsRefreshNeeded = true;
-        projectStatsRefreshNeeded = true;
-      }
-      if ('selectedProjectId' in changes) {
-        selectedProjectId = changes.selectedProjectId.newValue || null;
-        projectStatsRefreshNeeded = true;
-        if (selectProjectSel) selectProjectSel.value = selectedProjectId || "";
-      }
-      if (ALL_DAY_DETAILS_KEY in changes) {
-        allDayDetailsData = changes[ALL_DAY_DETAILS_KEY].newValue || {};
-        dayHeadersRefreshNeeded = true;
-      }
-
-      // Apply refreshes
-      if (projectsRefreshNeeded) {
-        renderProjectSelectAndList();
-        renderProjectsList();
-      }
-      if (eventsRefreshNeeded) {
-        renderEvents(); // Просто перерисовываем события, а не всю сетку
-      }
-      if (dayHeadersRefreshNeeded) {
-        renderDaysHeader(currentWeekStart);
-      }
-      if (projectStatsRefreshNeeded) {
-        renderProjectStats(selectedProjectId);
-      }
-    }
-  });
+  // ... existing code ...
 }); // Закрываем DOMContentLoaded
 
 // UI / DOM
