@@ -1,1 +1,10544 @@
-(()=>{"use strict";var e,t={45:function(e,t,s){var n=this&&this.__importDefault||function(e){return e&&e.__esModule?e:{default:e}};Object.defineProperty(t,"__esModule",{value:!0});const r=n(s(825));t.default=class{constructor(e,{headers:t={},schema:s,fetch:n}){this.url=e,this.headers=t,this.schema=s,this.fetch=n}select(e,{head:t=!1,count:s}={}){const n=t?"HEAD":"GET";let i=!1;const o=(null!=e?e:"*").split("").map((e=>/\s/.test(e)&&!i?"":('"'===e&&(i=!i),e))).join("");return this.url.searchParams.set("select",o),s&&(this.headers.Prefer=`count=${s}`),new r.default({method:n,url:this.url,headers:this.headers,schema:this.schema,fetch:this.fetch,allowEmpty:!1})}insert(e,{count:t,defaultToNull:s=!0}={}){const n=[];if(this.headers.Prefer&&n.push(this.headers.Prefer),t&&n.push(`count=${t}`),s||n.push("missing=default"),this.headers.Prefer=n.join(","),Array.isArray(e)){const t=e.reduce(((e,t)=>e.concat(Object.keys(t))),[]);if(t.length>0){const e=[...new Set(t)].map((e=>`"${e}"`));this.url.searchParams.set("columns",e.join(","))}}return new r.default({method:"POST",url:this.url,headers:this.headers,schema:this.schema,body:e,fetch:this.fetch,allowEmpty:!1})}upsert(e,{onConflict:t,ignoreDuplicates:s=!1,count:n,defaultToNull:i=!0}={}){const o=[`resolution=${s?"ignore":"merge"}-duplicates`];if(void 0!==t&&this.url.searchParams.set("on_conflict",t),this.headers.Prefer&&o.push(this.headers.Prefer),n&&o.push(`count=${n}`),i||o.push("missing=default"),this.headers.Prefer=o.join(","),Array.isArray(e)){const t=e.reduce(((e,t)=>e.concat(Object.keys(t))),[]);if(t.length>0){const e=[...new Set(t)].map((e=>`"${e}"`));this.url.searchParams.set("columns",e.join(","))}}return new r.default({method:"POST",url:this.url,headers:this.headers,schema:this.schema,body:e,fetch:this.fetch,allowEmpty:!1})}update(e,{count:t}={}){const s=[];return this.headers.Prefer&&s.push(this.headers.Prefer),t&&s.push(`count=${t}`),this.headers.Prefer=s.join(","),new r.default({method:"PATCH",url:this.url,headers:this.headers,schema:this.schema,body:e,fetch:this.fetch,allowEmpty:!1})}delete({count:e}={}){const t=[];return e&&t.push(`count=${e}`),this.headers.Prefer&&t.unshift(this.headers.Prefer),this.headers.Prefer=t.join(","),new r.default({method:"DELETE",url:this.url,headers:this.headers,schema:this.schema,fetch:this.fetch,allowEmpty:!1})}}},261:function(e,t,s){var n=this&&this.__importDefault||function(e){return e&&e.__esModule?e:{default:e}};Object.defineProperty(t,"__esModule",{value:!0});const r=n(s(660));class i extends r.default{select(e){let t=!1;const s=(null!=e?e:"*").split("").map((e=>/\s/.test(e)&&!t?"":('"'===e&&(t=!t),e))).join("");return this.url.searchParams.set("select",s),this.headers.Prefer&&(this.headers.Prefer+=","),this.headers.Prefer+="return=representation",this}order(e,{ascending:t=!0,nullsFirst:s,foreignTable:n,referencedTable:r=n}={}){const i=r?`${r}.order`:"order",o=this.url.searchParams.get(i);return this.url.searchParams.set(i,`${o?`${o},`:""}${e}.${t?"asc":"desc"}${void 0===s?"":s?".nullsfirst":".nullslast"}`),this}limit(e,{foreignTable:t,referencedTable:s=t}={}){const n=void 0===s?"limit":`${s}.limit`;return this.url.searchParams.set(n,`${e}`),this}range(e,t,{foreignTable:s,referencedTable:n=s}={}){const r=void 0===n?"offset":`${n}.offset`,i=void 0===n?"limit":`${n}.limit`;return this.url.searchParams.set(r,`${e}`),this.url.searchParams.set(i,""+(t-e+1)),this}abortSignal(e){return this.signal=e,this}single(){return this.headers.Accept="application/vnd.pgrst.object+json",this}maybeSingle(){return"GET"===this.method?this.headers.Accept="application/json":this.headers.Accept="application/vnd.pgrst.object+json",this.isMaybeSingle=!0,this}csv(){return this.headers.Accept="text/csv",this}geojson(){return this.headers.Accept="application/geo+json",this}explain({analyze:e=!1,verbose:t=!1,settings:s=!1,buffers:n=!1,wal:r=!1,format:i="text"}={}){var o;const a=[e?"analyze":null,t?"verbose":null,s?"settings":null,n?"buffers":null,r?"wal":null].filter(Boolean).join("|"),l=null!==(o=this.headers.Accept)&&void 0!==o?o:"application/json";return this.headers.Accept=`application/vnd.pgrst.plan+${i}; for="${l}"; options=${a};`,this}rollback(){var e;return(null!==(e=this.headers.Prefer)&&void 0!==e?e:"").trim().length>0?this.headers.Prefer+=",tx=rollback":this.headers.Prefer="tx=rollback",this}returns(){return this}}t.default=i},279:function(e,t,s){var n=this&&this.__importDefault||function(e){return e&&e.__esModule?e:{default:e}};Object.defineProperty(t,"__esModule",{value:!0}),t.PostgrestError=t.PostgrestBuilder=t.PostgrestTransformBuilder=t.PostgrestFilterBuilder=t.PostgrestQueryBuilder=t.PostgrestClient=void 0;const r=n(s(961));t.PostgrestClient=r.default;const i=n(s(45));t.PostgrestQueryBuilder=i.default;const o=n(s(825));t.PostgrestFilterBuilder=o.default;const a=n(s(261));t.PostgrestTransformBuilder=a.default;const l=n(s(660));t.PostgrestBuilder=l.default;const c=n(s(818));t.PostgrestError=c.default,t.default={PostgrestClient:r.default,PostgrestQueryBuilder:i.default,PostgrestFilterBuilder:o.default,PostgrestTransformBuilder:a.default,PostgrestBuilder:l.default,PostgrestError:c.default}},519:(e,t)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.version=void 0,t.version="0.0.0-automated"},530:(e,t,s)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.DEFAULT_HEADERS=void 0;const n=s(519);t.DEFAULT_HEADERS={"X-Client-Info":`postgrest-js/${n.version}`}},591:e=>{e.exports=function(){throw new Error("ws does not work in the browser. Browser clients must use the native WebSocket object")}},660:function(e,t,s){var n=this&&this.__importDefault||function(e){return e&&e.__esModule?e:{default:e}};Object.defineProperty(t,"__esModule",{value:!0});const r=n(s(907)),i=n(s(818));t.default=class{constructor(e){this.shouldThrowOnError=!1,this.method=e.method,this.url=e.url,this.headers=e.headers,this.schema=e.schema,this.body=e.body,this.shouldThrowOnError=e.shouldThrowOnError,this.signal=e.signal,this.isMaybeSingle=e.isMaybeSingle,e.fetch?this.fetch=e.fetch:"undefined"==typeof fetch?this.fetch=r.default:this.fetch=fetch}throwOnError(){return this.shouldThrowOnError=!0,this}setHeader(e,t){return this.headers=Object.assign({},this.headers),this.headers[e]=t,this}then(e,t){void 0===this.schema||(["GET","HEAD"].includes(this.method)?this.headers["Accept-Profile"]=this.schema:this.headers["Content-Profile"]=this.schema),"GET"!==this.method&&"HEAD"!==this.method&&(this.headers["Content-Type"]="application/json");let s=(0,this.fetch)(this.url.toString(),{method:this.method,headers:this.headers,body:JSON.stringify(this.body),signal:this.signal}).then((async e=>{var t,s,n;let r=null,o=null,a=null,l=e.status,c=e.statusText;if(e.ok){if("HEAD"!==this.method){const t=await e.text();""===t||(o="text/csv"===this.headers.Accept||this.headers.Accept&&this.headers.Accept.includes("application/vnd.pgrst.plan+text")?t:JSON.parse(t))}const n=null===(t=this.headers.Prefer)||void 0===t?void 0:t.match(/count=(exact|planned|estimated)/),i=null===(s=e.headers.get("content-range"))||void 0===s?void 0:s.split("/");n&&i&&i.length>1&&(a=parseInt(i[1])),this.isMaybeSingle&&"GET"===this.method&&Array.isArray(o)&&(o.length>1?(r={code:"PGRST116",details:`Results contain ${o.length} rows, application/vnd.pgrst.object+json requires 1 row`,hint:null,message:"JSON object requested, multiple (or no) rows returned"},o=null,a=null,l=406,c="Not Acceptable"):o=1===o.length?o[0]:null)}else{const t=await e.text();try{r=JSON.parse(t),Array.isArray(r)&&404===e.status&&(o=[],r=null,l=200,c="OK")}catch(s){404===e.status&&""===t?(l=204,c="No Content"):r={message:t}}if(r&&this.isMaybeSingle&&(null===(n=null==r?void 0:r.details)||void 0===n?void 0:n.includes("0 rows"))&&(r=null,l=200,c="OK"),r&&this.shouldThrowOnError)throw new i.default(r)}return{error:r,data:o,count:a,status:l,statusText:c}}));return this.shouldThrowOnError||(s=s.catch((e=>{var t,s,n;return{error:{message:`${null!==(t=null==e?void 0:e.name)&&void 0!==t?t:"FetchError"}: ${null==e?void 0:e.message}`,details:`${null!==(s=null==e?void 0:e.stack)&&void 0!==s?s:""}`,hint:"",code:`${null!==(n=null==e?void 0:e.code)&&void 0!==n?n:""}`},data:null,count:null,status:0,statusText:""}}))),s.then(e,t)}returns(){return this}overrideTypes(){return this}}},818:(e,t)=>{Object.defineProperty(t,"__esModule",{value:!0});class s extends Error{constructor(e){super(e.message),this.name="PostgrestError",this.details=e.details,this.hint=e.hint,this.code=e.code}}t.default=s},825:function(e,t,s){var n=this&&this.__importDefault||function(e){return e&&e.__esModule?e:{default:e}};Object.defineProperty(t,"__esModule",{value:!0});const r=n(s(261));class i extends r.default{eq(e,t){return this.url.searchParams.append(e,`eq.${t}`),this}neq(e,t){return this.url.searchParams.append(e,`neq.${t}`),this}gt(e,t){return this.url.searchParams.append(e,`gt.${t}`),this}gte(e,t){return this.url.searchParams.append(e,`gte.${t}`),this}lt(e,t){return this.url.searchParams.append(e,`lt.${t}`),this}lte(e,t){return this.url.searchParams.append(e,`lte.${t}`),this}like(e,t){return this.url.searchParams.append(e,`like.${t}`),this}likeAllOf(e,t){return this.url.searchParams.append(e,`like(all).{${t.join(",")}}`),this}likeAnyOf(e,t){return this.url.searchParams.append(e,`like(any).{${t.join(",")}}`),this}ilike(e,t){return this.url.searchParams.append(e,`ilike.${t}`),this}ilikeAllOf(e,t){return this.url.searchParams.append(e,`ilike(all).{${t.join(",")}}`),this}ilikeAnyOf(e,t){return this.url.searchParams.append(e,`ilike(any).{${t.join(",")}}`),this}is(e,t){return this.url.searchParams.append(e,`is.${t}`),this}in(e,t){const s=Array.from(new Set(t)).map((e=>"string"==typeof e&&new RegExp("[,()]").test(e)?`"${e}"`:`${e}`)).join(",");return this.url.searchParams.append(e,`in.(${s})`),this}contains(e,t){return"string"==typeof t?this.url.searchParams.append(e,`cs.${t}`):Array.isArray(t)?this.url.searchParams.append(e,`cs.{${t.join(",")}}`):this.url.searchParams.append(e,`cs.${JSON.stringify(t)}`),this}containedBy(e,t){return"string"==typeof t?this.url.searchParams.append(e,`cd.${t}`):Array.isArray(t)?this.url.searchParams.append(e,`cd.{${t.join(",")}}`):this.url.searchParams.append(e,`cd.${JSON.stringify(t)}`),this}rangeGt(e,t){return this.url.searchParams.append(e,`sr.${t}`),this}rangeGte(e,t){return this.url.searchParams.append(e,`nxl.${t}`),this}rangeLt(e,t){return this.url.searchParams.append(e,`sl.${t}`),this}rangeLte(e,t){return this.url.searchParams.append(e,`nxr.${t}`),this}rangeAdjacent(e,t){return this.url.searchParams.append(e,`adj.${t}`),this}overlaps(e,t){return"string"==typeof t?this.url.searchParams.append(e,`ov.${t}`):this.url.searchParams.append(e,`ov.{${t.join(",")}}`),this}textSearch(e,t,{config:s,type:n}={}){let r="";"plain"===n?r="pl":"phrase"===n?r="ph":"websearch"===n&&(r="w");const i=void 0===s?"":`(${s})`;return this.url.searchParams.append(e,`${r}fts${i}.${t}`),this}match(e){return Object.entries(e).forEach((([e,t])=>{this.url.searchParams.append(e,`eq.${t}`)})),this}not(e,t,s){return this.url.searchParams.append(e,`not.${t}.${s}`),this}or(e,{foreignTable:t,referencedTable:s=t}={}){const n=s?`${s}.or`:"or";return this.url.searchParams.append(n,`(${e})`),this}filter(e,t,s){return this.url.searchParams.append(e,`${t}.${s}`),this}}t.default=i},907:(e,t,s)=>{s.r(t),s.d(t,{Headers:()=>o,Request:()=>a,Response:()=>l,default:()=>i,fetch:()=>r});var n=function(){if("undefined"!=typeof self)return self;if("undefined"!=typeof window)return window;if(void 0!==s.g)return s.g;throw new Error("unable to locate global object")}();const r=n.fetch,i=n.fetch.bind(n),o=n.Headers,a=n.Request,l=n.Response},961:function(e,t,s){var n=this&&this.__importDefault||function(e){return e&&e.__esModule?e:{default:e}};Object.defineProperty(t,"__esModule",{value:!0});const r=n(s(45)),i=n(s(825)),o=s(530);class a{constructor(e,{headers:t={},schema:s,fetch:n}={}){this.url=e,this.headers=Object.assign(Object.assign({},o.DEFAULT_HEADERS),t),this.schemaName=s,this.fetch=n}from(e){const t=new URL(`${this.url}/${e}`);return new r.default(t,{headers:Object.assign({},this.headers),schema:this.schemaName,fetch:this.fetch})}schema(e){return new a(this.url,{headers:this.headers,schema:e,fetch:this.fetch})}rpc(e,t={},{head:s=!1,get:n=!1,count:r}={}){let o;const a=new URL(`${this.url}/rpc/${e}`);let l;s||n?(o=s?"HEAD":"GET",Object.entries(t).filter((([e,t])=>void 0!==t)).map((([e,t])=>[e,Array.isArray(t)?`{${t.join(",")}}`:`${t}`])).forEach((([e,t])=>{a.searchParams.append(e,t)}))):(o="POST",l=t);const c=Object.assign({},this.headers);return r&&(c.Prefer=`count=${r}`),new i.default({method:o,url:a,headers:c,schema:this.schemaName,body:l,fetch:this.fetch,allowEmpty:!1})}}t.default=a}},s={};function n(e){var r=s[e];if(void 0!==r)return r.exports;var i=s[e]={exports:{}};return t[e].call(i.exports,i,i.exports,n),i.exports}n.d=(e,t)=>{for(var s in t)n.o(t,s)&&!n.o(e,s)&&Object.defineProperty(e,s,{enumerable:!0,get:t[s]})},n.g=function(){if("object"==typeof globalThis)return globalThis;try{return this||new Function("return this")()}catch(e){if("object"==typeof window)return window}}(),n.o=(e,t)=>Object.prototype.hasOwnProperty.call(e,t),n.r=e=>{"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})};class r extends Error{constructor(e,t="FunctionsError",s){super(e),this.name=t,this.context=s}}class i extends r{constructor(e){super("Failed to send a request to the Edge Function","FunctionsFetchError",e)}}class o extends r{constructor(e){super("Relay Error invoking the Edge Function","FunctionsRelayError",e)}}class a extends r{constructor(e){super("Edge Function returned a non-2xx status code","FunctionsHttpError",e)}}!function(e){e.Any="any",e.ApNortheast1="ap-northeast-1",e.ApNortheast2="ap-northeast-2",e.ApSouth1="ap-south-1",e.ApSoutheast1="ap-southeast-1",e.ApSoutheast2="ap-southeast-2",e.CaCentral1="ca-central-1",e.EuCentral1="eu-central-1",e.EuWest1="eu-west-1",e.EuWest2="eu-west-2",e.EuWest3="eu-west-3",e.SaEast1="sa-east-1",e.UsEast1="us-east-1",e.UsWest1="us-west-1",e.UsWest2="us-west-2"}(e||(e={}));class l{constructor(t,{headers:s={},customFetch:r,region:i=e.Any}={}){this.url=t,this.headers=s,this.region=i,this.fetch=(e=>{let t;return t=e||("undefined"==typeof fetch?(...e)=>Promise.resolve().then(n.bind(n,907)).then((({default:t})=>t(...e))):fetch),(...e)=>t(...e)})(r)}setAuth(e){this.headers.Authorization=`Bearer ${e}`}invoke(e,t={}){var s,n,r,l,c;return n=this,r=void 0,c=function*(){try{const{headers:n,method:r,body:l}=t;let c,d={},{region:u}=t;u||(u=this.region),u&&"any"!==u&&(d["x-region"]=u),l&&(n&&!Object.prototype.hasOwnProperty.call(n,"Content-Type")||!n)&&("undefined"!=typeof Blob&&l instanceof Blob||l instanceof ArrayBuffer?(d["Content-Type"]="application/octet-stream",c=l):"string"==typeof l?(d["Content-Type"]="text/plain",c=l):"undefined"!=typeof FormData&&l instanceof FormData?c=l:(d["Content-Type"]="application/json",c=JSON.stringify(l)));const h=yield this.fetch(`${this.url}/${e}`,{method:r||"POST",headers:Object.assign(Object.assign(Object.assign({},d),this.headers),n),body:c}).catch((e=>{throw new i(e)})),f=h.headers.get("x-relay-error");if(f&&"true"===f)throw new o(h);if(!h.ok)throw new a(h);let p,g=(null!==(s=h.headers.get("Content-Type"))&&void 0!==s?s:"text/plain").split(";")[0].trim();return p="application/json"===g?yield h.json():"application/octet-stream"===g?yield h.blob():"text/event-stream"===g?h:"multipart/form-data"===g?yield h.formData():yield h.text(),{data:p,error:null}}catch(e){return{data:null,error:e}}},new((l=void 0)||(l=Promise))((function(e,t){function s(e){try{o(c.next(e))}catch(e){t(e)}}function i(e){try{o(c.throw(e))}catch(e){t(e)}}function o(t){var n;t.done?e(t.value):(n=t.value,n instanceof l?n:new l((function(e){e(n)}))).then(s,i)}o((c=c.apply(n,r||[])).next())}))}}var c=n(279);const{PostgrestClient:d,PostgrestQueryBuilder:u,PostgrestFilterBuilder:h,PostgrestTransformBuilder:f,PostgrestBuilder:p,PostgrestError:g}=c;let m;m="undefined"==typeof window?n(591):window.WebSocket;const v=m,y={"X-Client-Info":"realtime-js/2.11.10"};var w,b,_,k,E,T,S;!function(e){e[e.connecting=0]="connecting",e[e.open=1]="open",e[e.closing=2]="closing",e[e.closed=3]="closed"}(w||(w={})),(S=b||(b={})).closed="closed",S.errored="errored",S.joined="joined",S.joining="joining",S.leaving="leaving",function(e){e.close="phx_close",e.error="phx_error",e.join="phx_join",e.reply="phx_reply",e.leave="phx_leave",e.access_token="access_token"}(_||(_={})),function(e){e.websocket="websocket"}(k||(k={})),function(e){e.Connecting="connecting",e.Open="open",e.Closing="closing",e.Closed="closed"}(E||(E={}));class j{constructor(){this.HEADER_LENGTH=1}decode(e,t){return e.constructor===ArrayBuffer?t(this._binaryDecode(e)):t("string"==typeof e?JSON.parse(e):{})}_binaryDecode(e){const t=new DataView(e),s=new TextDecoder;return this._decodeBroadcast(e,t,s)}_decodeBroadcast(e,t,s){const n=t.getUint8(1),r=t.getUint8(2);let i=this.HEADER_LENGTH+2;const o=s.decode(e.slice(i,i+n));i+=n;const a=s.decode(e.slice(i,i+r));return i+=r,{ref:null,topic:o,event:a,payload:JSON.parse(s.decode(e.slice(i,e.byteLength)))}}}class I{constructor(e,t){this.callback=e,this.timerCalc=t,this.timer=void 0,this.tries=0,this.callback=e,this.timerCalc=t}reset(){this.tries=0,clearTimeout(this.timer)}scheduleTimeout(){clearTimeout(this.timer),this.timer=setTimeout((()=>{this.tries=this.tries+1,this.callback()}),this.timerCalc(this.tries+1))}}!function(e){e.abstime="abstime",e.bool="bool",e.date="date",e.daterange="daterange",e.float4="float4",e.float8="float8",e.int2="int2",e.int4="int4",e.int4range="int4range",e.int8="int8",e.int8range="int8range",e.json="json",e.jsonb="jsonb",e.money="money",e.numeric="numeric",e.oid="oid",e.reltime="reltime",e.text="text",e.time="time",e.timestamp="timestamp",e.timestamptz="timestamptz",e.timetz="timetz",e.tsrange="tsrange",e.tstzrange="tstzrange"}(T||(T={}));const $=(e,t,s={})=>{var n;const r=null!==(n=s.skipTypes)&&void 0!==n?n:[];return Object.keys(t).reduce(((s,n)=>(s[n]=O(n,e,t,r),s)),{})},O=(e,t,s,n)=>{const r=t.find((t=>t.name===e)),i=null==r?void 0:r.type,o=s[e];return i&&!n.includes(i)?C(i,o):P(o)},C=(e,t)=>{if("_"===e.charAt(0)){const s=e.slice(1,e.length);return R(t,s)}switch(e){case T.bool:return A(t);case T.float4:case T.float8:case T.int2:case T.int4:case T.int8:case T.numeric:case T.oid:return L(t);case T.json:case T.jsonb:return x(t);case T.timestamp:return D(t);case T.abstime:case T.date:case T.daterange:case T.int4range:case T.int8range:case T.money:case T.reltime:case T.text:case T.time:case T.timestamptz:case T.timetz:case T.tsrange:case T.tstzrange:default:return P(t)}},P=e=>e,A=e=>{switch(e){case"t":return!0;case"f":return!1;default:return e}},L=e=>{if("string"==typeof e){const t=parseFloat(e);if(!Number.isNaN(t))return t}return e},x=e=>{if("string"==typeof e)try{return JSON.parse(e)}catch(t){return console.log(`JSON parse error: ${t}`),e}return e},R=(e,t)=>{if("string"!=typeof e)return e;const s=e.length-1,n=e[s];if("{"===e[0]&&"}"===n){let n;const r=e.slice(1,s);try{n=JSON.parse("["+r+"]")}catch(e){n=r?r.split(","):[]}return n.map((e=>C(t,e)))}return e},D=e=>"string"==typeof e?e.replace(" ","T"):e,N=e=>{let t=e;return t=t.replace(/^ws/i,"http"),t=t.replace(/(\/socket\/websocket|\/socket|\/websocket)\/?$/i,""),t.replace(/\/+$/,"")};class B{constructor(e,t,s={},n=1e4){this.channel=e,this.event=t,this.payload=s,this.timeout=n,this.sent=!1,this.timeoutTimer=void 0,this.ref="",this.receivedResp=null,this.recHooks=[],this.refEvent=null}resend(e){this.timeout=e,this._cancelRefEvent(),this.ref="",this.refEvent=null,this.receivedResp=null,this.sent=!1,this.send()}send(){this._hasReceived("timeout")||(this.startTimeout(),this.sent=!0,this.channel.socket.push({topic:this.channel.topic,event:this.event,payload:this.payload,ref:this.ref,join_ref:this.channel._joinRef()}))}updatePayload(e){this.payload=Object.assign(Object.assign({},this.payload),e)}receive(e,t){var s;return this._hasReceived(e)&&t(null===(s=this.receivedResp)||void 0===s?void 0:s.response),this.recHooks.push({status:e,callback:t}),this}startTimeout(){this.timeoutTimer||(this.ref=this.channel.socket._makeRef(),this.refEvent=this.channel._replyEventName(this.ref),this.channel._on(this.refEvent,{},(e=>{this._cancelRefEvent(),this._cancelTimeout(),this.receivedResp=e,this._matchReceive(e)})),this.timeoutTimer=setTimeout((()=>{this.trigger("timeout",{})}),this.timeout))}trigger(e,t){this.refEvent&&this.channel._trigger(this.refEvent,{status:e,response:t})}destroy(){this._cancelRefEvent(),this._cancelTimeout()}_cancelRefEvent(){this.refEvent&&this.channel._off(this.refEvent,{})}_cancelTimeout(){clearTimeout(this.timeoutTimer),this.timeoutTimer=void 0}_matchReceive({status:e,response:t}){this.recHooks.filter((t=>t.status===e)).forEach((e=>e.callback(t)))}_hasReceived(e){return this.receivedResp&&this.receivedResp.status===e}}var U,M,q,F;!function(e){e.SYNC="sync",e.JOIN="join",e.LEAVE="leave"}(U||(U={}));class H{constructor(e,t){this.channel=e,this.state={},this.pendingDiffs=[],this.joinRef=null,this.caller={onJoin:()=>{},onLeave:()=>{},onSync:()=>{}};const s=(null==t?void 0:t.events)||{state:"presence_state",diff:"presence_diff"};this.channel._on(s.state,{},(e=>{const{onJoin:t,onLeave:s,onSync:n}=this.caller;this.joinRef=this.channel._joinRef(),this.state=H.syncState(this.state,e,t,s),this.pendingDiffs.forEach((e=>{this.state=H.syncDiff(this.state,e,t,s)})),this.pendingDiffs=[],n()})),this.channel._on(s.diff,{},(e=>{const{onJoin:t,onLeave:s,onSync:n}=this.caller;this.inPendingSyncState()?this.pendingDiffs.push(e):(this.state=H.syncDiff(this.state,e,t,s),n())})),this.onJoin(((e,t,s)=>{this.channel._trigger("presence",{event:"join",key:e,currentPresences:t,newPresences:s})})),this.onLeave(((e,t,s)=>{this.channel._trigger("presence",{event:"leave",key:e,currentPresences:t,leftPresences:s})})),this.onSync((()=>{this.channel._trigger("presence",{event:"sync"})}))}static syncState(e,t,s,n){const r=this.cloneDeep(e),i=this.transformState(t),o={},a={};return this.map(r,((e,t)=>{i[e]||(a[e]=t)})),this.map(i,((e,t)=>{const s=r[e];if(s){const n=t.map((e=>e.presence_ref)),r=s.map((e=>e.presence_ref)),i=t.filter((e=>r.indexOf(e.presence_ref)<0)),l=s.filter((e=>n.indexOf(e.presence_ref)<0));i.length>0&&(o[e]=i),l.length>0&&(a[e]=l)}else o[e]=t})),this.syncDiff(r,{joins:o,leaves:a},s,n)}static syncDiff(e,t,s,n){const{joins:r,leaves:i}={joins:this.transformState(t.joins),leaves:this.transformState(t.leaves)};return s||(s=()=>{}),n||(n=()=>{}),this.map(r,((t,n)=>{var r;const i=null!==(r=e[t])&&void 0!==r?r:[];if(e[t]=this.cloneDeep(n),i.length>0){const s=e[t].map((e=>e.presence_ref)),n=i.filter((e=>s.indexOf(e.presence_ref)<0));e[t].unshift(...n)}s(t,i,n)})),this.map(i,((t,s)=>{let r=e[t];if(!r)return;const i=s.map((e=>e.presence_ref));r=r.filter((e=>i.indexOf(e.presence_ref)<0)),e[t]=r,n(t,r,s),0===r.length&&delete e[t]})),e}static map(e,t){return Object.getOwnPropertyNames(e).map((s=>t(s,e[s])))}static transformState(e){return e=this.cloneDeep(e),Object.getOwnPropertyNames(e).reduce(((t,s)=>{const n=e[s];return t[s]="metas"in n?n.metas.map((e=>(e.presence_ref=e.phx_ref,delete e.phx_ref,delete e.phx_ref_prev,e))):n,t}),{})}static cloneDeep(e){return JSON.parse(JSON.stringify(e))}onJoin(e){this.caller.onJoin=e}onLeave(e){this.caller.onLeave=e}onSync(e){this.caller.onSync=e}inPendingSyncState(){return!this.joinRef||this.joinRef!==this.channel._joinRef()}}!function(e){e.ALL="*",e.INSERT="INSERT",e.UPDATE="UPDATE",e.DELETE="DELETE"}(M||(M={})),function(e){e.BROADCAST="broadcast",e.PRESENCE="presence",e.POSTGRES_CHANGES="postgres_changes",e.SYSTEM="system"}(q||(q={})),function(e){e.SUBSCRIBED="SUBSCRIBED",e.TIMED_OUT="TIMED_OUT",e.CLOSED="CLOSED",e.CHANNEL_ERROR="CHANNEL_ERROR"}(F||(F={}));class J{constructor(e,t={config:{}},s){this.topic=e,this.params=t,this.socket=s,this.bindings={},this.state=b.closed,this.joinedOnce=!1,this.pushBuffer=[],this.subTopic=e.replace(/^realtime:/i,""),this.params.config=Object.assign({broadcast:{ack:!1,self:!1},presence:{key:""},private:!1},t.config),this.timeout=this.socket.timeout,this.joinPush=new B(this,_.join,this.params,this.timeout),this.rejoinTimer=new I((()=>this._rejoinUntilConnected()),this.socket.reconnectAfterMs),this.joinPush.receive("ok",(()=>{this.state=b.joined,this.rejoinTimer.reset(),this.pushBuffer.forEach((e=>e.send())),this.pushBuffer=[]})),this._onClose((()=>{this.rejoinTimer.reset(),this.socket.log("channel",`close ${this.topic} ${this._joinRef()}`),this.state=b.closed,this.socket._remove(this)})),this._onError((e=>{this._isLeaving()||this._isClosed()||(this.socket.log("channel",`error ${this.topic}`,e),this.state=b.errored,this.rejoinTimer.scheduleTimeout())})),this.joinPush.receive("timeout",(()=>{this._isJoining()&&(this.socket.log("channel",`timeout ${this.topic}`,this.joinPush.timeout),this.state=b.errored,this.rejoinTimer.scheduleTimeout())})),this._on(_.reply,{},((e,t)=>{this._trigger(this._replyEventName(t),e)})),this.presence=new H(this),this.broadcastEndpointURL=N(this.socket.endPoint)+"/api/broadcast",this.private=this.params.config.private||!1}subscribe(e,t=this.timeout){var s,n;if(this.socket.isConnected()||this.socket.connect(),this.joinedOnce)throw"tried to subscribe multiple times. 'subscribe' can only be called a single time per channel instance";{const{config:{broadcast:r,presence:i,private:o}}=this.params;this._onError((t=>null==e?void 0:e(F.CHANNEL_ERROR,t))),this._onClose((()=>null==e?void 0:e(F.CLOSED)));const a={},l={broadcast:r,presence:i,postgres_changes:null!==(n=null===(s=this.bindings.postgres_changes)||void 0===s?void 0:s.map((e=>e.filter)))&&void 0!==n?n:[],private:o};this.socket.accessTokenValue&&(a.access_token=this.socket.accessTokenValue),this.updateJoinPayload(Object.assign({config:l},a)),this.joinedOnce=!0,this._rejoin(t),this.joinPush.receive("ok",(async({postgres_changes:t})=>{var s;if(this.socket.setAuth(),void 0!==t){const n=this.bindings.postgres_changes,r=null!==(s=null==n?void 0:n.length)&&void 0!==s?s:0,i=[];for(let s=0;s<r;s++){const r=n[s],{filter:{event:o,schema:a,table:l,filter:c}}=r,d=t&&t[s];if(!d||d.event!==o||d.schema!==a||d.table!==l||d.filter!==c)return this.unsubscribe(),this.state=b.errored,void(null==e||e(F.CHANNEL_ERROR,new Error("mismatch between server and client bindings for postgres changes")));i.push(Object.assign(Object.assign({},r),{id:d.id}))}return this.bindings.postgres_changes=i,void(e&&e(F.SUBSCRIBED))}null==e||e(F.SUBSCRIBED)})).receive("error",(t=>{this.state=b.errored,null==e||e(F.CHANNEL_ERROR,new Error(JSON.stringify(Object.values(t).join(", ")||"error")))})).receive("timeout",(()=>{null==e||e(F.TIMED_OUT)}))}return this}presenceState(){return this.presence.state}async track(e,t={}){return await this.send({type:"presence",event:"track",payload:e},t.timeout||this.timeout)}async untrack(e={}){return await this.send({type:"presence",event:"untrack"},e)}on(e,t,s){return this._on(e,t,s)}async send(e,t={}){var s,n;if(this._canPush()||"broadcast"!==e.type)return new Promise((s=>{var n,r,i;const o=this._push(e.type,e,t.timeout||this.timeout);"broadcast"!==e.type||(null===(i=null===(r=null===(n=this.params)||void 0===n?void 0:n.config)||void 0===r?void 0:r.broadcast)||void 0===i?void 0:i.ack)||s("ok"),o.receive("ok",(()=>s("ok"))),o.receive("error",(()=>s("error"))),o.receive("timeout",(()=>s("timed out")))}));{const{event:r,payload:i}=e,o={method:"POST",headers:{Authorization:this.socket.accessTokenValue?`Bearer ${this.socket.accessTokenValue}`:"",apikey:this.socket.apiKey?this.socket.apiKey:"","Content-Type":"application/json"},body:JSON.stringify({messages:[{topic:this.subTopic,event:r,payload:i,private:this.private}]})};try{const e=await this._fetchWithTimeout(this.broadcastEndpointURL,o,null!==(s=t.timeout)&&void 0!==s?s:this.timeout);return await(null===(n=e.body)||void 0===n?void 0:n.cancel()),e.ok?"ok":"error"}catch(e){return"AbortError"===e.name?"timed out":"error"}}}updateJoinPayload(e){this.joinPush.updatePayload(e)}unsubscribe(e=this.timeout){this.state=b.leaving;const t=()=>{this.socket.log("channel",`leave ${this.topic}`),this._trigger(_.close,"leave",this._joinRef())};return this.joinPush.destroy(),new Promise((s=>{const n=new B(this,_.leave,{},e);n.receive("ok",(()=>{t(),s("ok")})).receive("timeout",(()=>{t(),s("timed out")})).receive("error",(()=>{s("error")})),n.send(),this._canPush()||n.trigger("ok",{})}))}teardown(){this.pushBuffer.forEach((e=>e.destroy())),this.rejoinTimer&&clearTimeout(this.rejoinTimer.timer),this.joinPush.destroy()}async _fetchWithTimeout(e,t,s){const n=new AbortController,r=setTimeout((()=>n.abort()),s),i=await this.socket.fetch(e,Object.assign(Object.assign({},t),{signal:n.signal}));return clearTimeout(r),i}_push(e,t,s=this.timeout){if(!this.joinedOnce)throw`tried to push '${e}' to '${this.topic}' before joining. Use channel.subscribe() before pushing events`;let n=new B(this,e,t,s);return this._canPush()?n.send():(n.startTimeout(),this.pushBuffer.push(n)),n}_onMessage(e,t,s){return t}_isMember(e){return this.topic===e}_joinRef(){return this.joinPush.ref}_trigger(e,t,s){var n,r;const i=e.toLocaleLowerCase(),{close:o,error:a,leave:l,join:c}=_;if(s&&[o,a,l,c].indexOf(i)>=0&&s!==this._joinRef())return;let d=this._onMessage(i,t,s);if(t&&!d)throw"channel onMessage callbacks must return the payload, modified or unmodified";["insert","update","delete"].includes(i)?null===(n=this.bindings.postgres_changes)||void 0===n||n.filter((e=>{var t,s,n;return"*"===(null===(t=e.filter)||void 0===t?void 0:t.event)||(null===(n=null===(s=e.filter)||void 0===s?void 0:s.event)||void 0===n?void 0:n.toLocaleLowerCase())===i})).map((e=>e.callback(d,s))):null===(r=this.bindings[i])||void 0===r||r.filter((e=>{var s,n,r,o,a,l;if(["broadcast","presence","postgres_changes"].includes(i)){if("id"in e){const i=e.id,o=null===(s=e.filter)||void 0===s?void 0:s.event;return i&&(null===(n=t.ids)||void 0===n?void 0:n.includes(i))&&("*"===o||(null==o?void 0:o.toLocaleLowerCase())===(null===(r=t.data)||void 0===r?void 0:r.type.toLocaleLowerCase()))}{const s=null===(a=null===(o=null==e?void 0:e.filter)||void 0===o?void 0:o.event)||void 0===a?void 0:a.toLocaleLowerCase();return"*"===s||s===(null===(l=null==t?void 0:t.event)||void 0===l?void 0:l.toLocaleLowerCase())}}return e.type.toLocaleLowerCase()===i})).map((e=>{if("object"==typeof d&&"ids"in d){const e=d.data,{schema:t,table:s,commit_timestamp:n,type:r,errors:i}=e,o={schema:t,table:s,commit_timestamp:n,eventType:r,new:{},old:{},errors:i};d=Object.assign(Object.assign({},o),this._getPayloadRecords(e))}e.callback(d,s)}))}_isClosed(){return this.state===b.closed}_isJoined(){return this.state===b.joined}_isJoining(){return this.state===b.joining}_isLeaving(){return this.state===b.leaving}_replyEventName(e){return`chan_reply_${e}`}_on(e,t,s){const n=e.toLocaleLowerCase(),r={type:n,filter:t,callback:s};return this.bindings[n]?this.bindings[n].push(r):this.bindings[n]=[r],this}_off(e,t){const s=e.toLocaleLowerCase();return this.bindings[s]=this.bindings[s].filter((e=>{var n;return!((null===(n=e.type)||void 0===n?void 0:n.toLocaleLowerCase())===s&&J.isEqual(e.filter,t))})),this}static isEqual(e,t){if(Object.keys(e).length!==Object.keys(t).length)return!1;for(const s in e)if(e[s]!==t[s])return!1;return!0}_rejoinUntilConnected(){this.rejoinTimer.scheduleTimeout(),this.socket.isConnected()&&this._rejoin()}_onClose(e){this._on(_.close,{},e)}_onError(e){this._on(_.error,{},(t=>e(t)))}_canPush(){return this.socket.isConnected()&&this._isJoined()}_rejoin(e=this.timeout){this._isLeaving()||(this.socket._leaveOpenTopic(this.topic),this.state=b.joining,this.joinPush.resend(e))}_getPayloadRecords(e){const t={new:{},old:{}};return"INSERT"!==e.type&&"UPDATE"!==e.type||(t.new=$(e.columns,e.record)),"UPDATE"!==e.type&&"DELETE"!==e.type||(t.old=$(e.columns,e.old_record)),t}}const z=()=>{};class W{constructor(e,t){var s;this.accessTokenValue=null,this.apiKey=null,this.channels=new Array,this.endPoint="",this.httpEndpoint="",this.headers=y,this.params={},this.timeout=1e4,this.heartbeatIntervalMs=25e3,this.heartbeatTimer=void 0,this.pendingHeartbeatRef=null,this.heartbeatCallback=z,this.ref=0,this.logger=z,this.conn=null,this.sendBuffer=[],this.serializer=new j,this.stateChangeCallbacks={open:[],close:[],error:[],message:[]},this.accessToken=null,this._resolveFetch=e=>{let t;return t=e||("undefined"==typeof fetch?(...e)=>Promise.resolve().then(n.bind(n,907)).then((({default:t})=>t(...e))):fetch),(...e)=>t(...e)},this.endPoint=`${e}/${k.websocket}`,this.httpEndpoint=N(e),(null==t?void 0:t.transport)?this.transport=t.transport:this.transport=null,(null==t?void 0:t.params)&&(this.params=t.params),(null==t?void 0:t.headers)&&(this.headers=Object.assign(Object.assign({},this.headers),t.headers)),(null==t?void 0:t.timeout)&&(this.timeout=t.timeout),(null==t?void 0:t.logger)&&(this.logger=t.logger),((null==t?void 0:t.logLevel)||(null==t?void 0:t.log_level))&&(this.logLevel=t.logLevel||t.log_level,this.params=Object.assign(Object.assign({},this.params),{log_level:this.logLevel})),(null==t?void 0:t.heartbeatIntervalMs)&&(this.heartbeatIntervalMs=t.heartbeatIntervalMs);const r=null===(s=null==t?void 0:t.params)||void 0===s?void 0:s.apikey;if(r&&(this.accessTokenValue=r,this.apiKey=r),this.reconnectAfterMs=(null==t?void 0:t.reconnectAfterMs)?t.reconnectAfterMs:e=>[1e3,2e3,5e3,1e4][e-1]||1e4,this.encode=(null==t?void 0:t.encode)?t.encode:(e,t)=>t(JSON.stringify(e)),this.decode=(null==t?void 0:t.decode)?t.decode:this.serializer.decode.bind(this.serializer),this.reconnectTimer=new I((async()=>{this.disconnect(),this.connect()}),this.reconnectAfterMs),this.fetch=this._resolveFetch(null==t?void 0:t.fetch),null==t?void 0:t.worker){if("undefined"!=typeof window&&!window.Worker)throw new Error("Web Worker is not supported");this.worker=(null==t?void 0:t.worker)||!1,this.workerUrl=null==t?void 0:t.workerUrl}this.accessToken=(null==t?void 0:t.accessToken)||null}connect(){if(!this.conn){if(this.transport||(this.transport=v),this.transport){const e="undefined"!=typeof window&&this.transport===window.WebSocket;return this.conn=e?new this.transport(this.endpointURL()):new this.transport(this.endpointURL(),void 0,{headers:this.headers}),void this.setupConnection()}this.conn=new K(this.endpointURL(),void 0,{close:()=>{this.conn=null}})}}endpointURL(){return this._appendParams(this.endPoint,Object.assign({},this.params,{vsn:"1.0.0"}))}disconnect(e,t){this.conn&&(this.conn.onclose=function(){},e?this.conn.close(e,null!=t?t:""):this.conn.close(),this.conn=null,this.heartbeatTimer&&clearInterval(this.heartbeatTimer),this.reconnectTimer.reset(),this.channels.forEach((e=>e.teardown())))}getChannels(){return this.channels}async removeChannel(e){const t=await e.unsubscribe();return this.channels=this.channels.filter((t=>t._joinRef!==e._joinRef)),0===this.channels.length&&this.disconnect(),t}async removeAllChannels(){const e=await Promise.all(this.channels.map((e=>e.unsubscribe())));return this.channels=[],this.disconnect(),e}log(e,t,s){this.logger(e,t,s)}connectionState(){switch(this.conn&&this.conn.readyState){case w.connecting:return E.Connecting;case w.open:return E.Open;case w.closing:return E.Closing;default:return E.Closed}}isConnected(){return this.connectionState()===E.Open}channel(e,t={config:{}}){const s=`realtime:${e}`,n=this.getChannels().find((e=>e.topic===s));if(n)return n;{const s=new J(`realtime:${e}`,t,this);return this.channels.push(s),s}}push(e){const{topic:t,event:s,payload:n,ref:r}=e,i=()=>{this.encode(e,(e=>{var t;null===(t=this.conn)||void 0===t||t.send(e)}))};this.log("push",`${t} ${s} (${r})`,n),this.isConnected()?i():this.sendBuffer.push(i)}async setAuth(e=null){let t=e||this.accessToken&&await this.accessToken()||this.accessTokenValue;this.accessTokenValue!=t&&(this.accessTokenValue=t,this.channels.forEach((e=>{t&&e.updateJoinPayload({access_token:t,version:this.headers&&this.headers["X-Client-Info"]}),e.joinedOnce&&e._isJoined()&&e._push(_.access_token,{access_token:t})})))}async sendHeartbeat(){var e;if(this.isConnected()){if(this.pendingHeartbeatRef)return this.pendingHeartbeatRef=null,this.log("transport","heartbeat timeout. Attempting to re-establish connection"),this.heartbeatCallback("timeout"),void(null===(e=this.conn)||void 0===e||e.close(1e3,"hearbeat timeout"));this.pendingHeartbeatRef=this._makeRef(),this.push({topic:"phoenix",event:"heartbeat",payload:{},ref:this.pendingHeartbeatRef}),this.heartbeatCallback("sent"),await this.setAuth()}else this.heartbeatCallback("disconnected")}onHeartbeat(e){this.heartbeatCallback=e}flushSendBuffer(){this.isConnected()&&this.sendBuffer.length>0&&(this.sendBuffer.forEach((e=>e())),this.sendBuffer=[])}_makeRef(){let e=this.ref+1;return e===this.ref?this.ref=0:this.ref=e,this.ref.toString()}_leaveOpenTopic(e){let t=this.channels.find((t=>t.topic===e&&(t._isJoined()||t._isJoining())));t&&(this.log("transport",`leaving duplicate topic "${e}"`),t.unsubscribe())}_remove(e){this.channels=this.channels.filter((t=>t.topic!==e.topic))}setupConnection(){this.conn&&(this.conn.binaryType="arraybuffer",this.conn.onopen=()=>this._onConnOpen(),this.conn.onerror=e=>this._onConnError(e),this.conn.onmessage=e=>this._onConnMessage(e),this.conn.onclose=e=>this._onConnClose(e))}_onConnMessage(e){this.decode(e.data,(e=>{let{topic:t,event:s,payload:n,ref:r}=e;"phoenix"===t&&"phx_reply"===s&&this.heartbeatCallback("ok"==e.payload.status?"ok":"error"),r&&r===this.pendingHeartbeatRef&&(this.pendingHeartbeatRef=null),this.log("receive",`${n.status||""} ${t} ${s} ${r&&"("+r+")"||""}`,n),Array.from(this.channels).filter((e=>e._isMember(t))).forEach((e=>e._trigger(s,n,r))),this.stateChangeCallbacks.message.forEach((t=>t(e)))}))}_onConnOpen(){if(this.log("transport",`connected to ${this.endpointURL()}`),this.flushSendBuffer(),this.reconnectTimer.reset(),this.worker){this.workerUrl?this.log("worker",`starting worker for from ${this.workerUrl}`):this.log("worker","starting default worker");const e=this._workerObjectUrl(this.workerUrl);this.workerRef=new Worker(e),this.workerRef.onerror=e=>{this.log("worker","worker error",e.message),this.workerRef.terminate()},this.workerRef.onmessage=e=>{"keepAlive"===e.data.event&&this.sendHeartbeat()},this.workerRef.postMessage({event:"start",interval:this.heartbeatIntervalMs})}else this.heartbeatTimer&&clearInterval(this.heartbeatTimer),this.heartbeatTimer=setInterval((()=>this.sendHeartbeat()),this.heartbeatIntervalMs);this.stateChangeCallbacks.open.forEach((e=>e()))}_onConnClose(e){this.log("transport","close",e),this._triggerChanError(),this.heartbeatTimer&&clearInterval(this.heartbeatTimer),this.reconnectTimer.scheduleTimeout(),this.stateChangeCallbacks.close.forEach((t=>t(e)))}_onConnError(e){this.log("transport",e.message),this._triggerChanError(),this.stateChangeCallbacks.error.forEach((t=>t(e)))}_triggerChanError(){this.channels.forEach((e=>e._trigger(_.error)))}_appendParams(e,t){if(0===Object.keys(t).length)return e;const s=e.match(/\?/)?"&":"?";return`${e}${s}${new URLSearchParams(t)}`}_workerObjectUrl(e){let t;if(e)t=e;else{const e=new Blob(['\n  addEventListener("message", (e) => {\n    if (e.data.event === "start") {\n      setInterval(() => postMessage({ event: "keepAlive" }), e.data.interval);\n    }\n  });'],{type:"application/javascript"});t=URL.createObjectURL(e)}return t}}class K{constructor(e,t,s){this.binaryType="arraybuffer",this.onclose=()=>{},this.onerror=()=>{},this.onmessage=()=>{},this.onopen=()=>{},this.readyState=w.connecting,this.send=()=>{},this.url=null,this.url=e,this.close=s.close}}class V extends Error{constructor(e){super(e),this.__isStorageError=!0,this.name="StorageError"}}function G(e){return"object"==typeof e&&null!==e&&"__isStorageError"in e}class Y extends V{constructor(e,t){super(e),this.name="StorageApiError",this.status=t}toJSON(){return{name:this.name,message:this.message,status:this.status}}}class X extends V{constructor(e,t){super(e),this.name="StorageUnknownError",this.originalError=t}}const Z=e=>{let t;return t=e||("undefined"==typeof fetch?(...e)=>Promise.resolve().then(n.bind(n,907)).then((({default:t})=>t(...e))):fetch),(...e)=>t(...e)},Q=e=>{if(Array.isArray(e))return e.map((e=>Q(e)));if("function"==typeof e||e!==Object(e))return e;const t={};return Object.entries(e).forEach((([e,s])=>{const n=e.replace(/([-_][a-z])/gi,(e=>e.toUpperCase().replace(/[-_]/g,"")));t[n]=Q(s)})),t};var ee=function(e,t,s,n){return new(s||(s=Promise))((function(r,i){function o(e){try{l(n.next(e))}catch(e){i(e)}}function a(e){try{l(n.throw(e))}catch(e){i(e)}}function l(e){var t;e.done?r(e.value):(t=e.value,t instanceof s?t:new s((function(e){e(t)}))).then(o,a)}l((n=n.apply(e,t||[])).next())}))};const te=e=>e.msg||e.message||e.error_description||e.error||JSON.stringify(e),se=(e,t,s)=>ee(void 0,void 0,void 0,(function*(){const r=yield(i=void 0,o=void 0,a=void 0,l=function*(){return"undefined"==typeof Response?(yield Promise.resolve().then(n.bind(n,907))).Response:Response},new(a||(a=Promise))((function(e,t){function s(e){try{r(l.next(e))}catch(e){t(e)}}function n(e){try{r(l.throw(e))}catch(e){t(e)}}function r(t){var r;t.done?e(t.value):(r=t.value,r instanceof a?r:new a((function(e){e(r)}))).then(s,n)}r((l=l.apply(i,o||[])).next())})));var i,o,a,l;e instanceof r&&!(null==s?void 0:s.noResolveJson)?e.json().then((s=>{t(new Y(te(s),e.status||500))})).catch((e=>{t(new X(te(e),e))})):t(new X(te(e),e))}));function ne(e,t,s,n,r,i){return ee(this,void 0,void 0,(function*(){return new Promise(((o,a)=>{e(s,((e,t,s,n)=>{const r={method:e,headers:(null==t?void 0:t.headers)||{}};return"GET"===e?r:(r.headers=Object.assign({"Content-Type":"application/json"},null==t?void 0:t.headers),n&&(r.body=JSON.stringify(n)),Object.assign(Object.assign({},r),s))})(t,n,r,i)).then((e=>{if(!e.ok)throw e;return(null==n?void 0:n.noResolveJson)?e:e.json()})).then((e=>o(e))).catch((e=>se(e,a,n)))}))}))}function re(e,t,s,n){return ee(this,void 0,void 0,(function*(){return ne(e,"GET",t,s,n)}))}function ie(e,t,s,n,r){return ee(this,void 0,void 0,(function*(){return ne(e,"POST",t,n,r,s)}))}function oe(e,t,s,n,r){return ee(this,void 0,void 0,(function*(){return ne(e,"DELETE",t,n,r,s)}))}var ae=function(e,t,s,n){return new(s||(s=Promise))((function(r,i){function o(e){try{l(n.next(e))}catch(e){i(e)}}function a(e){try{l(n.throw(e))}catch(e){i(e)}}function l(e){var t;e.done?r(e.value):(t=e.value,t instanceof s?t:new s((function(e){e(t)}))).then(o,a)}l((n=n.apply(e,t||[])).next())}))};const le={limit:100,offset:0,sortBy:{column:"name",order:"asc"}},ce={cacheControl:"3600",contentType:"text/plain;charset=UTF-8",upsert:!1};class de{constructor(e,t={},s,n){this.url=e,this.headers=t,this.bucketId=s,this.fetch=Z(n)}uploadOrUpdate(e,t,s,n){return ae(this,void 0,void 0,(function*(){try{let r;const i=Object.assign(Object.assign({},ce),n);let o=Object.assign(Object.assign({},this.headers),"POST"===e&&{"x-upsert":String(i.upsert)});const a=i.metadata;"undefined"!=typeof Blob&&s instanceof Blob?(r=new FormData,r.append("cacheControl",i.cacheControl),a&&r.append("metadata",this.encodeMetadata(a)),r.append("",s)):"undefined"!=typeof FormData&&s instanceof FormData?(r=s,r.append("cacheControl",i.cacheControl),a&&r.append("metadata",this.encodeMetadata(a))):(r=s,o["cache-control"]=`max-age=${i.cacheControl}`,o["content-type"]=i.contentType,a&&(o["x-metadata"]=this.toBase64(this.encodeMetadata(a)))),(null==n?void 0:n.headers)&&(o=Object.assign(Object.assign({},o),n.headers));const l=this._removeEmptyFolders(t),c=this._getFinalPath(l),d=yield this.fetch(`${this.url}/object/${c}`,Object.assign({method:e,body:r,headers:o},(null==i?void 0:i.duplex)?{duplex:i.duplex}:{})),u=yield d.json();return d.ok?{data:{path:l,id:u.Id,fullPath:u.Key},error:null}:{data:null,error:u}}catch(e){if(G(e))return{data:null,error:e};throw e}}))}upload(e,t,s){return ae(this,void 0,void 0,(function*(){return this.uploadOrUpdate("POST",e,t,s)}))}uploadToSignedUrl(e,t,s,n){return ae(this,void 0,void 0,(function*(){const r=this._removeEmptyFolders(e),i=this._getFinalPath(r),o=new URL(this.url+`/object/upload/sign/${i}`);o.searchParams.set("token",t);try{let e;const t=Object.assign({upsert:ce.upsert},n),i=Object.assign(Object.assign({},this.headers),{"x-upsert":String(t.upsert)});"undefined"!=typeof Blob&&s instanceof Blob?(e=new FormData,e.append("cacheControl",t.cacheControl),e.append("",s)):"undefined"!=typeof FormData&&s instanceof FormData?(e=s,e.append("cacheControl",t.cacheControl)):(e=s,i["cache-control"]=`max-age=${t.cacheControl}`,i["content-type"]=t.contentType);const a=yield this.fetch(o.toString(),{method:"PUT",body:e,headers:i}),l=yield a.json();return a.ok?{data:{path:r,fullPath:l.Key},error:null}:{data:null,error:l}}catch(e){if(G(e))return{data:null,error:e};throw e}}))}createSignedUploadUrl(e,t){return ae(this,void 0,void 0,(function*(){try{let s=this._getFinalPath(e);const n=Object.assign({},this.headers);(null==t?void 0:t.upsert)&&(n["x-upsert"]="true");const r=yield ie(this.fetch,`${this.url}/object/upload/sign/${s}`,{},{headers:n}),i=new URL(this.url+r.url),o=i.searchParams.get("token");if(!o)throw new V("No token returned by API");return{data:{signedUrl:i.toString(),path:e,token:o},error:null}}catch(e){if(G(e))return{data:null,error:e};throw e}}))}update(e,t,s){return ae(this,void 0,void 0,(function*(){return this.uploadOrUpdate("PUT",e,t,s)}))}move(e,t,s){return ae(this,void 0,void 0,(function*(){try{return{data:yield ie(this.fetch,`${this.url}/object/move`,{bucketId:this.bucketId,sourceKey:e,destinationKey:t,destinationBucket:null==s?void 0:s.destinationBucket},{headers:this.headers}),error:null}}catch(e){if(G(e))return{data:null,error:e};throw e}}))}copy(e,t,s){return ae(this,void 0,void 0,(function*(){try{return{data:{path:(yield ie(this.fetch,`${this.url}/object/copy`,{bucketId:this.bucketId,sourceKey:e,destinationKey:t,destinationBucket:null==s?void 0:s.destinationBucket},{headers:this.headers})).Key},error:null}}catch(e){if(G(e))return{data:null,error:e};throw e}}))}createSignedUrl(e,t,s){return ae(this,void 0,void 0,(function*(){try{let n=this._getFinalPath(e),r=yield ie(this.fetch,`${this.url}/object/sign/${n}`,Object.assign({expiresIn:t},(null==s?void 0:s.transform)?{transform:s.transform}:{}),{headers:this.headers});const i=(null==s?void 0:s.download)?`&download=${!0===s.download?"":s.download}`:"";return r={signedUrl:encodeURI(`${this.url}${r.signedURL}${i}`)},{data:r,error:null}}catch(e){if(G(e))return{data:null,error:e};throw e}}))}createSignedUrls(e,t,s){return ae(this,void 0,void 0,(function*(){try{const n=yield ie(this.fetch,`${this.url}/object/sign/${this.bucketId}`,{expiresIn:t,paths:e},{headers:this.headers}),r=(null==s?void 0:s.download)?`&download=${!0===s.download?"":s.download}`:"";return{data:n.map((e=>Object.assign(Object.assign({},e),{signedUrl:e.signedURL?encodeURI(`${this.url}${e.signedURL}${r}`):null}))),error:null}}catch(e){if(G(e))return{data:null,error:e};throw e}}))}download(e,t){return ae(this,void 0,void 0,(function*(){const s=void 0!==(null==t?void 0:t.transform)?"render/image/authenticated":"object",n=this.transformOptsToQueryString((null==t?void 0:t.transform)||{}),r=n?`?${n}`:"";try{const t=this._getFinalPath(e),n=yield re(this.fetch,`${this.url}/${s}/${t}${r}`,{headers:this.headers,noResolveJson:!0});return{data:yield n.blob(),error:null}}catch(e){if(G(e))return{data:null,error:e};throw e}}))}info(e){return ae(this,void 0,void 0,(function*(){const t=this._getFinalPath(e);try{const e=yield re(this.fetch,`${this.url}/object/info/${t}`,{headers:this.headers});return{data:Q(e),error:null}}catch(e){if(G(e))return{data:null,error:e};throw e}}))}exists(e){return ae(this,void 0,void 0,(function*(){const t=this._getFinalPath(e);try{return yield function(e,t,s){return ee(this,void 0,void 0,(function*(){return ne(e,"HEAD",t,Object.assign(Object.assign({},s),{noResolveJson:!0}),undefined)}))}(this.fetch,`${this.url}/object/${t}`,{headers:this.headers}),{data:!0,error:null}}catch(e){if(G(e)&&e instanceof X){const t=e.originalError;if([400,404].includes(null==t?void 0:t.status))return{data:!1,error:e}}throw e}}))}getPublicUrl(e,t){const s=this._getFinalPath(e),n=[],r=(null==t?void 0:t.download)?`download=${!0===t.download?"":t.download}`:"";""!==r&&n.push(r);const i=void 0!==(null==t?void 0:t.transform)?"render/image":"object",o=this.transformOptsToQueryString((null==t?void 0:t.transform)||{});""!==o&&n.push(o);let a=n.join("&");return""!==a&&(a=`?${a}`),{data:{publicUrl:encodeURI(`${this.url}/${i}/public/${s}${a}`)}}}remove(e){return ae(this,void 0,void 0,(function*(){try{return{data:yield oe(this.fetch,`${this.url}/object/${this.bucketId}`,{prefixes:e},{headers:this.headers}),error:null}}catch(e){if(G(e))return{data:null,error:e};throw e}}))}list(e,t,s){return ae(this,void 0,void 0,(function*(){try{const n=Object.assign(Object.assign(Object.assign({},le),t),{prefix:e||""});return{data:yield ie(this.fetch,`${this.url}/object/list/${this.bucketId}`,n,{headers:this.headers},s),error:null}}catch(e){if(G(e))return{data:null,error:e};throw e}}))}encodeMetadata(e){return JSON.stringify(e)}toBase64(e){return"undefined"!=typeof Buffer?Buffer.from(e).toString("base64"):btoa(e)}_getFinalPath(e){return`${this.bucketId}/${e}`}_removeEmptyFolders(e){return e.replace(/^\/|\/$/g,"").replace(/\/+/g,"/")}transformOptsToQueryString(e){const t=[];return e.width&&t.push(`width=${e.width}`),e.height&&t.push(`height=${e.height}`),e.resize&&t.push(`resize=${e.resize}`),e.format&&t.push(`format=${e.format}`),e.quality&&t.push(`quality=${e.quality}`),t.join("&")}}const ue={"X-Client-Info":"storage-js/2.7.1"};var he=function(e,t,s,n){return new(s||(s=Promise))((function(r,i){function o(e){try{l(n.next(e))}catch(e){i(e)}}function a(e){try{l(n.throw(e))}catch(e){i(e)}}function l(e){var t;e.done?r(e.value):(t=e.value,t instanceof s?t:new s((function(e){e(t)}))).then(o,a)}l((n=n.apply(e,t||[])).next())}))};class fe{constructor(e,t={},s){this.url=e,this.headers=Object.assign(Object.assign({},ue),t),this.fetch=Z(s)}listBuckets(){return he(this,void 0,void 0,(function*(){try{return{data:yield re(this.fetch,`${this.url}/bucket`,{headers:this.headers}),error:null}}catch(e){if(G(e))return{data:null,error:e};throw e}}))}getBucket(e){return he(this,void 0,void 0,(function*(){try{return{data:yield re(this.fetch,`${this.url}/bucket/${e}`,{headers:this.headers}),error:null}}catch(e){if(G(e))return{data:null,error:e};throw e}}))}createBucket(e,t={public:!1}){return he(this,void 0,void 0,(function*(){try{return{data:yield ie(this.fetch,`${this.url}/bucket`,{id:e,name:e,public:t.public,file_size_limit:t.fileSizeLimit,allowed_mime_types:t.allowedMimeTypes},{headers:this.headers}),error:null}}catch(e){if(G(e))return{data:null,error:e};throw e}}))}updateBucket(e,t){return he(this,void 0,void 0,(function*(){try{const s=yield function(e,t,s,n){return ee(this,void 0,void 0,(function*(){return ne(e,"PUT",t,n,undefined,s)}))}(this.fetch,`${this.url}/bucket/${e}`,{id:e,name:e,public:t.public,file_size_limit:t.fileSizeLimit,allowed_mime_types:t.allowedMimeTypes},{headers:this.headers});return{data:s,error:null}}catch(e){if(G(e))return{data:null,error:e};throw e}}))}emptyBucket(e){return he(this,void 0,void 0,(function*(){try{return{data:yield ie(this.fetch,`${this.url}/bucket/${e}/empty`,{},{headers:this.headers}),error:null}}catch(e){if(G(e))return{data:null,error:e};throw e}}))}deleteBucket(e){return he(this,void 0,void 0,(function*(){try{return{data:yield oe(this.fetch,`${this.url}/bucket/${e}`,{},{headers:this.headers}),error:null}}catch(e){if(G(e))return{data:null,error:e};throw e}}))}}class pe extends fe{constructor(e,t={},s){super(e,t,s)}from(e){return new de(this.url,this.headers,e,this.fetch)}}let ge="";ge="undefined"!=typeof Deno?"deno":"undefined"!=typeof document?"web":"undefined"!=typeof navigator&&"ReactNative"===navigator.product?"react-native":"node";const me={headers:{"X-Client-Info":`supabase-js-${ge}/2.50.0`}},ve={schema:"public"},ye={autoRefreshToken:!0,persistSession:!0,detectSessionInUrl:!0,flowType:"implicit"},we={};var be=n(907);const _e=e=>{let t;return t=e||("undefined"==typeof fetch?be.default:fetch),(...e)=>t(...e)},ke=(e,t,s)=>{const n=_e(s),r="undefined"==typeof Headers?be.Headers:Headers;return(s,i)=>{return o=void 0,a=void 0,c=function*(){var o;const a=null!==(o=yield t())&&void 0!==o?o:e;let l=new r(null==i?void 0:i.headers);return l.has("apikey")||l.set("apikey",e),l.has("Authorization")||l.set("Authorization",`Bearer ${a}`),n(s,Object.assign(Object.assign({},i),{headers:l}))},new((l=void 0)||(l=Promise))((function(e,t){function s(e){try{r(c.next(e))}catch(e){t(e)}}function n(e){try{r(c.throw(e))}catch(e){t(e)}}function r(t){var r;t.done?e(t.value):(r=t.value,r instanceof l?r:new l((function(e){e(r)}))).then(s,n)}r((c=c.apply(o,a||[])).next())}));var o,a,l,c}};const Ee="2.70.0",Te=3e4,Se={"X-Client-Info":`gotrue-js/${Ee}`},je="X-Supabase-Api-Version",Ie=Date.parse("2024-01-01T00:00:00.0Z"),$e="2024-01-01",Oe=/^([a-z0-9_-]{4})*($|[a-z0-9_-]{3}$|[a-z0-9_-]{2}$)$/i;class Ce extends Error{constructor(e,t,s){super(e),this.__isAuthError=!0,this.name="AuthError",this.status=t,this.code=s}}function Pe(e){return"object"==typeof e&&null!==e&&"__isAuthError"in e}class Ae extends Ce{constructor(e,t,s){super(e,t,s),this.name="AuthApiError",this.status=t,this.code=s}}class Le extends Ce{constructor(e,t){super(e),this.name="AuthUnknownError",this.originalError=t}}class xe extends Ce{constructor(e,t,s,n){super(e,s,n),this.name=t,this.status=s}}class Re extends xe{constructor(){super("Auth session missing!","AuthSessionMissingError",400,void 0)}}class De extends xe{constructor(){super("Auth session or user missing","AuthInvalidTokenResponseError",500,void 0)}}class Ne extends xe{constructor(e){super(e,"AuthInvalidCredentialsError",400,void 0)}}class Be extends xe{constructor(e,t=null){super(e,"AuthImplicitGrantRedirectError",500,void 0),this.details=null,this.details=t}toJSON(){return{name:this.name,message:this.message,status:this.status,details:this.details}}}class Ue extends xe{constructor(e,t=null){super(e,"AuthPKCEGrantCodeExchangeError",500,void 0),this.details=null,this.details=t}toJSON(){return{name:this.name,message:this.message,status:this.status,details:this.details}}}class Me extends xe{constructor(e,t){super(e,"AuthRetryableFetchError",t,void 0)}}function qe(e){return Pe(e)&&"AuthRetryableFetchError"===e.name}class Fe extends xe{constructor(e,t,s){super(e,"AuthWeakPasswordError",t,"weak_password"),this.reasons=s}}class He extends xe{constructor(e){super(e,"AuthInvalidJwtError",400,"invalid_jwt")}}const Je="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_".split(""),ze=" \t\n\r=".split(""),We=(()=>{const e=new Array(128);for(let t=0;t<e.length;t+=1)e[t]=-1;for(let t=0;t<ze.length;t+=1)e[ze[t].charCodeAt(0)]=-2;for(let t=0;t<Je.length;t+=1)e[Je[t].charCodeAt(0)]=t;return e})();function Ke(e,t,s){if(null!==e)for(t.queue=t.queue<<8|e,t.queuedBits+=8;t.queuedBits>=6;){const e=t.queue>>t.queuedBits-6&63;s(Je[e]),t.queuedBits-=6}else if(t.queuedBits>0)for(t.queue=t.queue<<6-t.queuedBits,t.queuedBits=6;t.queuedBits>=6;){const e=t.queue>>t.queuedBits-6&63;s(Je[e]),t.queuedBits-=6}}function Ve(e,t,s){const n=We[e];if(!(n>-1)){if(-2===n)return;throw new Error(`Invalid Base64-URL character "${String.fromCharCode(e)}"`)}for(t.queue=t.queue<<6|n,t.queuedBits+=6;t.queuedBits>=8;)s(t.queue>>t.queuedBits-8&255),t.queuedBits-=8}function Ge(e){const t=[],s=e=>{t.push(String.fromCodePoint(e))},n={utf8seq:0,codepoint:0},r={queue:0,queuedBits:0},i=e=>{!function(e,t,s){if(0===t.utf8seq){if(e<=127)return void s(e);for(let s=1;s<6;s+=1)if(!(e>>7-s&1)){t.utf8seq=s;break}if(2===t.utf8seq)t.codepoint=31&e;else if(3===t.utf8seq)t.codepoint=15&e;else{if(4!==t.utf8seq)throw new Error("Invalid UTF-8 sequence");t.codepoint=7&e}t.utf8seq-=1}else if(t.utf8seq>0){if(e<=127)throw new Error("Invalid UTF-8 sequence");t.codepoint=t.codepoint<<6|63&e,t.utf8seq-=1,0===t.utf8seq&&s(t.codepoint)}}(e,n,s)};for(let t=0;t<e.length;t+=1)Ve(e.charCodeAt(t),r,i);return t.join("")}function Ye(e,t){if(!(e<=127)){if(e<=2047)return t(192|e>>6),void t(128|63&e);if(e<=65535)return t(224|e>>12),t(128|e>>6&63),void t(128|63&e);if(e<=1114111)return t(240|e>>18),t(128|e>>12&63),t(128|e>>6&63),void t(128|63&e);throw new Error(`Unrecognized Unicode codepoint: ${e.toString(16)}`)}t(e)}function Xe(e){const t=[],s={queue:0,queuedBits:0},n=e=>{t.push(e)};for(let t=0;t<e.length;t+=1)Ve(e.charCodeAt(t),s,n);return new Uint8Array(t)}function Ze(e){const t=[],s={queue:0,queuedBits:0},n=e=>{t.push(e)};return e.forEach((e=>Ke(e,s,n))),Ke(null,s,n),t.join("")}const Qe=()=>"undefined"!=typeof window&&"undefined"!=typeof document,et={tested:!1,writable:!1},tt=()=>{if(!Qe())return!1;try{if("object"!=typeof globalThis.localStorage)return!1}catch(e){return!1}if(et.tested)return et.writable;const e=`lswt-${Math.random()}${Math.random()}`;try{globalThis.localStorage.setItem(e,e),globalThis.localStorage.removeItem(e),et.tested=!0,et.writable=!0}catch(e){et.tested=!0,et.writable=!1}return et.writable},st=e=>{let t;return t=e||("undefined"==typeof fetch?(...e)=>Promise.resolve().then(n.bind(n,907)).then((({default:t})=>t(...e))):fetch),(...e)=>t(...e)},nt=async(e,t,s)=>{await e.setItem(t,JSON.stringify(s))},rt=async(e,t)=>{const s=await e.getItem(t);if(!s)return null;try{return JSON.parse(s)}catch(e){return s}},it=async(e,t)=>{await e.removeItem(t)};class ot{constructor(){this.promise=new ot.promiseConstructor(((e,t)=>{this.resolve=e,this.reject=t}))}}function at(e){const t=e.split(".");if(3!==t.length)throw new He("Invalid JWT structure");for(let e=0;e<t.length;e++)if(!Oe.test(t[e]))throw new He("JWT not in base64url format");return{header:JSON.parse(Ge(t[0])),payload:JSON.parse(Ge(t[1])),signature:Xe(t[2]),raw:{header:t[0],payload:t[1]}}}function lt(e){return("0"+e.toString(16)).substr(-2)}async function ct(e,t,s=!1){const n=function(){const e=new Uint32Array(56);if("undefined"==typeof crypto){const e="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~",t=e.length;let s="";for(let n=0;n<56;n++)s+=e.charAt(Math.floor(Math.random()*t));return s}return crypto.getRandomValues(e),Array.from(e,lt).join("")}();let r=n;s&&(r+="/PASSWORD_RECOVERY"),await nt(e,`${t}-code-verifier`,r);const i=await async function(e){if("undefined"==typeof crypto||void 0===crypto.subtle||"undefined"==typeof TextEncoder)return console.warn("WebCrypto API is not supported. Code challenge method will default to use plain instead of sha256."),e;const t=await async function(e){const t=(new TextEncoder).encode(e),s=await crypto.subtle.digest("SHA-256",t),n=new Uint8Array(s);return Array.from(n).map((e=>String.fromCharCode(e))).join("")}(e);return btoa(t).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}(n);return[i,n===i?"plain":"s256"]}ot.promiseConstructor=Promise;const dt=/^2[0-9]{3}-(0[1-9]|1[0-2])-(0[1-9]|1[0-9]|2[0-9]|3[0-1])$/i,ut=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;function ht(e){if(!ut.test(e))throw new Error("@supabase/auth-js: Expected parameter to be UUID but is not")}const ft=e=>e.msg||e.message||e.error_description||e.error||JSON.stringify(e),pt=[502,503,504];async function gt(e){var t,s;if(!("object"==typeof(s=e)&&null!==s&&"status"in s&&"ok"in s&&"json"in s&&"function"==typeof s.json))throw new Me(ft(e),0);if(pt.includes(e.status))throw new Me(ft(e),e.status);let n,r;try{n=await e.json()}catch(e){throw new Le(ft(e),e)}const i=function(e){const t=e.headers.get(je);if(!t)return null;if(!t.match(dt))return null;try{return new Date(`${t}T00:00:00.0Z`)}catch(e){return null}}(e);if(i&&i.getTime()>=Ie&&"object"==typeof n&&n&&"string"==typeof n.code?r=n.code:"object"==typeof n&&n&&"string"==typeof n.error_code&&(r=n.error_code),r){if("weak_password"===r)throw new Fe(ft(n),e.status,(null===(t=n.weak_password)||void 0===t?void 0:t.reasons)||[]);if("session_not_found"===r)throw new Re}else if("object"==typeof n&&n&&"object"==typeof n.weak_password&&n.weak_password&&Array.isArray(n.weak_password.reasons)&&n.weak_password.reasons.length&&n.weak_password.reasons.reduce(((e,t)=>e&&"string"==typeof t),!0))throw new Fe(ft(n),e.status,n.weak_password.reasons);throw new Ae(ft(n),e.status||500,r)}async function mt(e,t,s,n){var r;const i=Object.assign({},null==n?void 0:n.headers);i[je]||(i[je]=$e),(null==n?void 0:n.jwt)&&(i.Authorization=`Bearer ${n.jwt}`);const o=null!==(r=null==n?void 0:n.query)&&void 0!==r?r:{};(null==n?void 0:n.redirectTo)&&(o.redirect_to=n.redirectTo);const a=Object.keys(o).length?"?"+new URLSearchParams(o).toString():"",l=await async function(e,t,s,n,r,i){const o=((e,t,s,n)=>{const r={method:e,headers:(null==t?void 0:t.headers)||{}};return"GET"===e?r:(r.headers=Object.assign({"Content-Type":"application/json;charset=UTF-8"},null==t?void 0:t.headers),r.body=JSON.stringify(n),Object.assign(Object.assign({},r),s))})(t,n,{},i);let a;try{a=await e(s,Object.assign({},o))}catch(e){throw console.error(e),new Me(ft(e),0)}if(a.ok||await gt(a),null==n?void 0:n.noResolveJson)return a;try{return await a.json()}catch(e){await gt(e)}}(e,t,s+a,{headers:i,noResolveJson:null==n?void 0:n.noResolveJson},0,null==n?void 0:n.body);return(null==n?void 0:n.xform)?null==n?void 0:n.xform(l):{data:Object.assign({},l),error:null}}function vt(e){var t;let s=null;var n;return function(e){return e.access_token&&e.refresh_token&&e.expires_in}(e)&&(s=Object.assign({},e),e.expires_at||(s.expires_at=(n=e.expires_in,Math.round(Date.now()/1e3)+n))),{data:{session:s,user:null!==(t=e.user)&&void 0!==t?t:e},error:null}}function yt(e){const t=vt(e);return!t.error&&e.weak_password&&"object"==typeof e.weak_password&&Array.isArray(e.weak_password.reasons)&&e.weak_password.reasons.length&&e.weak_password.message&&"string"==typeof e.weak_password.message&&e.weak_password.reasons.reduce(((e,t)=>e&&"string"==typeof t),!0)&&(t.data.weak_password=e.weak_password),t}function wt(e){var t;return{data:{user:null!==(t=e.user)&&void 0!==t?t:e},error:null}}function bt(e){return{data:e,error:null}}function _t(e){const{action_link:t,email_otp:s,hashed_token:n,redirect_to:r,verification_type:i}=e,o=function(e,t){var s={};for(var n in e)Object.prototype.hasOwnProperty.call(e,n)&&t.indexOf(n)<0&&(s[n]=e[n]);if(null!=e&&"function"==typeof Object.getOwnPropertySymbols){var r=0;for(n=Object.getOwnPropertySymbols(e);r<n.length;r++)t.indexOf(n[r])<0&&Object.prototype.propertyIsEnumerable.call(e,n[r])&&(s[n[r]]=e[n[r]])}return s}(e,["action_link","email_otp","hashed_token","redirect_to","verification_type"]);return{data:{properties:{action_link:t,email_otp:s,hashed_token:n,redirect_to:r,verification_type:i},user:Object.assign({},o)},error:null}}function kt(e){return e}const Et=["global","local","others"];class Tt{constructor({url:e="",headers:t={},fetch:s}){this.url=e,this.headers=t,this.fetch=st(s),this.mfa={listFactors:this._listFactors.bind(this),deleteFactor:this._deleteFactor.bind(this)}}async signOut(e,t=Et[0]){if(Et.indexOf(t)<0)throw new Error(`@supabase/auth-js: Parameter scope must be one of ${Et.join(", ")}`);try{return await mt(this.fetch,"POST",`${this.url}/logout?scope=${t}`,{headers:this.headers,jwt:e,noResolveJson:!0}),{data:null,error:null}}catch(e){if(Pe(e))return{data:null,error:e};throw e}}async inviteUserByEmail(e,t={}){try{return await mt(this.fetch,"POST",`${this.url}/invite`,{body:{email:e,data:t.data},headers:this.headers,redirectTo:t.redirectTo,xform:wt})}catch(e){if(Pe(e))return{data:{user:null},error:e};throw e}}async generateLink(e){try{const{options:t}=e,s=function(e,t){var s={};for(var n in e)Object.prototype.hasOwnProperty.call(e,n)&&t.indexOf(n)<0&&(s[n]=e[n]);if(null!=e&&"function"==typeof Object.getOwnPropertySymbols){var r=0;for(n=Object.getOwnPropertySymbols(e);r<n.length;r++)t.indexOf(n[r])<0&&Object.prototype.propertyIsEnumerable.call(e,n[r])&&(s[n[r]]=e[n[r]])}return s}(e,["options"]),n=Object.assign(Object.assign({},s),t);return"newEmail"in s&&(n.new_email=null==s?void 0:s.newEmail,delete n.newEmail),await mt(this.fetch,"POST",`${this.url}/admin/generate_link`,{body:n,headers:this.headers,xform:_t,redirectTo:null==t?void 0:t.redirectTo})}catch(e){if(Pe(e))return{data:{properties:null,user:null},error:e};throw e}}async createUser(e){try{return await mt(this.fetch,"POST",`${this.url}/admin/users`,{body:e,headers:this.headers,xform:wt})}catch(e){if(Pe(e))return{data:{user:null},error:e};throw e}}async listUsers(e){var t,s,n,r,i,o,a;try{const l={nextPage:null,lastPage:0,total:0},c=await mt(this.fetch,"GET",`${this.url}/admin/users`,{headers:this.headers,noResolveJson:!0,query:{page:null!==(s=null===(t=null==e?void 0:e.page)||void 0===t?void 0:t.toString())&&void 0!==s?s:"",per_page:null!==(r=null===(n=null==e?void 0:e.perPage)||void 0===n?void 0:n.toString())&&void 0!==r?r:""},xform:kt});if(c.error)throw c.error;const d=await c.json(),u=null!==(i=c.headers.get("x-total-count"))&&void 0!==i?i:0,h=null!==(a=null===(o=c.headers.get("link"))||void 0===o?void 0:o.split(","))&&void 0!==a?a:[];return h.length>0&&(h.forEach((e=>{const t=parseInt(e.split(";")[0].split("=")[1].substring(0,1)),s=JSON.parse(e.split(";")[1].split("=")[1]);l[`${s}Page`]=t})),l.total=parseInt(u)),{data:Object.assign(Object.assign({},d),l),error:null}}catch(e){if(Pe(e))return{data:{users:[]},error:e};throw e}}async getUserById(e){ht(e);try{return await mt(this.fetch,"GET",`${this.url}/admin/users/${e}`,{headers:this.headers,xform:wt})}catch(e){if(Pe(e))return{data:{user:null},error:e};throw e}}async updateUserById(e,t){ht(e);try{return await mt(this.fetch,"PUT",`${this.url}/admin/users/${e}`,{body:t,headers:this.headers,xform:wt})}catch(e){if(Pe(e))return{data:{user:null},error:e};throw e}}async deleteUser(e,t=!1){ht(e);try{return await mt(this.fetch,"DELETE",`${this.url}/admin/users/${e}`,{headers:this.headers,body:{should_soft_delete:t},xform:wt})}catch(e){if(Pe(e))return{data:{user:null},error:e};throw e}}async _listFactors(e){ht(e.userId);try{const{data:t,error:s}=await mt(this.fetch,"GET",`${this.url}/admin/users/${e.userId}/factors`,{headers:this.headers,xform:e=>({data:{factors:e},error:null})});return{data:t,error:s}}catch(e){if(Pe(e))return{data:null,error:e};throw e}}async _deleteFactor(e){ht(e.userId),ht(e.id);try{return{data:await mt(this.fetch,"DELETE",`${this.url}/admin/users/${e.userId}/factors/${e.id}`,{headers:this.headers}),error:null}}catch(e){if(Pe(e))return{data:null,error:e};throw e}}}const St={getItem:e=>tt()?globalThis.localStorage.getItem(e):null,setItem:(e,t)=>{tt()&&globalThis.localStorage.setItem(e,t)},removeItem:e=>{tt()&&globalThis.localStorage.removeItem(e)}};function jt(e={}){return{getItem:t=>e[t]||null,setItem:(t,s)=>{e[t]=s},removeItem:t=>{delete e[t]}}}const It=!!(globalThis&&tt()&&globalThis.localStorage&&"true"===globalThis.localStorage.getItem("supabase.gotrue-js.locks.debug"));class $t extends Error{constructor(e){super(e),this.isAcquireTimeout=!0}}class Ot extends $t{}async function Ct(e,t,s){It&&console.log("@supabase/gotrue-js: navigatorLock: acquire lock",e,t);const n=new globalThis.AbortController;return t>0&&setTimeout((()=>{n.abort(),It&&console.log("@supabase/gotrue-js: navigatorLock acquire timed out",e)}),t),await Promise.resolve().then((()=>globalThis.navigator.locks.request(e,0===t?{mode:"exclusive",ifAvailable:!0}:{mode:"exclusive",signal:n.signal},(async n=>{if(!n){if(0===t)throw It&&console.log("@supabase/gotrue-js: navigatorLock: not immediately available",e),new Ot(`Acquiring an exclusive Navigator LockManager lock "${e}" immediately failed`);if(It)try{const e=await globalThis.navigator.locks.query();console.log("@supabase/gotrue-js: Navigator LockManager state",JSON.stringify(e,null,"  "))}catch(e){console.warn("@supabase/gotrue-js: Error when querying Navigator LockManager state",e)}return console.warn("@supabase/gotrue-js: Navigator LockManager returned a null lock when using #request without ifAvailable set to true, it appears this browser is not following the LockManager spec https://developer.mozilla.org/en-US/docs/Web/API/LockManager/request"),await s()}It&&console.log("@supabase/gotrue-js: navigatorLock: acquired",e,n.name);try{return await s()}finally{It&&console.log("@supabase/gotrue-js: navigatorLock: released",e,n.name)}}))))}!function(){if("object"!=typeof globalThis)try{Object.defineProperty(Object.prototype,"__magic__",{get:function(){return this},configurable:!0}),__magic__.globalThis=__magic__,delete Object.prototype.__magic__}catch(e){"undefined"!=typeof self&&(self.globalThis=self)}}();const Pt={url:"http://localhost:9999",storageKey:"supabase.auth.token",autoRefreshToken:!0,persistSession:!0,detectSessionInUrl:!0,headers:Se,flowType:"implicit",debug:!1,hasCustomAuthorizationHeader:!1};async function At(e,t,s){return await s()}class Lt{constructor(e){var t,s;this.memoryStorage=null,this.stateChangeEmitters=new Map,this.autoRefreshTicker=null,this.visibilityChangedCallback=null,this.refreshingDeferred=null,this.initializePromise=null,this.detectSessionInUrl=!0,this.hasCustomAuthorizationHeader=!1,this.suppressGetSessionWarning=!1,this.lockAcquired=!1,this.pendingInLock=[],this.broadcastChannel=null,this.logger=console.log,this.instanceID=Lt.nextInstanceID,Lt.nextInstanceID+=1,this.instanceID>0&&Qe()&&console.warn("Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key.");const n=Object.assign(Object.assign({},Pt),e);if(this.logDebugMessages=!!n.debug,"function"==typeof n.debug&&(this.logger=n.debug),this.persistSession=n.persistSession,this.storageKey=n.storageKey,this.autoRefreshToken=n.autoRefreshToken,this.admin=new Tt({url:n.url,headers:n.headers,fetch:n.fetch}),this.url=n.url,this.headers=n.headers,this.fetch=st(n.fetch),this.lock=n.lock||At,this.detectSessionInUrl=n.detectSessionInUrl,this.flowType=n.flowType,this.hasCustomAuthorizationHeader=n.hasCustomAuthorizationHeader,n.lock?this.lock=n.lock:Qe()&&(null===(t=null===globalThis||void 0===globalThis?void 0:globalThis.navigator)||void 0===t?void 0:t.locks)?this.lock=Ct:this.lock=At,this.jwks={keys:[]},this.jwks_cached_at=Number.MIN_SAFE_INTEGER,this.mfa={verify:this._verify.bind(this),enroll:this._enroll.bind(this),unenroll:this._unenroll.bind(this),challenge:this._challenge.bind(this),listFactors:this._listFactors.bind(this),challengeAndVerify:this._challengeAndVerify.bind(this),getAuthenticatorAssuranceLevel:this._getAuthenticatorAssuranceLevel.bind(this)},this.persistSession?n.storage?this.storage=n.storage:tt()?this.storage=St:(this.memoryStorage={},this.storage=jt(this.memoryStorage)):(this.memoryStorage={},this.storage=jt(this.memoryStorage)),Qe()&&globalThis.BroadcastChannel&&this.persistSession&&this.storageKey){try{this.broadcastChannel=new globalThis.BroadcastChannel(this.storageKey)}catch(e){console.error("Failed to create a new BroadcastChannel, multi-tab state changes will not be available",e)}null===(s=this.broadcastChannel)||void 0===s||s.addEventListener("message",(async e=>{this._debug("received broadcast notification from other tab or client",e),await this._notifyAllSubscribers(e.data.event,e.data.session,!1)}))}this.initialize()}_debug(...e){return this.logDebugMessages&&this.logger(`GoTrueClient@${this.instanceID} (${Ee}) ${(new Date).toISOString()}`,...e),this}async initialize(){return this.initializePromise||(this.initializePromise=(async()=>await this._acquireLock(-1,(async()=>await this._initialize())))()),await this.initializePromise}async _initialize(){var e;try{const t=function(e){const t={},s=new URL(e);if(s.hash&&"#"===s.hash[0])try{new URLSearchParams(s.hash.substring(1)).forEach(((e,s)=>{t[s]=e}))}catch(e){}return s.searchParams.forEach(((e,s)=>{t[s]=e})),t}(window.location.href);let s="none";if(this._isImplicitGrantCallback(t)?s="implicit":await this._isPKCECallback(t)&&(s="pkce"),Qe()&&this.detectSessionInUrl&&"none"!==s){const{data:n,error:r}=await this._getSessionFromURL(t,s);if(r){if(this._debug("#_initialize()","error detecting session from URL",r),function(e){return Pe(e)&&"AuthImplicitGrantRedirectError"===e.name}(r)){const t=null===(e=r.details)||void 0===e?void 0:e.code;if("identity_already_exists"===t||"identity_not_found"===t||"single_identity_not_deletable"===t)return{error:r}}return await this._removeSession(),{error:r}}const{session:i,redirectType:o}=n;return this._debug("#_initialize()","detected session in URL",i,"redirect type",o),await this._saveSession(i),setTimeout((async()=>{"recovery"===o?await this._notifyAllSubscribers("PASSWORD_RECOVERY",i):await this._notifyAllSubscribers("SIGNED_IN",i)}),0),{error:null}}return await this._recoverAndRefresh(),{error:null}}catch(e){return Pe(e)?{error:e}:{error:new Le("Unexpected error during initialization",e)}}finally{await this._handleVisibilityChange(),this._debug("#_initialize()","end")}}async signInAnonymously(e){var t,s,n;try{const r=await mt(this.fetch,"POST",`${this.url}/signup`,{headers:this.headers,body:{data:null!==(s=null===(t=null==e?void 0:e.options)||void 0===t?void 0:t.data)&&void 0!==s?s:{},gotrue_meta_security:{captcha_token:null===(n=null==e?void 0:e.options)||void 0===n?void 0:n.captchaToken}},xform:vt}),{data:i,error:o}=r;if(o||!i)return{data:{user:null,session:null},error:o};const a=i.session,l=i.user;return i.session&&(await this._saveSession(i.session),await this._notifyAllSubscribers("SIGNED_IN",a)),{data:{user:l,session:a},error:null}}catch(e){if(Pe(e))return{data:{user:null,session:null},error:e};throw e}}async signUp(e){var t,s,n;try{let r;if("email"in e){const{email:s,password:n,options:i}=e;let o=null,a=null;"pkce"===this.flowType&&([o,a]=await ct(this.storage,this.storageKey)),r=await mt(this.fetch,"POST",`${this.url}/signup`,{headers:this.headers,redirectTo:null==i?void 0:i.emailRedirectTo,body:{email:s,password:n,data:null!==(t=null==i?void 0:i.data)&&void 0!==t?t:{},gotrue_meta_security:{captcha_token:null==i?void 0:i.captchaToken},code_challenge:o,code_challenge_method:a},xform:vt})}else{if(!("phone"in e))throw new Ne("You must provide either an email or phone number and a password");{const{phone:t,password:i,options:o}=e;r=await mt(this.fetch,"POST",`${this.url}/signup`,{headers:this.headers,body:{phone:t,password:i,data:null!==(s=null==o?void 0:o.data)&&void 0!==s?s:{},channel:null!==(n=null==o?void 0:o.channel)&&void 0!==n?n:"sms",gotrue_meta_security:{captcha_token:null==o?void 0:o.captchaToken}},xform:vt})}}const{data:i,error:o}=r;if(o||!i)return{data:{user:null,session:null},error:o};const a=i.session,l=i.user;return i.session&&(await this._saveSession(i.session),await this._notifyAllSubscribers("SIGNED_IN",a)),{data:{user:l,session:a},error:null}}catch(e){if(Pe(e))return{data:{user:null,session:null},error:e};throw e}}async signInWithPassword(e){try{let t;if("email"in e){const{email:s,password:n,options:r}=e;t=await mt(this.fetch,"POST",`${this.url}/token?grant_type=password`,{headers:this.headers,body:{email:s,password:n,gotrue_meta_security:{captcha_token:null==r?void 0:r.captchaToken}},xform:yt})}else{if(!("phone"in e))throw new Ne("You must provide either an email or phone number and a password");{const{phone:s,password:n,options:r}=e;t=await mt(this.fetch,"POST",`${this.url}/token?grant_type=password`,{headers:this.headers,body:{phone:s,password:n,gotrue_meta_security:{captcha_token:null==r?void 0:r.captchaToken}},xform:yt})}}const{data:s,error:n}=t;return n?{data:{user:null,session:null},error:n}:s&&s.session&&s.user?(s.session&&(await this._saveSession(s.session),await this._notifyAllSubscribers("SIGNED_IN",s.session)),{data:Object.assign({user:s.user,session:s.session},s.weak_password?{weakPassword:s.weak_password}:null),error:n}):{data:{user:null,session:null},error:new De}}catch(e){if(Pe(e))return{data:{user:null,session:null},error:e};throw e}}async signInWithOAuth(e){var t,s,n,r;return await this._handleProviderSignIn(e.provider,{redirectTo:null===(t=e.options)||void 0===t?void 0:t.redirectTo,scopes:null===(s=e.options)||void 0===s?void 0:s.scopes,queryParams:null===(n=e.options)||void 0===n?void 0:n.queryParams,skipBrowserRedirect:null===(r=e.options)||void 0===r?void 0:r.skipBrowserRedirect})}async exchangeCodeForSession(e){return await this.initializePromise,this._acquireLock(-1,(async()=>this._exchangeCodeForSession(e)))}async signInWithWeb3(e){const{chain:t}=e;if("solana"===t)return await this.signInWithSolana(e);throw new Error(`@supabase/auth-js: Unsupported chain "${t}"`)}async signInWithSolana(e){var t,s,n,r,i,o,a,l,c,d,u,h;let f,p;if("message"in e)f=e.message,p=e.signature;else{const{chain:u,wallet:h,statement:g,options:m}=e;let v;if(Qe())if("object"==typeof h)v=h;else{const e=window;if(!("solana"in e)||"object"!=typeof e.solana||!("signIn"in e.solana&&"function"==typeof e.solana.signIn||"signMessage"in e.solana&&"function"==typeof e.solana.signMessage))throw new Error("@supabase/auth-js: No compatible Solana wallet interface on the window object (window.solana) detected. Make sure the user already has a wallet installed and connected for this app. Prefer passing the wallet interface object directly to signInWithWeb3({ chain: 'solana', wallet: resolvedUserWallet }) instead.");v=e.solana}else{if("object"!=typeof h||!(null==m?void 0:m.url))throw new Error("@supabase/auth-js: Both wallet and url must be specified in non-browser environments.");v=h}const y=new URL(null!==(t=null==m?void 0:m.url)&&void 0!==t?t:window.location.href);if("signIn"in v&&v.signIn){const e=await v.signIn(Object.assign(Object.assign(Object.assign({issuedAt:(new Date).toISOString()},null==m?void 0:m.signInWithSolana),{version:"1",domain:y.host,uri:y.href}),g?{statement:g}:null));let t;if(Array.isArray(e)&&e[0]&&"object"==typeof e[0])t=e[0];else{if(!(e&&"object"==typeof e&&"signedMessage"in e&&"signature"in e))throw new Error("@supabase/auth-js: Wallet method signIn() returned unrecognized value");t=e}if(!("signedMessage"in t&&"signature"in t&&("string"==typeof t.signedMessage||t.signedMessage instanceof Uint8Array)&&t.signature instanceof Uint8Array))throw new Error("@supabase/auth-js: Wallet method signIn() API returned object without signedMessage and signature fields");f="string"==typeof t.signedMessage?t.signedMessage:(new TextDecoder).decode(t.signedMessage),p=t.signature}else{if(!("signMessage"in v&&"function"==typeof v.signMessage&&"publicKey"in v&&"object"==typeof v&&v.publicKey&&"toBase58"in v.publicKey&&"function"==typeof v.publicKey.toBase58))throw new Error("@supabase/auth-js: Wallet does not have a compatible signMessage() and publicKey.toBase58() API");f=[`${y.host} wants you to sign in with your Solana account:`,v.publicKey.toBase58(),...g?["",g,""]:[""],"Version: 1",`URI: ${y.href}`,`Issued At: ${null!==(n=null===(s=null==m?void 0:m.signInWithSolana)||void 0===s?void 0:s.issuedAt)&&void 0!==n?n:(new Date).toISOString()}`,...(null===(r=null==m?void 0:m.signInWithSolana)||void 0===r?void 0:r.notBefore)?[`Not Before: ${m.signInWithSolana.notBefore}`]:[],...(null===(i=null==m?void 0:m.signInWithSolana)||void 0===i?void 0:i.expirationTime)?[`Expiration Time: ${m.signInWithSolana.expirationTime}`]:[],...(null===(o=null==m?void 0:m.signInWithSolana)||void 0===o?void 0:o.chainId)?[`Chain ID: ${m.signInWithSolana.chainId}`]:[],...(null===(a=null==m?void 0:m.signInWithSolana)||void 0===a?void 0:a.nonce)?[`Nonce: ${m.signInWithSolana.nonce}`]:[],...(null===(l=null==m?void 0:m.signInWithSolana)||void 0===l?void 0:l.requestId)?[`Request ID: ${m.signInWithSolana.requestId}`]:[],...(null===(d=null===(c=null==m?void 0:m.signInWithSolana)||void 0===c?void 0:c.resources)||void 0===d?void 0:d.length)?["Resources",...m.signInWithSolana.resources.map((e=>`- ${e}`))]:[]].join("\n");const e=await v.signMessage((new TextEncoder).encode(f),"utf8");if(!(e&&e instanceof Uint8Array))throw new Error("@supabase/auth-js: Wallet signMessage() API returned an recognized value");p=e}}try{const{data:t,error:s}=await mt(this.fetch,"POST",`${this.url}/token?grant_type=web3`,{headers:this.headers,body:Object.assign({chain:"solana",message:f,signature:Ze(p)},(null===(u=e.options)||void 0===u?void 0:u.captchaToken)?{gotrue_meta_security:{captcha_token:null===(h=e.options)||void 0===h?void 0:h.captchaToken}}:null),xform:vt});if(s)throw s;return t&&t.session&&t.user?(t.session&&(await this._saveSession(t.session),await this._notifyAllSubscribers("SIGNED_IN",t.session)),{data:Object.assign({},t),error:s}):{data:{user:null,session:null},error:new De}}catch(e){if(Pe(e))return{data:{user:null,session:null},error:e};throw e}}async _exchangeCodeForSession(e){const t=await rt(this.storage,`${this.storageKey}-code-verifier`),[s,n]=(null!=t?t:"").split("/");try{const{data:t,error:r}=await mt(this.fetch,"POST",`${this.url}/token?grant_type=pkce`,{headers:this.headers,body:{auth_code:e,code_verifier:s},xform:vt});if(await it(this.storage,`${this.storageKey}-code-verifier`),r)throw r;return t&&t.session&&t.user?(t.session&&(await this._saveSession(t.session),await this._notifyAllSubscribers("SIGNED_IN",t.session)),{data:Object.assign(Object.assign({},t),{redirectType:null!=n?n:null}),error:r}):{data:{user:null,session:null,redirectType:null},error:new De}}catch(e){if(Pe(e))return{data:{user:null,session:null,redirectType:null},error:e};throw e}}async signInWithIdToken(e){try{const{options:t,provider:s,token:n,access_token:r,nonce:i}=e,o=await mt(this.fetch,"POST",`${this.url}/token?grant_type=id_token`,{headers:this.headers,body:{provider:s,id_token:n,access_token:r,nonce:i,gotrue_meta_security:{captcha_token:null==t?void 0:t.captchaToken}},xform:vt}),{data:a,error:l}=o;return l?{data:{user:null,session:null},error:l}:a&&a.session&&a.user?(a.session&&(await this._saveSession(a.session),await this._notifyAllSubscribers("SIGNED_IN",a.session)),{data:a,error:l}):{data:{user:null,session:null},error:new De}}catch(e){if(Pe(e))return{data:{user:null,session:null},error:e};throw e}}async signInWithOtp(e){var t,s,n,r,i;try{if("email"in e){const{email:n,options:r}=e;let i=null,o=null;"pkce"===this.flowType&&([i,o]=await ct(this.storage,this.storageKey));const{error:a}=await mt(this.fetch,"POST",`${this.url}/otp`,{headers:this.headers,body:{email:n,data:null!==(t=null==r?void 0:r.data)&&void 0!==t?t:{},create_user:null===(s=null==r?void 0:r.shouldCreateUser)||void 0===s||s,gotrue_meta_security:{captcha_token:null==r?void 0:r.captchaToken},code_challenge:i,code_challenge_method:o},redirectTo:null==r?void 0:r.emailRedirectTo});return{data:{user:null,session:null},error:a}}if("phone"in e){const{phone:t,options:s}=e,{data:o,error:a}=await mt(this.fetch,"POST",`${this.url}/otp`,{headers:this.headers,body:{phone:t,data:null!==(n=null==s?void 0:s.data)&&void 0!==n?n:{},create_user:null===(r=null==s?void 0:s.shouldCreateUser)||void 0===r||r,gotrue_meta_security:{captcha_token:null==s?void 0:s.captchaToken},channel:null!==(i=null==s?void 0:s.channel)&&void 0!==i?i:"sms"}});return{data:{user:null,session:null,messageId:null==o?void 0:o.message_id},error:a}}throw new Ne("You must provide either an email or phone number.")}catch(e){if(Pe(e))return{data:{user:null,session:null},error:e};throw e}}async verifyOtp(e){var t,s;try{let n,r;"options"in e&&(n=null===(t=e.options)||void 0===t?void 0:t.redirectTo,r=null===(s=e.options)||void 0===s?void 0:s.captchaToken);const{data:i,error:o}=await mt(this.fetch,"POST",`${this.url}/verify`,{headers:this.headers,body:Object.assign(Object.assign({},e),{gotrue_meta_security:{captcha_token:r}}),redirectTo:n,xform:vt});if(o)throw o;if(!i)throw new Error("An error occurred on token verification.");const a=i.session,l=i.user;return(null==a?void 0:a.access_token)&&(await this._saveSession(a),await this._notifyAllSubscribers("recovery"==e.type?"PASSWORD_RECOVERY":"SIGNED_IN",a)),{data:{user:l,session:a},error:null}}catch(e){if(Pe(e))return{data:{user:null,session:null},error:e};throw e}}async signInWithSSO(e){var t,s,n;try{let r=null,i=null;return"pkce"===this.flowType&&([r,i]=await ct(this.storage,this.storageKey)),await mt(this.fetch,"POST",`${this.url}/sso`,{body:Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({},"providerId"in e?{provider_id:e.providerId}:null),"domain"in e?{domain:e.domain}:null),{redirect_to:null!==(s=null===(t=e.options)||void 0===t?void 0:t.redirectTo)&&void 0!==s?s:void 0}),(null===(n=null==e?void 0:e.options)||void 0===n?void 0:n.captchaToken)?{gotrue_meta_security:{captcha_token:e.options.captchaToken}}:null),{skip_http_redirect:!0,code_challenge:r,code_challenge_method:i}),headers:this.headers,xform:bt})}catch(e){if(Pe(e))return{data:null,error:e};throw e}}async reauthenticate(){return await this.initializePromise,await this._acquireLock(-1,(async()=>await this._reauthenticate()))}async _reauthenticate(){try{return await this._useSession((async e=>{const{data:{session:t},error:s}=e;if(s)throw s;if(!t)throw new Re;const{error:n}=await mt(this.fetch,"GET",`${this.url}/reauthenticate`,{headers:this.headers,jwt:t.access_token});return{data:{user:null,session:null},error:n}}))}catch(e){if(Pe(e))return{data:{user:null,session:null},error:e};throw e}}async resend(e){try{const t=`${this.url}/resend`;if("email"in e){const{email:s,type:n,options:r}=e,{error:i}=await mt(this.fetch,"POST",t,{headers:this.headers,body:{email:s,type:n,gotrue_meta_security:{captcha_token:null==r?void 0:r.captchaToken}},redirectTo:null==r?void 0:r.emailRedirectTo});return{data:{user:null,session:null},error:i}}if("phone"in e){const{phone:s,type:n,options:r}=e,{data:i,error:o}=await mt(this.fetch,"POST",t,{headers:this.headers,body:{phone:s,type:n,gotrue_meta_security:{captcha_token:null==r?void 0:r.captchaToken}}});return{data:{user:null,session:null,messageId:null==i?void 0:i.message_id},error:o}}throw new Ne("You must provide either an email or phone number and a type")}catch(e){if(Pe(e))return{data:{user:null,session:null},error:e};throw e}}async getSession(){return await this.initializePromise,await this._acquireLock(-1,(async()=>this._useSession((async e=>e))))}async _acquireLock(e,t){this._debug("#_acquireLock","begin",e);try{if(this.lockAcquired){const e=this.pendingInLock.length?this.pendingInLock[this.pendingInLock.length-1]:Promise.resolve(),s=(async()=>(await e,await t()))();return this.pendingInLock.push((async()=>{try{await s}catch(e){}})()),s}return await this.lock(`lock:${this.storageKey}`,e,(async()=>{this._debug("#_acquireLock","lock acquired for storage key",this.storageKey);try{this.lockAcquired=!0;const e=t();for(this.pendingInLock.push((async()=>{try{await e}catch(e){}})()),await e;this.pendingInLock.length;){const e=[...this.pendingInLock];await Promise.all(e),this.pendingInLock.splice(0,e.length)}return await e}finally{this._debug("#_acquireLock","lock released for storage key",this.storageKey),this.lockAcquired=!1}}))}finally{this._debug("#_acquireLock","end")}}async _useSession(e){this._debug("#_useSession","begin");try{const t=await this.__loadSession();return await e(t)}finally{this._debug("#_useSession","end")}}async __loadSession(){this._debug("#__loadSession()","begin"),this.lockAcquired||this._debug("#__loadSession()","used outside of an acquired lock!",(new Error).stack);try{let e=null;const t=await rt(this.storage,this.storageKey);if(this._debug("#getSession()","session from storage",t),null!==t&&(this._isValidSession(t)?e=t:(this._debug("#getSession()","session from storage is not valid"),await this._removeSession())),!e)return{data:{session:null},error:null};const s=!!e.expires_at&&1e3*e.expires_at-Date.now()<9e4;if(this._debug("#__loadSession()",`session has${s?"":" not"} expired`,"expires_at",e.expires_at),!s){if(this.storage.isServer){let t=this.suppressGetSessionWarning;e=new Proxy(e,{get:(e,s,n)=>(t||"user"!==s||(console.warn("Using the user object as returned from supabase.auth.getSession() or from some supabase.auth.onAuthStateChange() events could be insecure! This value comes directly from the storage medium (usually cookies on the server) and may not be authentic. Use supabase.auth.getUser() instead which authenticates the data by contacting the Supabase Auth server."),t=!0,this.suppressGetSessionWarning=!0),Reflect.get(e,s,n))})}return{data:{session:e},error:null}}const{session:n,error:r}=await this._callRefreshToken(e.refresh_token);return r?{data:{session:null},error:r}:{data:{session:n},error:null}}finally{this._debug("#__loadSession()","end")}}async getUser(e){return e?await this._getUser(e):(await this.initializePromise,await this._acquireLock(-1,(async()=>await this._getUser())))}async _getUser(e){try{return e?await mt(this.fetch,"GET",`${this.url}/user`,{headers:this.headers,jwt:e,xform:wt}):await this._useSession((async e=>{var t,s,n;const{data:r,error:i}=e;if(i)throw i;return(null===(t=r.session)||void 0===t?void 0:t.access_token)||this.hasCustomAuthorizationHeader?await mt(this.fetch,"GET",`${this.url}/user`,{headers:this.headers,jwt:null!==(n=null===(s=r.session)||void 0===s?void 0:s.access_token)&&void 0!==n?n:void 0,xform:wt}):{data:{user:null},error:new Re}}))}catch(e){if(Pe(e))return function(e){return Pe(e)&&"AuthSessionMissingError"===e.name}(e)&&(await this._removeSession(),await it(this.storage,`${this.storageKey}-code-verifier`)),{data:{user:null},error:e};throw e}}async updateUser(e,t={}){return await this.initializePromise,await this._acquireLock(-1,(async()=>await this._updateUser(e,t)))}async _updateUser(e,t={}){try{return await this._useSession((async s=>{const{data:n,error:r}=s;if(r)throw r;if(!n.session)throw new Re;const i=n.session;let o=null,a=null;"pkce"===this.flowType&&null!=e.email&&([o,a]=await ct(this.storage,this.storageKey));const{data:l,error:c}=await mt(this.fetch,"PUT",`${this.url}/user`,{headers:this.headers,redirectTo:null==t?void 0:t.emailRedirectTo,body:Object.assign(Object.assign({},e),{code_challenge:o,code_challenge_method:a}),jwt:i.access_token,xform:wt});if(c)throw c;return i.user=l.user,await this._saveSession(i),await this._notifyAllSubscribers("USER_UPDATED",i),{data:{user:i.user},error:null}}))}catch(e){if(Pe(e))return{data:{user:null},error:e};throw e}}async setSession(e){return await this.initializePromise,await this._acquireLock(-1,(async()=>await this._setSession(e)))}async _setSession(e){try{if(!e.access_token||!e.refresh_token)throw new Re;const t=Date.now()/1e3;let s=t,n=!0,r=null;const{payload:i}=at(e.access_token);if(i.exp&&(s=i.exp,n=s<=t),n){const{session:t,error:s}=await this._callRefreshToken(e.refresh_token);if(s)return{data:{user:null,session:null},error:s};if(!t)return{data:{user:null,session:null},error:null};r=t}else{const{data:n,error:i}=await this._getUser(e.access_token);if(i)throw i;r={access_token:e.access_token,refresh_token:e.refresh_token,user:n.user,token_type:"bearer",expires_in:s-t,expires_at:s},await this._saveSession(r),await this._notifyAllSubscribers("SIGNED_IN",r)}return{data:{user:r.user,session:r},error:null}}catch(e){if(Pe(e))return{data:{session:null,user:null},error:e};throw e}}async refreshSession(e){return await this.initializePromise,await this._acquireLock(-1,(async()=>await this._refreshSession(e)))}async _refreshSession(e){try{return await this._useSession((async t=>{var s;if(!e){const{data:n,error:r}=t;if(r)throw r;e=null!==(s=n.session)&&void 0!==s?s:void 0}if(!(null==e?void 0:e.refresh_token))throw new Re;const{session:n,error:r}=await this._callRefreshToken(e.refresh_token);return r?{data:{user:null,session:null},error:r}:n?{data:{user:n.user,session:n},error:null}:{data:{user:null,session:null},error:null}}))}catch(e){if(Pe(e))return{data:{user:null,session:null},error:e};throw e}}async _getSessionFromURL(e,t){try{if(!Qe())throw new Be("No browser detected.");if(e.error||e.error_description||e.error_code)throw new Be(e.error_description||"Error in URL with unspecified error_description",{error:e.error||"unspecified_error",code:e.error_code||"unspecified_code"});switch(t){case"implicit":if("pkce"===this.flowType)throw new Ue("Not a valid PKCE flow url.");break;case"pkce":if("implicit"===this.flowType)throw new Be("Not a valid implicit grant flow url.")}if("pkce"===t){if(this._debug("#_initialize()","begin","is PKCE flow",!0),!e.code)throw new Ue("No code detected.");const{data:t,error:s}=await this._exchangeCodeForSession(e.code);if(s)throw s;const n=new URL(window.location.href);return n.searchParams.delete("code"),window.history.replaceState(window.history.state,"",n.toString()),{data:{session:t.session,redirectType:null},error:null}}const{provider_token:s,provider_refresh_token:n,access_token:r,refresh_token:i,expires_in:o,expires_at:a,token_type:l}=e;if(!(r&&o&&i&&l))throw new Be("No session defined in URL");const c=Math.round(Date.now()/1e3),d=parseInt(o);let u=c+d;a&&(u=parseInt(a));const h=u-c;1e3*h<=Te&&console.warn(`@supabase/gotrue-js: Session as retrieved from URL expires in ${h}s, should have been closer to ${d}s`);const f=u-d;c-f>=120?console.warn("@supabase/gotrue-js: Session as retrieved from URL was issued over 120s ago, URL could be stale",f,u,c):c-f<0&&console.warn("@supabase/gotrue-js: Session as retrieved from URL was issued in the future? Check the device clock for skew",f,u,c);const{data:p,error:g}=await this._getUser(r);if(g)throw g;const m={provider_token:s,provider_refresh_token:n,access_token:r,expires_in:d,expires_at:u,refresh_token:i,token_type:l,user:p.user};return window.location.hash="",this._debug("#_getSessionFromURL()","clearing window.location.hash"),{data:{session:m,redirectType:e.type},error:null}}catch(e){if(Pe(e))return{data:{session:null,redirectType:null},error:e};throw e}}_isImplicitGrantCallback(e){return Boolean(e.access_token||e.error_description)}async _isPKCECallback(e){const t=await rt(this.storage,`${this.storageKey}-code-verifier`);return!(!e.code||!t)}async signOut(e={scope:"global"}){return await this.initializePromise,await this._acquireLock(-1,(async()=>await this._signOut(e)))}async _signOut({scope:e}={scope:"global"}){return await this._useSession((async t=>{var s;const{data:n,error:r}=t;if(r)return{error:r};const i=null===(s=n.session)||void 0===s?void 0:s.access_token;if(i){const{error:t}=await this.admin.signOut(i,e);if(t&&(!function(e){return Pe(e)&&"AuthApiError"===e.name}(t)||404!==t.status&&401!==t.status&&403!==t.status))return{error:t}}return"others"!==e&&(await this._removeSession(),await it(this.storage,`${this.storageKey}-code-verifier`)),{error:null}}))}onAuthStateChange(e){const t="xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,(function(e){const t=16*Math.random()|0;return("x"==e?t:3&t|8).toString(16)})),s={id:t,callback:e,unsubscribe:()=>{this._debug("#unsubscribe()","state change callback with id removed",t),this.stateChangeEmitters.delete(t)}};return this._debug("#onAuthStateChange()","registered callback with id",t),this.stateChangeEmitters.set(t,s),(async()=>{await this.initializePromise,await this._acquireLock(-1,(async()=>{this._emitInitialSession(t)}))})(),{data:{subscription:s}}}async _emitInitialSession(e){return await this._useSession((async t=>{var s,n;try{const{data:{session:n},error:r}=t;if(r)throw r;await(null===(s=this.stateChangeEmitters.get(e))||void 0===s?void 0:s.callback("INITIAL_SESSION",n)),this._debug("INITIAL_SESSION","callback id",e,"session",n)}catch(t){await(null===(n=this.stateChangeEmitters.get(e))||void 0===n?void 0:n.callback("INITIAL_SESSION",null)),this._debug("INITIAL_SESSION","callback id",e,"error",t),console.error(t)}}))}async resetPasswordForEmail(e,t={}){let s=null,n=null;"pkce"===this.flowType&&([s,n]=await ct(this.storage,this.storageKey,!0));try{return await mt(this.fetch,"POST",`${this.url}/recover`,{body:{email:e,code_challenge:s,code_challenge_method:n,gotrue_meta_security:{captcha_token:t.captchaToken}},headers:this.headers,redirectTo:t.redirectTo})}catch(e){if(Pe(e))return{data:null,error:e};throw e}}async getUserIdentities(){var e;try{const{data:t,error:s}=await this.getUser();if(s)throw s;return{data:{identities:null!==(e=t.user.identities)&&void 0!==e?e:[]},error:null}}catch(e){if(Pe(e))return{data:null,error:e};throw e}}async linkIdentity(e){var t;try{const{data:s,error:n}=await this._useSession((async t=>{var s,n,r,i,o;const{data:a,error:l}=t;if(l)throw l;const c=await this._getUrlForProvider(`${this.url}/user/identities/authorize`,e.provider,{redirectTo:null===(s=e.options)||void 0===s?void 0:s.redirectTo,scopes:null===(n=e.options)||void 0===n?void 0:n.scopes,queryParams:null===(r=e.options)||void 0===r?void 0:r.queryParams,skipBrowserRedirect:!0});return await mt(this.fetch,"GET",c,{headers:this.headers,jwt:null!==(o=null===(i=a.session)||void 0===i?void 0:i.access_token)&&void 0!==o?o:void 0})}));if(n)throw n;return Qe()&&!(null===(t=e.options)||void 0===t?void 0:t.skipBrowserRedirect)&&window.location.assign(null==s?void 0:s.url),{data:{provider:e.provider,url:null==s?void 0:s.url},error:null}}catch(t){if(Pe(t))return{data:{provider:e.provider,url:null},error:t};throw t}}async unlinkIdentity(e){try{return await this._useSession((async t=>{var s,n;const{data:r,error:i}=t;if(i)throw i;return await mt(this.fetch,"DELETE",`${this.url}/user/identities/${e.identity_id}`,{headers:this.headers,jwt:null!==(n=null===(s=r.session)||void 0===s?void 0:s.access_token)&&void 0!==n?n:void 0})}))}catch(e){if(Pe(e))return{data:null,error:e};throw e}}async _refreshAccessToken(e){const t=`#_refreshAccessToken(${e.substring(0,5)}...)`;this._debug(t,"begin");try{const r=Date.now();return await(s=async s=>(s>0&&await async function(e){return await new Promise((t=>{setTimeout((()=>t(null)),e)}))}(200*Math.pow(2,s-1)),this._debug(t,"refreshing attempt",s),await mt(this.fetch,"POST",`${this.url}/token?grant_type=refresh_token`,{body:{refresh_token:e},headers:this.headers,xform:vt})),n=(e,t)=>{const s=200*Math.pow(2,e);return t&&qe(t)&&Date.now()+s-r<Te},new Promise(((e,t)=>{(async()=>{for(let r=0;r<1/0;r++)try{const t=await s(r);if(!n(r,null))return void e(t)}catch(e){if(!n(r,e))return void t(e)}})()})))}catch(e){if(this._debug(t,"error",e),Pe(e))return{data:{session:null,user:null},error:e};throw e}finally{this._debug(t,"end")}var s,n}_isValidSession(e){return"object"==typeof e&&null!==e&&"access_token"in e&&"refresh_token"in e&&"expires_at"in e}async _handleProviderSignIn(e,t){const s=await this._getUrlForProvider(`${this.url}/authorize`,e,{redirectTo:t.redirectTo,scopes:t.scopes,queryParams:t.queryParams});return this._debug("#_handleProviderSignIn()","provider",e,"options",t,"url",s),Qe()&&!t.skipBrowserRedirect&&window.location.assign(s),{data:{provider:e,url:s},error:null}}async _recoverAndRefresh(){var e;const t="#_recoverAndRefresh()";this._debug(t,"begin");try{const s=await rt(this.storage,this.storageKey);if(this._debug(t,"session from storage",s),!this._isValidSession(s))return this._debug(t,"session is not valid"),void(null!==s&&await this._removeSession());const n=1e3*(null!==(e=s.expires_at)&&void 0!==e?e:1/0)-Date.now()<9e4;if(this._debug(t,`session has${n?"":" not"} expired with margin of 90000s`),n){if(this.autoRefreshToken&&s.refresh_token){const{error:e}=await this._callRefreshToken(s.refresh_token);e&&(console.error(e),qe(e)||(this._debug(t,"refresh failed with a non-retryable error, removing the session",e),await this._removeSession()))}}else await this._notifyAllSubscribers("SIGNED_IN",s)}catch(e){return this._debug(t,"error",e),void console.error(e)}finally{this._debug(t,"end")}}async _callRefreshToken(e){var t,s;if(!e)throw new Re;if(this.refreshingDeferred)return this.refreshingDeferred.promise;const n=`#_callRefreshToken(${e.substring(0,5)}...)`;this._debug(n,"begin");try{this.refreshingDeferred=new ot;const{data:t,error:s}=await this._refreshAccessToken(e);if(s)throw s;if(!t.session)throw new Re;await this._saveSession(t.session),await this._notifyAllSubscribers("TOKEN_REFRESHED",t.session);const n={session:t.session,error:null};return this.refreshingDeferred.resolve(n),n}catch(e){if(this._debug(n,"error",e),Pe(e)){const s={session:null,error:e};return qe(e)||await this._removeSession(),null===(t=this.refreshingDeferred)||void 0===t||t.resolve(s),s}throw null===(s=this.refreshingDeferred)||void 0===s||s.reject(e),e}finally{this.refreshingDeferred=null,this._debug(n,"end")}}async _notifyAllSubscribers(e,t,s=!0){const n=`#_notifyAllSubscribers(${e})`;this._debug(n,"begin",t,`broadcast = ${s}`);try{this.broadcastChannel&&s&&this.broadcastChannel.postMessage({event:e,session:t});const n=[],r=Array.from(this.stateChangeEmitters.values()).map((async s=>{try{await s.callback(e,t)}catch(e){n.push(e)}}));if(await Promise.all(r),n.length>0){for(let e=0;e<n.length;e+=1)console.error(n[e]);throw n[0]}}finally{this._debug(n,"end")}}async _saveSession(e){this._debug("#_saveSession()",e),this.suppressGetSessionWarning=!0,await nt(this.storage,this.storageKey,e)}async _removeSession(){this._debug("#_removeSession()"),await it(this.storage,this.storageKey),await this._notifyAllSubscribers("SIGNED_OUT",null)}_removeVisibilityChangedCallback(){this._debug("#_removeVisibilityChangedCallback()");const e=this.visibilityChangedCallback;this.visibilityChangedCallback=null;try{e&&Qe()&&(null===window||void 0===window?void 0:window.removeEventListener)&&window.removeEventListener("visibilitychange",e)}catch(e){console.error("removing visibilitychange callback failed",e)}}async _startAutoRefresh(){await this._stopAutoRefresh(),this._debug("#_startAutoRefresh()");const e=setInterval((()=>this._autoRefreshTokenTick()),Te);this.autoRefreshTicker=e,e&&"object"==typeof e&&"function"==typeof e.unref?e.unref():"undefined"!=typeof Deno&&"function"==typeof Deno.unrefTimer&&Deno.unrefTimer(e),setTimeout((async()=>{await this.initializePromise,await this._autoRefreshTokenTick()}),0)}async _stopAutoRefresh(){this._debug("#_stopAutoRefresh()");const e=this.autoRefreshTicker;this.autoRefreshTicker=null,e&&clearInterval(e)}async startAutoRefresh(){this._removeVisibilityChangedCallback(),await this._startAutoRefresh()}async stopAutoRefresh(){this._removeVisibilityChangedCallback(),await this._stopAutoRefresh()}async _autoRefreshTokenTick(){this._debug("#_autoRefreshTokenTick()","begin");try{await this._acquireLock(0,(async()=>{try{const e=Date.now();try{return await this._useSession((async t=>{const{data:{session:s}}=t;if(!s||!s.refresh_token||!s.expires_at)return void this._debug("#_autoRefreshTokenTick()","no session");const n=Math.floor((1e3*s.expires_at-e)/Te);this._debug("#_autoRefreshTokenTick()",`access token expires in ${n} ticks, a tick lasts 30000ms, refresh threshold is 3 ticks`),n<=3&&await this._callRefreshToken(s.refresh_token)}))}catch(e){console.error("Auto refresh tick failed with error. This is likely a transient error.",e)}}finally{this._debug("#_autoRefreshTokenTick()","end")}}))}catch(e){if(!(e.isAcquireTimeout||e instanceof $t))throw e;this._debug("auto refresh token tick lock not available")}}async _handleVisibilityChange(){if(this._debug("#_handleVisibilityChange()"),!Qe()||!(null===window||void 0===window?void 0:window.addEventListener))return this.autoRefreshToken&&this.startAutoRefresh(),!1;try{this.visibilityChangedCallback=async()=>await this._onVisibilityChanged(!1),null===window||void 0===window||window.addEventListener("visibilitychange",this.visibilityChangedCallback),await this._onVisibilityChanged(!0)}catch(e){console.error("_handleVisibilityChange",e)}}async _onVisibilityChanged(e){const t=`#_onVisibilityChanged(${e})`;this._debug(t,"visibilityState",document.visibilityState),"visible"===document.visibilityState?(this.autoRefreshToken&&this._startAutoRefresh(),e||(await this.initializePromise,await this._acquireLock(-1,(async()=>{"visible"===document.visibilityState?await this._recoverAndRefresh():this._debug(t,"acquired the lock to recover the session, but the browser visibilityState is no longer visible, aborting")})))):"hidden"===document.visibilityState&&this.autoRefreshToken&&this._stopAutoRefresh()}async _getUrlForProvider(e,t,s){const n=[`provider=${encodeURIComponent(t)}`];if((null==s?void 0:s.redirectTo)&&n.push(`redirect_to=${encodeURIComponent(s.redirectTo)}`),(null==s?void 0:s.scopes)&&n.push(`scopes=${encodeURIComponent(s.scopes)}`),"pkce"===this.flowType){const[e,t]=await ct(this.storage,this.storageKey),s=new URLSearchParams({code_challenge:`${encodeURIComponent(e)}`,code_challenge_method:`${encodeURIComponent(t)}`});n.push(s.toString())}if(null==s?void 0:s.queryParams){const e=new URLSearchParams(s.queryParams);n.push(e.toString())}return(null==s?void 0:s.skipBrowserRedirect)&&n.push(`skip_http_redirect=${s.skipBrowserRedirect}`),`${e}?${n.join("&")}`}async _unenroll(e){try{return await this._useSession((async t=>{var s;const{data:n,error:r}=t;return r?{data:null,error:r}:await mt(this.fetch,"DELETE",`${this.url}/factors/${e.factorId}`,{headers:this.headers,jwt:null===(s=null==n?void 0:n.session)||void 0===s?void 0:s.access_token})}))}catch(e){if(Pe(e))return{data:null,error:e};throw e}}async _enroll(e){try{return await this._useSession((async t=>{var s,n;const{data:r,error:i}=t;if(i)return{data:null,error:i};const o=Object.assign({friendly_name:e.friendlyName,factor_type:e.factorType},"phone"===e.factorType?{phone:e.phone}:{issuer:e.issuer}),{data:a,error:l}=await mt(this.fetch,"POST",`${this.url}/factors`,{body:o,headers:this.headers,jwt:null===(s=null==r?void 0:r.session)||void 0===s?void 0:s.access_token});return l?{data:null,error:l}:("totp"===e.factorType&&(null===(n=null==a?void 0:a.totp)||void 0===n?void 0:n.qr_code)&&(a.totp.qr_code=`data:image/svg+xml;utf-8,${a.totp.qr_code}`),{data:a,error:null})}))}catch(e){if(Pe(e))return{data:null,error:e};throw e}}async _verify(e){return this._acquireLock(-1,(async()=>{try{return await this._useSession((async t=>{var s;const{data:n,error:r}=t;if(r)return{data:null,error:r};const{data:i,error:o}=await mt(this.fetch,"POST",`${this.url}/factors/${e.factorId}/verify`,{body:{code:e.code,challenge_id:e.challengeId},headers:this.headers,jwt:null===(s=null==n?void 0:n.session)||void 0===s?void 0:s.access_token});return o?{data:null,error:o}:(await this._saveSession(Object.assign({expires_at:Math.round(Date.now()/1e3)+i.expires_in},i)),await this._notifyAllSubscribers("MFA_CHALLENGE_VERIFIED",i),{data:i,error:o})}))}catch(e){if(Pe(e))return{data:null,error:e};throw e}}))}async _challenge(e){return this._acquireLock(-1,(async()=>{try{return await this._useSession((async t=>{var s;const{data:n,error:r}=t;return r?{data:null,error:r}:await mt(this.fetch,"POST",`${this.url}/factors/${e.factorId}/challenge`,{body:{channel:e.channel},headers:this.headers,jwt:null===(s=null==n?void 0:n.session)||void 0===s?void 0:s.access_token})}))}catch(e){if(Pe(e))return{data:null,error:e};throw e}}))}async _challengeAndVerify(e){const{data:t,error:s}=await this._challenge({factorId:e.factorId});return s?{data:null,error:s}:await this._verify({factorId:e.factorId,challengeId:t.id,code:e.code})}async _listFactors(){const{data:{user:e},error:t}=await this.getUser();if(t)return{data:null,error:t};const s=(null==e?void 0:e.factors)||[],n=s.filter((e=>"totp"===e.factor_type&&"verified"===e.status)),r=s.filter((e=>"phone"===e.factor_type&&"verified"===e.status));return{data:{all:s,totp:n,phone:r},error:null}}async _getAuthenticatorAssuranceLevel(){return this._acquireLock(-1,(async()=>await this._useSession((async e=>{var t,s;const{data:{session:n},error:r}=e;if(r)return{data:null,error:r};if(!n)return{data:{currentLevel:null,nextLevel:null,currentAuthenticationMethods:[]},error:null};const{payload:i}=at(n.access_token);let o=null;i.aal&&(o=i.aal);let a=o;return(null!==(s=null===(t=n.user.factors)||void 0===t?void 0:t.filter((e=>"verified"===e.status)))&&void 0!==s?s:[]).length>0&&(a="aal2"),{data:{currentLevel:o,nextLevel:a,currentAuthenticationMethods:i.amr||[]},error:null}}))))}async fetchJwk(e,t={keys:[]}){let s=t.keys.find((t=>t.kid===e));if(s)return s;if(s=this.jwks.keys.find((t=>t.kid===e)),s&&this.jwks_cached_at+6e5>Date.now())return s;const{data:n,error:r}=await mt(this.fetch,"GET",`${this.url}/.well-known/jwks.json`,{headers:this.headers});if(r)throw r;if(!n.keys||0===n.keys.length)throw new He("JWKS is empty");if(this.jwks=n,this.jwks_cached_at=Date.now(),s=n.keys.find((t=>t.kid===e)),!s)throw new He("No matching signing key found in JWKS");return s}async getClaims(e,t={keys:[]}){try{let s=e;if(!s){const{data:e,error:t}=await this.getSession();if(t||!e.session)return{data:null,error:t};s=e.session.access_token}const{header:n,payload:r,signature:i,raw:{header:o,payload:a}}=at(s);if(function(e){if(!e)throw new Error("Missing exp claim");if(e<=Math.floor(Date.now()/1e3))throw new Error("JWT has expired")}(r.exp),!n.kid||"HS256"===n.alg||!("crypto"in globalThis)||!("subtle"in globalThis.crypto)){const{error:e}=await this.getUser(s);if(e)throw e;return{data:{claims:r,header:n,signature:i},error:null}}const l=function(e){switch(e){case"RS256":return{name:"RSASSA-PKCS1-v1_5",hash:{name:"SHA-256"}};case"ES256":return{name:"ECDSA",namedCurve:"P-256",hash:{name:"SHA-256"}};default:throw new Error("Invalid alg claim")}}(n.alg),c=await this.fetchJwk(n.kid,t),d=await crypto.subtle.importKey("jwk",c,l,!0,["verify"]);if(!await crypto.subtle.verify(l,d,i,function(e){const t=[];return function(e,t){for(let s=0;s<e.length;s+=1){let n=e.charCodeAt(s);if(n>55295&&n<=56319){const t=1024*(n-55296)&65535;n=65536+(e.charCodeAt(s+1)-56320&65535|t),s+=1}Ye(n,t)}}(e,(e=>t.push(e))),new Uint8Array(t)}(`${o}.${a}`)))throw new He("Invalid JWT signature");return{data:{claims:r,header:n,signature:i},error:null}}catch(e){if(Pe(e))return{data:null,error:e};throw e}}}Lt.nextInstanceID=0;const xt=Lt;class Rt extends xt{constructor(e){super(e)}}const Dt=new class{constructor(e,t,s){var n,r,i;if(this.supabaseUrl=e,this.supabaseKey=t,!e)throw new Error("supabaseUrl is required.");if(!t)throw new Error("supabaseKey is required.");const o=(a=e).endsWith("/")?a:a+"/";var a;const l=new URL(o);this.realtimeUrl=new URL("realtime/v1",l),this.realtimeUrl.protocol=this.realtimeUrl.protocol.replace("http","ws"),this.authUrl=new URL("auth/v1",l),this.storageUrl=new URL("storage/v1",l),this.functionsUrl=new URL("functions/v1",l);const c=`sb-${l.hostname.split(".")[0]}-auth-token`,u=function(e,t){var s,n;const{db:r,auth:i,realtime:o,global:a}=e,{db:l,auth:c,realtime:d,global:u}=t,h={db:Object.assign(Object.assign({},l),r),auth:Object.assign(Object.assign({},c),i),realtime:Object.assign(Object.assign({},d),o),global:Object.assign(Object.assign(Object.assign({},u),a),{headers:Object.assign(Object.assign({},null!==(s=null==u?void 0:u.headers)&&void 0!==s?s:{}),null!==(n=null==a?void 0:a.headers)&&void 0!==n?n:{})}),accessToken:()=>{return e=this,t=void 0,n=function*(){return""},new((s=void 0)||(s=Promise))((function(r,i){function o(e){try{l(n.next(e))}catch(e){i(e)}}function a(e){try{l(n.throw(e))}catch(e){i(e)}}function l(e){var t;e.done?r(e.value):(t=e.value,t instanceof s?t:new s((function(e){e(t)}))).then(o,a)}l((n=n.apply(e,t||[])).next())}));var e,t,s,n}};return e.accessToken?h.accessToken=e.accessToken:delete h.accessToken,h}(null!=s?s:{},{db:ve,realtime:we,auth:Object.assign(Object.assign({},ye),{storageKey:c}),global:me});this.storageKey=null!==(n=u.auth.storageKey)&&void 0!==n?n:"",this.headers=null!==(r=u.global.headers)&&void 0!==r?r:{},u.accessToken?(this.accessToken=u.accessToken,this.auth=new Proxy({},{get:(e,t)=>{throw new Error(`@supabase/supabase-js: Supabase Client is configured with the accessToken option, accessing supabase.auth.${String(t)} is not possible`)}})):this.auth=this._initSupabaseAuthClient(null!==(i=u.auth)&&void 0!==i?i:{},this.headers,u.global.fetch),this.fetch=ke(t,this._getAccessToken.bind(this),u.global.fetch),this.realtime=this._initRealtimeClient(Object.assign({headers:this.headers,accessToken:this._getAccessToken.bind(this)},u.realtime)),this.rest=new d(new URL("rest/v1",l).href,{headers:this.headers,schema:u.db.schema,fetch:this.fetch}),u.accessToken||this._listenForAuthEvents()}get functions(){return new l(this.functionsUrl.href,{headers:this.headers,customFetch:this.fetch})}get storage(){return new pe(this.storageUrl.href,this.headers,this.fetch)}from(e){return this.rest.from(e)}schema(e){return this.rest.schema(e)}rpc(e,t={},s={}){return this.rest.rpc(e,t,s)}channel(e,t={config:{}}){return this.realtime.channel(e,t)}getChannels(){return this.realtime.getChannels()}removeChannel(e){return this.realtime.removeChannel(e)}removeAllChannels(){return this.realtime.removeAllChannels()}_getAccessToken(){var e,t,s,n,r,i;return s=this,n=void 0,i=function*(){if(this.accessToken)return yield this.accessToken();const{data:s}=yield this.auth.getSession();return null!==(t=null===(e=s.session)||void 0===e?void 0:e.access_token)&&void 0!==t?t:null},new((r=void 0)||(r=Promise))((function(e,t){function o(e){try{l(i.next(e))}catch(e){t(e)}}function a(e){try{l(i.throw(e))}catch(e){t(e)}}function l(t){var s;t.done?e(t.value):(s=t.value,s instanceof r?s:new r((function(e){e(s)}))).then(o,a)}l((i=i.apply(s,n||[])).next())}))}_initSupabaseAuthClient({autoRefreshToken:e,persistSession:t,detectSessionInUrl:s,storage:n,storageKey:r,flowType:i,lock:o,debug:a},l,c){const d={Authorization:`Bearer ${this.supabaseKey}`,apikey:`${this.supabaseKey}`};return new Rt({url:this.authUrl.href,headers:Object.assign(Object.assign({},d),l),storageKey:r,autoRefreshToken:e,persistSession:t,detectSessionInUrl:s,storage:n,flowType:i,lock:o,debug:a,fetch:c,hasCustomAuthorizationHeader:"Authorization"in this.headers})}_initRealtimeClient(e){return new W(this.realtimeUrl.href,Object.assign(Object.assign({},e),{params:Object.assign({apikey:this.supabaseKey},null==e?void 0:e.params)}))}_listenForAuthEvents(){return this.auth.onAuthStateChange(((e,t)=>{this._handleTokenChanged(e,"CLIENT",null==t?void 0:t.access_token)}))}_handleTokenChanged(e,t,s){"TOKEN_REFRESHED"!==e&&"SIGNED_IN"!==e||this.changedAccessToken===s?"SIGNED_OUT"===e&&(this.realtime.setAuth(),"STORAGE"==t&&this.auth.signOut(),this.changedAccessToken=void 0):this.changedAccessToken=s}}("https://mdzamxwkylxcqxyshxfi.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kemFteHdreWx4Y3F4eXNoeGZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg5ODU2MDksImV4cCI6MjA2NDU2MTYwOX0.9rNKeuKixlvOTigZKPLurGozMhzJ9X_u7ujJXvSaz7A",undefined);const Nt={async getEvents(e){const{data:t,error:s}=await Dt.from("events").select("*").eq("date",e);if(s)throw s;return t},async createEvent(e){const{data:t,error:s}=await Dt.from("events").insert([e]).select();if(s)throw s;return t[0]},async updateEvent(e,t){const{data:s,error:n}=await Dt.from("events").update(t).eq("id",e).select();if(n)throw n;return s[0]},async deleteEvent(e){const{error:t}=await Dt.from("events").delete().eq("id",e);if(t)throw t},async getPomodoroSessions(e){const{data:t,error:s}=await Dt.from("pomodoro_sessions").select("*").eq("date",e);if(s)throw s;return t},async createPomodoroSession(e){const{data:t,error:s}=await Dt.from("pomodoro_sessions").insert([e]).select();if(s)throw s;return t[0]},async getProjects(){const{data:e,error:t}=await Dt.from("projects").select("*");if(t)throw t;return e},async createProject(e){const{data:t,error:s}=await Dt.from("projects").insert([e]).select();if(s)throw s;return t[0]},async deleteProject(e){const{error:t}=await Dt.from("projects").delete().eq("id",e);if(t)throw t;return!0},async getCalendarEvents(e,t){const{data:s,error:n}=await Dt.from("calendar_events").select("*").gte("date",e).lte("date",t).order("date").order("start_time");if(n)throw n;return s||[]},async createCalendarEvent(e){const{data:t,error:s}=await Dt.from("calendar_events").insert([e]).select().single();if(s)throw s;return t},async updateCalendarEvent(e,t){const{data:s,error:n}=await Dt.from("calendar_events").update(t).eq("id",e).select().single();if(n)throw n;return s},async deleteCalendarEvent(e){const{error:t}=await Dt.from("calendar_events").delete().eq("id",e);if(t)throw t;return!0},async getDayDetails(e){const{data:t,error:s}=await Dt.from("day_details").select("*").eq("date",e).single();if(s&&"PGRST116"!==s.code)throw s;return t||null},async upsertDayDetails(e){const{data:t,error:s}=await Dt.from("day_details").upsert([e],{onConflict:"date"}).select().single();if(s)throw s;return t},async syncCalendarData(){const{data:e}=await Dt.from("sync_status").select("last_sync").single(),t=e?.last_sync||new Date(0).toISOString(),{data:s,error:n}=await Dt.from("calendar_events").select("*").gt("updated_at",t);if(n)throw n;return await Dt.from("sync_status").upsert([{last_sync:(new Date).toISOString()}]),s||[]},async exportCalendarData(e,t){const[s,n]=await Promise.all([this.getCalendarEvents(e,t),Dt.from("day_details").select("*").gte("date",e).lte("date",t).then((({data:e})=>e||[]))]);return{events:s,dayDetails:n}},async importCalendarData(e){const{events:t,dayDetails:s}=e;if(t&&t.length>0){const{error:e}=await Dt.from("calendar_events").upsert(t,{onConflict:"id"});if(e)throw e}if(s&&s.length>0){const{error:e}=await Dt.from("day_details").upsert(s,{onConflict:"date"});if(e)throw e}return!0}},Bt="undefined"!=typeof chrome&&chrome.storage,Ut={async get(e){if(Bt)return new Promise((t=>{chrome.storage.local.get(e,t)}));{const t={};if(Array.isArray(e))e.forEach((e=>{const s=localStorage.getItem(e);if(null!==s)try{t[e]=JSON.parse(s)}catch(n){t[e]=s}}));else{const s=localStorage.getItem(e);if(null!==s)try{t[e]=JSON.parse(s)}catch(n){t[e]=s}}return t}},async set(e){if(Bt)return new Promise((t=>{chrome.storage.local.set(e,t)}));Object.entries(e).forEach((([e,t])=>{localStorage.setItem(e,JSON.stringify(t))}))},async remove(e){if(Bt)return new Promise((t=>{chrome.storage.local.remove(e,t)}));Array.isArray(e)?e.forEach((e=>localStorage.removeItem(e))):localStorage.removeItem(e)}};let Mt=[],qt=[];console.log("Global projects initialized:",qt);let Ft=null,Ht=[],Jt={isRunning:!1,startTimestamp:null,elapsed:0,liveEventId:null,projectId:null},zt=null,Wt=new Date,Kt=Qt(Wt),Vt=null,Gt={};const Yt="allDayDetails";function Xt(e){const t=new Date(e);let s=""+(t.getMonth()+1),n=""+t.getDate();const r=t.getFullYear();return s.length<2&&(s="0"+s),n.length<2&&(n="0"+n),[r,s,n].join("-")}function Zt(e){return e.toString().padStart(2,"0")}function Qt(e){let t=new Date(e),s=t.getDay(),n=t.getDate()-s+(0===s?-6:1);return t.setDate(n),t.setHours(0,0,0,0),t}function es(e){let t=[];for(let s=0;s<7;s++){let n=new Date(e);n.setDate(n.getDate()+s),t.push(new Date(n))}return t}function ts(e){return e.getFullYear()+"-"+Zt(e.getMonth()+1)+"-"+Zt(e.getDate())+"T"+Zt(e.getHours())+":"+Zt(e.getMinutes())}function ss(e){const[t,s,n]=[e.slice(0,4),e.slice(5,7),e.slice(8,10)],[r,i]=[e.slice(11,13),e.slice(14,16)];return new Date(+t,+s-1,+n,+r,+i)}function ns(e){return`${e.getFullYear()}-${Zt(e.getMonth()+1)}-${Zt(e.getDate())}`}function rs(e){if(!e)return[];const t=[];let s="",n=!1,r=0;for(;r<e.length;){const i=e[r];if('"'!==i)";"!==i||n?(s+=i,r++):(t.push(s),s="",r++);else{if(n&&r+1<e.length&&'"'===e[r+1]){s+='"',r+=2;continue}n=!n,r++}}return t.push(s),t.map((e=>e.trim()))}function is(){const e=new Date,t=e.getDay(),s=0===t?6:t-1,n=document.querySelector(".current-time-indicator");n&&n.remove();const r=document.querySelector(`.day-column:nth-child(${s+1})`);if(!r)return;const i=document.createElement("div");i.className="current-time-indicator";const o=(60*e.getHours()+e.getMinutes())/1440*r.offsetHeight;i.style.top=`${o}px`,r.appendChild(i)}function os(){const e=document.getElementById("sidebar-timer-display");if(!e)return void console.error("Элемент для отображения таймера ('sidebar-timer-display') не найден!");let t="00:00:00";if(Jt.isRunning&&Jt.startTimestamp){const e=Date.now()-Jt.startTimestamp,s=Math.floor(e/1e3),n=Math.floor(s/3600),r=Math.floor(s%3600/60),i=s%60;t=`${Zt(n)}:${Zt(r)}:${Zt(i)}`}e.textContent=t;const s=document.getElementById("stopwatch-project-name");if(s)if(Jt.isRunning&&Jt.projectId){const e=qt.find((e=>e.id===Jt.projectId));s.textContent=e?`Проект: ${e.name}`:"Проект не выбран"}else s.textContent=""}function as(){Ut.set({stopwatch:{isRunning:Jt.isRunning,startTimestamp:Jt.startTimestamp,projectId:Jt.projectId,liveEventId:Jt.liveEventId,isSyncedWithSupabase:Jt.isSyncedWithSupabase,lastSupabaseSync:Jt.lastSupabaseSync}})}function ls(e){const t=Math.floor(e/1e3),s=Math.floor(t/3600),n=Math.floor(t%3600/60),r=t%60;return s>0?`${Zt(s)}:${Zt(n)}:${Zt(r)}`:`${Zt(n)}:${Zt(r)}`}function cs(){os(),async function(){if(!Jt.isRunning||!Jt.startTimestamp)return;const e=new Date,t=new Date(Jt.startTimestamp),s={id:Jt.liveEventId,title:(qt.find((e=>e.id===Jt.projectId))?.name||"Работа")+` (${ls(e-t)})`,date:ns(t),startTime:ts(t),endTime:ts(e),projectId:Jt.projectId,type:Jt.projectId?"project":"event",is_live:!0},n=Mt.findIndex((e=>e.id===Jt.liveEventId));n>-1?Mt[n]={...Mt[n],...s}:Mt.push(s),ys();try{if(Jt.isSyncedWithSupabase)Date.now()-Jt.lastSupabaseSync>15e3&&(console.log(`[SYNC LIVE EVENT] Периодическое обновление live-события ${Jt.liveEventId} в Supabase...`),await Nt.updateCalendarEvent(Jt.liveEventId,{end_time:s.endTime.split("T")[1]}),Jt.lastSupabaseSync=Date.now(),as(),console.log("[SYNC LIVE EVENT] Live-событие обновлено в Supabase."));else{console.log("[SYNC LIVE EVENT] Создание нового live-события в Supabase...");const e=await Nt.createCalendarEvent({title:s.title,date:s.date,start_time:s.startTime.split("T")[1],end_time:s.endTime.split("T")[1],project_id:s.projectId,type:s.type,is_live:!0});if(!e||!e.id)return void console.error("[SYNC LIVE EVENT] Не удалось создать live-событие в Supabase.");{const t=Jt.liveEventId;Jt.liveEventId=e.id,Jt.isSyncedWithSupabase=!0,Jt.lastSupabaseSync=Date.now();const s=Mt.find((e=>e.id===t));s&&(s.id=Jt.liveEventId),as(),console.log(`[SYNC LIVE EVENT] Событие создано с ID: ${Jt.liveEventId}`)}}}catch(e){console.error("[SYNC LIVE EVENT] Ошибка при синхронизации с Supabase:",e),Jt.isSyncedWithSupabase=!1}}()}async function ds(e=!0){if(!Jt.isRunning)return;clearInterval(zt),zt=null,Jt.isRunning=!1;const t=new Date,s=(qt.find((e=>e.id===Jt.projectId))?.name||"Работа")+` (${ls(t-Jt.startTimestamp)})`;if(Jt.isSyncedWithSupabase&&Jt.liveEventId){console.log(`[FINALIZE EVENT] Финализация события ${Jt.liveEventId} в Supabase...`);try{await Nt.updateCalendarEvent(Jt.liveEventId,{title:s,end_time:ts(t).split("T")[1],is_live:!1}),console.log("[FINALIZE EVENT] Событие успешно финализировано.")}catch(e){console.error("[FINALIZE EVENT] Ошибка при финализации события:",e)}}else if(Jt.liveEventId.startsWith("local-live-")){console.log("[FINALIZE EVENT] Создание финализированного события, которое не успело синхронизироваться...");try{await Nt.createCalendarEvent({title:s,date:ns(new Date(Jt.startTimestamp)),start_time:ts(new Date(Jt.startTimestamp)).split("T")[1],end_time:ts(t).split("T")[1],project_id:Jt.projectId,type:Jt.projectId?"project":"event",is_live:!1}),console.log("[FINALIZE EVENT] Несинхронизированное событие создано как финализированное.")}catch(e){console.error("[FINALIZE EVENT] Ошибка при создании финализированного события:",e)}}const n=Mt.find((e=>e.id===Jt.liveEventId));n&&(n.endTime=ts(t),n.is_live=!1,n.isLive=!1,ys()),e&&(Jt.startTimestamp=null,Jt.projectId=null,Jt.liveEventId=null,Jt.isSyncedWithSupabase=!1,Jt.lastSupabaseSync=0),os(),as();const r=document.getElementById("start-pomodoro"),i=document.getElementById("pause-pomodoro");r&&(r.disabled=Jt.isRunning),i&&(i.disabled=!Jt.isRunning)}function us(){ds(!0)}async function hs(){const e=await Ut.get("projects");qt=e.projects||[],console.log("Projects loaded:",qt),vn()}async function fs(e){const t=e||Kt,s=new Date(t);s.setDate(s.getDate()+6);const n=(await Ut.get("calendarEvents")).calendarEvents||[];Mt=n.filter((e=>{const n=new Date(e.date);return n>=t&&n<=s})),ys()}function ps(){sn&&(sn.style.display="none")}async function gs(e,t){const s=(await Ut.get(Yt))[Yt]||{};s[e]=t,await Ut.set({[Yt]:s}),Gt=s,ms()}function ms(){if(!(un&&rn&&on&&an))return;const e=parseInt(rn.value)||0,t=parseInt(on.value)||0,s=parseInt(an.value)||0;un.textContent=(e+t+s).toString()}async function vs(){const e=await Ut.get(Yt);Gt=e[Yt]||{},ms()}function ys(){const e=document.getElementById("week-grid");if(!e)return;e.querySelectorAll(".calendar-event").forEach((e=>e.remove()));const t=es(Kt);Mt.filter((e=>"regular"!==e.type&&t.some((t=>Xt(t)===e.date)))).forEach((t=>{const s=e.querySelector(`.day-column[data-date="${t.date}"]`);if(!s)return;let n,r;try{n=ss(t.startTime),r=ss(t.endTime)}catch(e){return}if(isNaN(n.getTime())||isNaN(r.getTime()))return;const i=s.querySelector(".hour-cell");if(!i)return;const o=i.offsetHeight/60,a=60*n.getHours()+n.getMinutes();let l=Math.round((r-n)/6e4);l<1&&(l=1);const c=a*o,d=l*o,u=document.createElement("div");let h=["calendar-event"];if("project"===t.type&&h.push("project-event"),t.is_live&&h.push("live"),u.className=h.join(" "),t.projectId){const e=qt.find((e=>e.id===t.projectId));e&&e.color&&(u.style.backgroundColor=e.color)}u.dataset.eventId=t.id,u.style.position="absolute",u.style.top=`${c}px`,u.style.height=`${Math.max(d,15)}px`,u.style.left="2px",u.style.right="2px",u.innerHTML=`<div class="event-title">${t.title}</div>`,u.addEventListener("click",(()=>jn(t.id))),s.appendChild(u)})),t.forEach((t=>{const s=t.getDay(),n=Xt(t);Ht.forEach((t=>{if(t&&t.days&&t.startTime&&t.endTime){if(t.days.includes(s)){const[s,r]=t.startTime.split(":").map(Number),[i,o]=t.endTime.split(":").map(Number),a=new Date(n+"T"+t.startTime),l=(new Date(n+"T"+t.endTime),`reg-${t.id}-${n}`),c=Mt.find((e=>e.id===l)),d=!!c&&c.completed,u=e.querySelector(`.day-column[data-date="${n}"]`);if(!u)return;const h=u.querySelector(".hour-cell");if(!h)return;const f=h.offsetHeight/60,p=60*s+r,g=p*f,m=(60*i+o-p)*f,v=document.createElement("div");v.className="calendar-event regular";const y=new Date;d?v.classList.add("completed"):y>a?v.classList.add("not-completed"):v.classList.remove("completed","not-completed"),v.style.position="absolute",v.style.top=`${g}px`,v.style.height=`${Math.max(m,15)}px`,v.style.left="2px",v.style.right="2px",v.style.display="flex",v.style.alignItems="center",v.innerHTML=`\n                    <div class="event-title regular-title">${t.name}</div>\n                    <div class="event-time">${t.startTime} - ${t.endTime}</div>\n                `,v.addEventListener("click",(()=>{jn(l)})),u.appendChild(v)}}else console.warn("Пропущено регулярное событие: некорректная конфигурация",t)}))}))}async function ws(){console.log("[INITIAL LOAD] Начало initialLoad..."),console.log("=== Проверка DOM до загрузки данных ==="),console.log("regular-event-time:",document.getElementById("regular-event-time"));try{const e=await Ut.get(["selectedProjectId","regularEventsConfig"]);Ft=e.selectedProjectId||null,Ht=e.regularEventsConfig||[],console.log("[INITIAL LOAD] Загружены конфигурации регулярных событий:",Ht.length),console.log("=== Проверка DOM после загрузки из storage ==="),console.log("regular-event-time:",document.getElementById("regular-event-time")),await hs(),await fs(Kt),await vs(),console.log("=== Проверка DOM после загрузки всех данных ==="),console.log("regular-event-time:",document.getElementById("regular-event-time")),bs(Kt),function(){const e=document.querySelector(".time-slots-container");if(e){e.innerHTML="";for(let t=0;t<=23;t++){const s=document.createElement("div");s.className="time-slot",s.setAttribute("data-hour",t.toString()),s.textContent=`${Zt(t)}:00`,e.appendChild(s)}}else console.error("Не найден контейнер time-slots-container!")}(),kn(Kt),vn(),yn(),_n(Ft),console.log("=== Проверка DOM после рендеринга ==="),console.log("regular-event-time:",document.getElementById("regular-event-time")),_s(),is(),console.log("[INITIAL LOAD] initialLoad завершен.")}catch(e){console.error("[INITIAL LOAD] Ошибка при загрузке:",e)}}function bs(e){const t=document.getElementById("week-grid");if(!t)return void console.error("Не найден элемент #week-grid");t.innerHTML="",es(e).forEach((e=>{const s=document.createElement("div");s.className="day-column",s.setAttribute("data-date",Xt(e));for(let e=0;e<=23;e++){const t=document.createElement("div");t.className="hour-cell",t.setAttribute("data-hour",e.toString()),t.addEventListener("click",(t=>{t.target.closest(".calendar-event")||jn(null,s.getAttribute("data-date"),e)})),s.appendChild(t)}t.appendChild(s)}));const s=document.querySelector(".time-slots-container");if(s){s.innerHTML="";for(let e=0;e<=23;e++){const t=document.createElement("div");t.className="time-slot",t.textContent=`${Zt(e)}:00`,s.appendChild(t)}}ys(),setTimeout(_s,5),is()}function _s(){const e=document.getElementById("week-grid-scroll-container");if(!e)return;const t=document.querySelectorAll('.hour-cell[data-hour="8"]');t.length>0&&(e.scrollTop=t[0].offsetTop)}[rn,on,an].forEach((e=>{e&&e.addEventListener("input",ms)})),cn&&cn.addEventListener("click",(async()=>{const e=nn.textContent;if(!e)return void alert("Ошибка: не удалось определить дату для сохранения.");const t={calories:{morning:parseInt(rn.value,10)||0,afternoon:parseInt(on.value,10)||0,evening:parseInt(an.value,10)||0},comment:ln.value.trim()};await gs(e,t),ps()})),dn&&dn.addEventListener("click",ps),document.addEventListener("DOMContentLoaded",(async()=>{console.log("DOM полностью загружен, начинаем инициализацию..."),await ws(),Ut.onChanged.addListener((async(e,t)=>{if("local"===t){let t=!1,s=!1,n=!1,r=!1;"calendarEvents"in e&&(Mt=e.calendarEvents.newValue||[],console.log("[ON CHANGED] calendarEvents changed, new count:",Mt.length),t=!0,r=!0),"projects"in e&&(qt=e.projects.newValue||[],s=!0,r=!0),"selectedProjectId"in e&&(Ft=e.selectedProjectId.newValue||null,r=!0,Ss&&(Ss.value=Ft||"")),Yt in e&&(Gt=e[Yt].newValue||{},n=!0),s&&(vn(),yn()),t&&ys(),n&&kn(Kt),r&&_n(Ft)}}))})),document.getElementById("sidebar-timer-display");const ks=document.getElementById("start-pomodoro"),Es=document.getElementById("pause-pomodoro"),Ts=document.getElementById("stop-pomodoro"),Ss=document.getElementById("select-project"),js=document.getElementById("add-project"),Is=document.getElementById("project-name"),$s=document.getElementById("projects-list"),Os=document.getElementById("project-stats"),Cs=document.getElementById("export-csv"),Ps=document.getElementById("import-csv"),As=document.getElementById("prev-week"),Ls=document.getElementById("next-week"),xs=document.getElementById("current-week"),Rs=document.getElementById("open-date-picker"),Ds=document.querySelector(".days-header"),Ns=(document.querySelector(".week-grid"),document.querySelector(".time-slots"),document.getElementById("event-modal")),Bs=document.getElementById("event-form"),Us=document.getElementById("event-title"),Ms=document.getElementById("event-date"),qs=document.getElementById("event-start"),Fs=document.getElementById("event-end"),Hs=document.getElementById("event-description"),Js=document.getElementById("save-event"),zs=document.getElementById("delete-event"),Ws=document.getElementById("cancel-event"),Ks=document.getElementById("date-picker-modal"),Vs=document.getElementById("calendar-grid"),Gs=document.getElementById("month-title"),Ys=document.getElementById("prev-month"),Xs=document.getElementById("next-month"),Zs=document.getElementById("date-picker-select"),Qs=document.getElementById("date-picker-today"),en=document.getElementById("date-picker-cancel"),tn=document.getElementById("weekday-header"),sn=document.getElementById("day-detail-modal"),nn=document.getElementById("day-detail-modal-date-display"),rn=document.getElementById("calories-morning"),on=document.getElementById("calories-afternoon"),an=document.getElementById("calories-evening"),ln=document.getElementById("day-comment"),cn=document.getElementById("day-detail-save"),dn=document.getElementById("day-detail-cancel"),un=document.getElementById("total-calories-value"),hn=document.getElementById("regular-event-details"),fn=document.getElementById("regular-event-modal-title"),pn=document.getElementById("regular-event-modal-status"),gn=document.getElementById("toggle-completion-btn"),mn=document.getElementById("regular-event-cancel-btn");function vn(){if(Ss){const e=Ss.value;Ss.innerHTML='<option value="">-- Проект --</option>',qt.forEach((e=>{const t=document.createElement("option");t.value=e.id,t.textContent=e.name,Ss.appendChild(t)})),qt.find((t=>t.id===e))?Ss.value=e:Ft&&qt.find((e=>e.id===Ft))?Ss.value=Ft:Ss.value=""}yn()}function yn(){if($s){if($s.innerHTML="",0===qt.length)return void($s.innerHTML="<div>Нет проектов. Добавьте новый.</div>");qt.forEach((e=>{const t=document.createElement("div");t.className="project-item",t.innerHTML=`\n                <span class="project-name-display">${e.name}</span>\n                <button class="delete-project delete-project-btn" data-id="${e.id}" title="Удалить проект">🗑️</button>\n            `,t.querySelector(".project-name-display").addEventListener("click",(()=>{Ss&&(Ss.value=e.id),Ft=e.id,Ut.set({selectedProjectId:Ft}),_n(e.id)})),$s.appendChild(t)}))}}function wn(){let e="#";for(let t=0;t<6;t++)e+="0123456789ABCDEF"[Math.floor(16*Math.random())];return e}function bn(e){if(!e||e<=0)return"0 мин";const t=Math.floor(e/60),s=e%60;let n=[];return t>0&&n.push(`${t} ч`),s>0&&n.push(`${s} мин`),n.join(" ")}function _n(e){if(!Os)return;if(Os.innerHTML="",!e)return void(Os.textContent="Проект не выбран.");const t=qt.find((t=>t.id===e));if(!t)return void(Os.textContent="Проект не найден.");const s=Xt(new Date),n=e=>e.reduce(((e,t)=>{try{if(t.is_live)return e;const s=ss(t.startTime),n=ss(t.endTime);return isNaN(s.getTime())||isNaN(n.getTime())?e:e+Math.max(0,Math.round((n-s)/6e4))}catch(s){return console.warn("Could not calculate duration for event:",t),e}}),0),r=n(Mt.filter((t=>t.projectId===e&&t.date===s))),i=n(Mt.filter((t=>t.projectId===e)));Os.innerHTML=`\n        <div class="stats-header"><b>${t.name}</b></div>\n        <div class="stats-item">\n            <span>За сегодня:</span>\n            <span>${bn(r)}</span>\n        </div>\n        <div class="stats-item">\n            <span>За эту неделю:</span>\n            <span>${bn(i)}</span>\n        </div>\n    `}function kn(e){if(!Ds)return;Ds.innerHTML="";const t=es(e),s=Xt(new Date);t.forEach((e=>{const t=Xt(e),n=Gt[t],r=n&&n.calories?(parseInt(n.calories.morning)||0)+(parseInt(n.calories.afternoon)||0)+(parseInt(n.calories.evening)||0):0,i=n&&n.comment&&""!==n.comment.trim(),o=document.createElement("div");o.className="day-header",o.setAttribute("data-date",t),t===s&&o.classList.add("today-header"),o.innerHTML=`\n            <div class="day-name">${e.toLocaleDateString("ru-RU",{weekday:"short"})}</div>\n            <div.day-date">${Zt(e.getDate())}.${Zt(e.getMonth()+1)}</div>\n            <div class="day-header-icons">\n                <span class="calories-icon" style="display: ${r>0?"inline-flex":"none"}" title="Калории: ${r}">\n                    🔥 <span class="calories-count">${r>0?r:""}</span>\n                </span>\n                <span class="comment-icon ${i?"has-comment":""}" style="display: ${i?"inline-flex":"none"}" title="Есть комментарий">💬</span>\n            </div>\n        `,o.addEventListener("click",(()=>{!async function(e){if(!(sn&&nn&&rn&&on&&an&&ln))return;nn.textContent=e;const t=Gt[e]||{},s=t.calories||{};console.log(`[openDayDetailModal] Opening for ${e}. Details from cache:`,t),rn.value=s.morning||"",on.value=s.afternoon||"",an.value=s.evening||"",ln.value=t.comment||"",ms(),sn.style.display="block";try{const t=await Nt.getDayDetails(e);if(t){Gt[e]=t;const s=t.calories||{};"block"===sn.style.display&&nn.textContent===e&&(console.log(`[openDayDetailModal] Fresh details loaded and applied for ${e}`),rn.value=s.morning||"",on.value=s.afternoon||"",an.value=s.evening||"",ln.value=t.comment||"",ms())}}catch(t){console.error(`[openDayDetailModal] Failed to fetch fresh details for ${e}:`,t)}}(t)})),Ds.appendChild(o)}))}mn&&mn.addEventListener("click",In),ks&&ks.addEventListener("click",(()=>{!function(){if(!Jt.isRunning){Jt.isRunning=!0,Jt.startTimestamp=Date.now(),Jt.projectId=Ft,Jt.liveEventId=`local-live-${Jt.startTimestamp}`,Jt.isSyncedWithSupabase=!1,Jt.lastSupabaseSync=0,as(),cs(),zt=setInterval(cs,1e3);const e=document.getElementById("start-pomodoro"),t=document.getElementById("pause-pomodoro");e&&(e.disabled=!0),t&&(t.disabled=!1)}}()})),Es&&Es.addEventListener("click",(function(){ds(!1)})),Ts&&Ts.addEventListener("click",(()=>{(Jt.isRunning||Jt.startTimestamp)&&confirm("Остановить таймер? Затраченное время будет сохранено как событие. Отмена - продолжить отсчет.")&&us()})),document.querySelectorAll(".modal .close-modal, .date-picker-modal .close-modal, .day-detail-modal .close-modal").forEach((e=>{e.addEventListener("click",(function(){const e=this.closest(".modal, .date-picker-modal, .day-detail-modal");e&&(e.style.display="none","event-modal"===e.id&&In(),e.id)}))})),window.addEventListener("click",(function(e){[Ns,Ks,sn].forEach((t=>{t&&e.target===t&&(t.style.display="none","event-modal"===t.id&&In(),"day-detail-modal"===t.id&&ps())}))})),Rs&&Rs.addEventListener("click",(()=>{En=Wt.getFullYear(),Tn=Wt.getMonth(),Ks?(Ks.style.display="block",Sn(En,Tn)):console.error("Date picker modal not found")})),Ss&&Ss.addEventListener("change",(e=>{const t=Ss.value||null;if(Jt.isRunning&&Jt.projectId&&Jt.projectId!==t){if(!confirm("Секундомер активен для другого проекта. Остановить текущий отсчет и переключить проект? (ОК для остановки и смены, Отмена для сохранения текущей работы)"))return void(Ss.value=Jt.projectId);us(),Ft=t,Ut.set({selectedProjectId:Ft})}else Ft=t,Ut.set({selectedProjectId:Ft});_n(Ft),os()})),$s&&$s.addEventListener("click",(async e=>{if(e.target.classList.contains("delete-project-btn")){const t=e.target.getAttribute("data-id"),s=qt.find((e=>e.id===t));s&&confirm(`Вы уверены, что хотите удалить проект "${s.name}"? Связанные события останутся, но потеряют привязку к проекту.`)&&(qt=qt.filter((e=>e.id!==t)),Mt.forEach((e=>{e.projectId===t&&(e.projectId=null)})),Ft===t&&(Ft=null,Ss&&(Ss.value="")),Jt.isRunning&&Jt.projectId===t&&(confirm("Удаляемый проект используется активным таймером. Остановить таймер? (ОК - остановить, Отмена - таймер продолжит без проекта)")?us():(Jt.projectId=null,as(),os())),Ut.set({projects:qt,calendarEvents:Mt,selectedProjectId:Ft}))}})),js&&Is&&js.addEventListener("click",(async()=>{console.log("[ADD PROJECT BTN CLICKED]");const e=Is.value.trim();if(e)if(qt.find((t=>t.name.toLowerCase()===e.toLowerCase())))alert("Проект с таким именем уже существует (локально). Попробуйте обновить список или выберите другое имя.");else{console.log(`[ADD PROJECT] Попытка создать проект: "${e}"`);try{const t={name:e,color:wn()},s=await Nt.createProject(t);if(!s||!s.id)return alert("Не удалось создать проект. Сервер не вернул данные о созданном проекте."),void console.error("[ADD PROJECT] Supabase.createProject не вернул ожидаемый объект:",s);console.log("[ADD PROJECT] Проект успешно создан в Supabase:",s),await hs(),Is.value="",Ft=s.id,Ss&&(Ss.value=s.id),Ut.set({selectedProjectId:s.id})}catch(e){alert(`Ошибка при создании проекта: ${e.message}`),console.error("[ADD PROJECT] Ошибка при взаимодействии с Supabase:",e)}}else alert("Имя проекта не может быть пустым.")}));let En=Wt.getFullYear(),Tn=Wt.getMonth();function Sn(e,t){if(!Gs||!Vs||!tn)return void console.error("Date picker elements missing for rendering.");Gs.textContent=`${new Date(e,t).toLocaleString("ru-RU",{month:"long"})} ${e}`,Vs.innerHTML="",0===tn.children.length&&["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].forEach((e=>tn.innerHTML+=`<span>${e}</span>`));const s=new Date(e,t,1),n=new Date(e,t+1,0),r=Xt(new Date),i=Xt(Wt);let o="",a=(s.getDay()+6)%7;for(let e=0;e<a;e++)o+='<div class="calendar-day other-month"></div>';for(let s=1;s<=n.getDate();s++){let n=Xt(new Date(e,t,s)),a="calendar-day";n===i&&(a+=" selected"),n===r&&(a+=" today-picker"),o+=`<div class="${a}" data-date="${n}">${s}</div>`}Vs.innerHTML=o,Vs.querySelectorAll(".calendar-day:not(.other-month)").forEach((e=>{e.addEventListener("click",(function(){Vs.querySelectorAll(".calendar-day.selected").forEach((e=>e.classList.remove("selected"))),this.classList.add("selected")}))}))}function jn(e=null,t=null,s=null){const n=document.getElementById("event-modal-header");if(Ns&&Bs&&hn&&n){if(Bs.style.display="none",hn.style.display="none",Vt=e,e&&e.startsWith("reg-")){n.textContent="Детали регулярного события";const[,t]=e.split("-"),s=Ht.find((e=>e.id==t)),r=Mt.find((t=>t.id===e)),i=!!r&&r.completed;s&&(fn.textContent=s.name,pn.textContent=i?"Выполнено":"Не выполнено",gn.textContent=i?"Снять отметку":"Отметить как выполненное",gn.onclick=()=>{!async function(e,t){let s=Mt.find((t=>t.id===e));if(s)s.completed=t;else{const[,n,r]=e.split("-"),i=Ht.find((e=>e.id==n));if(!i)return void console.error("Не найдена конфигурация для регулярного события:",n);s={id:e,title:i.name,date:r,type:"regular",completed:t,startTime:`${r}T${i.time}`,endTime:`${r}T${i.time}`},Mt.push(s)}Ut.set({calendarEvents:Mt})}(e,!i),In()}),hn.style.display="block"}else{if(n.textContent=e?"Редактировать событие":"Создать событие",Bs.reset(),e){const t=Mt.find((t=>t.id===e));t&&(Us.value=t.title,Ms.value=t.date,qs.value=t.startTime.split("T")[1],Fs.value=t.endTime.split("T")[1],Hs.value=t.description||"",Ss&&t.projectId&&(Ss.value=t.projectId),zs.style.display="inline-block")}else if(zs.style.display="none",Ms.value=t||Xt(Wt),null!==s)qs.value=`${Zt(s)}:00`,Fs.value=`${Zt(s+1)}:00`;else{const e=new Date;qs.value=`${Zt(e.getHours())}:${Zt(e.getMinutes())}`,e.setHours(e.getHours()+1),Fs.value=`${Zt(e.getHours())}:${Zt(e.getMinutes())}`}Bs.style.display="block"}Ns.style.display="block"}}function In(){Ns&&(Ns.style.display="none"),Vt=null,gn&&(gn.onclick=null)}en&&en.addEventListener("click",(()=>{Ks&&(Ks.style.display="none")})),Qs&&Qs.addEventListener("click",(()=>{const e=new Date;Wt=new Date(e.getFullYear(),e.getMonth(),e.getDate()),Kt=Qt(Wt),kn(Kt),bs(Kt),Ks&&(Ks.style.display="none")})),Zs&&Zs.addEventListener("click",(()=>{const e=Vs?Vs.querySelector(".calendar-day.selected"):null;if(e&&e.dataset.date){const t=e.dataset.date;Wt=ss(t+"T00:00:00"),Kt=Qt(Wt),kn(Kt),bs(Kt),Ks&&(Ks.style.display="none")}else alert("Дата не выбрана.")})),Ys&&Ys.addEventListener("click",(()=>{Tn--,Tn<0&&(Tn=11,En--),Sn(En,Tn)})),Xs&&Xs.addEventListener("click",(()=>{Tn++,Tn>11&&(Tn=0,En++),Sn(En,Tn)})),As&&As.addEventListener("click",(()=>{Wt.setDate(Wt.getDate()-7),Kt=Qt(Wt),kn(Kt),bs(Kt)})),Ls&&Ls.addEventListener("click",(()=>{Wt.setDate(Wt.getDate()+7),Kt=Qt(Wt),kn(Kt),bs(Kt)})),xs&&xs.addEventListener("click",(()=>{Wt=new Date,Wt.setHours(0,0,0,0),Kt=Qt(Wt),kn(Kt),bs(Kt)})),Cs&&Cs.addEventListener("click",(async function(){console.log("Export process started");const e=await Ut.get(["calendarEvents","projects",Yt]);console.log("Data fetched from storage for export");const t=e.calendarEvents||[],s=e.projects||[],n=e[Yt]||{},r={};s.forEach((e=>{r[e.id]=e.name}));let i=new Set(t.map((e=>e.date)));Object.keys(n).forEach((e=>i.add(e)));let o=Array.from(i).sort(),a="\ufeff"+["Дата","День недели","Калории утром","Калории днем","Калории вечером","Комментарий дня","События","Проекты"].join(";")+"\n";o.forEach((e=>{let s=new Date(e+"T00:00:00").toLocaleDateString("ru-RU",{weekday:"short"});const i=n[e]||{},o=i.calories||{},l=t.filter((t=>t.date===e&&"event"===t.type)).map((e=>{const t=new Date(e.startTime),s=new Date(e.endTime),n=Math.round((s-t)/6e4);return{title:e.title,description:e.description||"",startTime:e.startTime,endTime:e.endTime,duration:n,projectName:e.projectId?r[e.projectId]||"Unknown Project":null,type:e.type}})),c=t.filter((t=>t.date===e&&"project"===t.type)).map((e=>{const t=new Date(e.startTime),s=new Date(e.endTime),n=Math.round((s-t)/6e4);return{title:e.title,description:e.description||"",startTime:e.startTime,endTime:e.endTime,duration:n,projectName:e.projectId?r[e.projectId]||"Unknown Project":null,type:e.type}})),d=l.length>0?JSON.stringify(l).replace(/"/g,'""'):"[]",u=c.length>0?JSON.stringify(c).replace(/"/g,'""'):"[]";let h=[`"${e}"`,`"${s}"`,`"${o.morning||0}"`,`"${o.afternoon||0}"`,`"${o.evening||0}"`,`"${(i.comment||"").replace(/"/g,'""')}"`,`"${d}"`,`"${u}"`];a+=h.join(";")+"\n"}));const l=new Blob([a],{type:"text/csv;charset=utf-8;"}),c=URL.createObjectURL(l),d=document.createElement("a");d.href=c,d.download=`calendar_data_${Xt(new Date).replace(/-/g,"")}.csv`,document.body.appendChild(d),d.click(),document.body.removeChild(d),URL.revokeObjectURL(c),console.log("Export completed")})),Ps&&Ps.addEventListener("click",(async()=>{let e=document.createElement("input");e.type="file",e.accept=".csv",e.style.display="none",e.addEventListener("change",(function(){if(!e.files||0===e.files.length)return void(e.parentNode&&e.remove());const t=e.files[0];let s=new FileReader;s.onload=async function(s){try{let n=s.target.result;console.log(`Import: Reading file ${t.name} (${n.length} bytes)`),65279===n.charCodeAt(0)&&(n=n.slice(1));const r=n.split(/\r\n|\n|\r/).filter((e=>e.trim()));if(r.length<2)return alert("Файл пуст или содержит только заголовки без данных."),void(e.parentNode&&e.remove());const i=r[0];let o;try{o=rs(i)}catch(t){return alert("Ошибка при разборе заголовка CSV: "+t.message),void(e.parentNode&&e.remove())}const a={};if(o.forEach(((e,t)=>{a[e.trim().replace(/^"|"$/g,"")]=t})),!("Дата"in a))return alert("В CSV файле отсутствует обязательная колонка 'Дата'."),void(e.parentNode&&e.remove());console.log("Import: Found headers:",a);let l=[],c={};Ut.get(["projects"],(t=>{const s=t.projects||[],n={};s.forEach((e=>{n[e.name.toLowerCase()]=e.id}));let i=[];for(let e=1;e<r.length;e++){const t=r[e].trim();if(!t)continue;const s=rs(t);if(s.length<Object.keys(a).length&&s.length<o.length){console.warn(`Import: Line ${e+1} has ${s.length} fields, expected at least ${Math.min(Object.keys(a).length,o.length)}. Line: "${t}"`);continue}const d=s[a["Дата"]];if(!d||!/^\d{4}-\d{2}-\d{2}$/.test(d)){console.warn(`Import: Invalid date format in line ${e+1}:`,d);continue}c[d]={calories:{morning:parseInt(s[a["Калории утром"]]||"0")||0,afternoon:parseInt(s[a["Калории днем"]]||"0")||0,evening:parseInt(s[a["Калории вечером"]]||"0")||0},comment:s[a["Комментарий дня"]]||""};const u=e=>{if(!e||"[]"===e||""===e.trim())return[];try{let t=e;return t.startsWith('"')&&t.endsWith('"')&&(t=t.substring(1,t.length-1)),t=t.replace(/""/g,'"'),JSON.parse(t)}catch(t){return console.error("Error parsing JSON:",t,"Original String:",e),[]}},h=(e,t)=>{if(e in a){const r=s[a[e]],o=u(r);Array.isArray(o)&&o.forEach((s=>{if(!s||!s.startTime||!s.endTime)return void console.warn(`Import: Skipping invalid item in ${e} for date ${d}:`,s);let r=null;if(s.projectName&&"null"!==s.projectName.toLowerCase()&&"undefined"!==s.projectName.toLowerCase()){const e=s.projectName.toLowerCase();if(n[e])r=n[e];else{const t=i.find((t=>t.name.toLowerCase()===e));if(t)r=t.id;else{const t=`prj-${Date.now()}-${Math.random().toString(36).substring(2,9)}`,o={id:t,name:s.projectName,color:wn()};i.push(o),n[e]=t,r=t}}}l.push({id:`evt-${Date.now()}-${Math.random().toString(36).substring(2,11)}`,title:s.title||"Без названия",description:s.description||"",date:d,startTime:s.startTime,endTime:s.endTime,projectId:r,type:t,isLive:!1})}))}};h("События","event"),h("Проекты","project")}console.log(`Import: Processed ${l.length} events and ${Object.keys(c).length} days data.`),console.log(`Import: Found ${i.length} new projects to add:`,i.map((e=>e.name)));const d=[...s];if(i.forEach((e=>{d.some((t=>t.id===e.id||t.name.toLowerCase()===e.name.toLowerCase()))||d.push(e)})),!confirm(`Готовы импортировать ${l.length} событий, данные для ${Object.keys(c).length} дней и ${i.length} новых проектов? Существующие данные календаря и дней будут ЗАМЕНЕНЫ.`))return console.log("Import cancelled by user."),void(e.parentNode&&e.remove());Ut.remove(["calendarEvents",Yt],(()=>{if(chrome.runtime.lastError)return console.error("Import: Error removing old data:",chrome.runtime.lastError),alert("Ошибка при удалении старых данных: "+chrome.runtime.lastError.message),void(e.parentNode&&e.remove());console.log("Import: Old calendar data removed"),Ut.set({calendarEvents:l,[Yt]:c,projects:d},(()=>{chrome.runtime.lastError?(console.error("Import: Error saving data:",chrome.runtime.lastError),alert("Ошибка при сохранении импортированных данных: "+chrome.runtime.lastError.message)):(console.log("Import: Data saved successfully!"),alert(`Импорт завершен. Импортировано ${l.length} событий, данные для ${Object.keys(c).length} дней. Добавлено/обновлено проектов. Страница будет перезагружена.`),window.location.reload()),e.parentNode&&e.remove()}))}))}))}catch(e){console.error("Error importing data:",e),alert("Ошибка при импорте данных")}},s.onerror=t=>{alert("Ошибка чтения файла: "+t.target.error),console.error("FileReader error:",t.target.error),e.parentNode&&e.remove()},s.readAsText(t,"UTF-8")})),document.body.appendChild(e),e.click()})),Js&&Js.addEventListener("click",(async e=>{e.preventDefault();const t=Us.value.trim(),s=Ms.value,n=qs.value,r=Fs.value,i=Hs.value.trim();if(!(t&&s&&n&&r))return void alert("Пожалуйста, заполните название, дату и время начала/окончания.");if(r<=n)return void alert("Время окончания должно быть позже времени начала.");let o=null;const a=document.getElementById("event-modal-project-select");if(a&&a.value)o=a.value;else if(!Vt&&Ss&&Ss.value)o=Ss.value;else if(Vt){const e=Mt.find((e=>e.id===Vt));e&&(o=e.project_id)}const l={id:Vt,title:t,description:i,date:s,startTime:`${s}T${n}`,endTime:`${s}T${r}`,projectId:o,type:o?"project":"event",isLive:!1};await async function(e){const t=(await Ut.get("calendarEvents")).calendarEvents||[];if(e.id){const s=t.findIndex((t=>t.id===e.id));-1!==s&&(t[s]={...t[s],...e})}else e.id=Date.now().toString(),t.push(e);await Ut.set({calendarEvents:t}),await fs()}(l),In()})),zs&&zs.addEventListener("click",(async()=>{Vt&&confirm("Вы уверены, что хотите удалить это событие?")&&(await async function(e){const t=((await Ut.get("calendarEvents")).calendarEvents||[]).filter((t=>t.id!==e));await Ut.set({calendarEvents:t}),await fs()}(Vt),In())})),Ws&&Ws.addEventListener("click",In),cn&&cn.addEventListener("click",(async()=>{const e=nn.textContent;if(!e)return void alert("Не удалось определить дату дня.");const t={calories:{morning:parseInt(rn.value)||0,afternoon:parseInt(on.value)||0,evening:parseInt(an.value)||0},comment:ln.value.trim()};await gs(e,t),await vs(),kn(Kt),ps()})),dn&&dn.addEventListener("click",(()=>{ps()})),console.log("Main script initialized and listeners attached."),document.addEventListener("DOMContentLoaded",(()=>{console.log("=== Проверка элементов при инициализации ==="),console.log("regular-event-time до инициализации:",document.getElementById("regular-event-time")),console.log("regular-event-name до инициализации:",document.getElementById("regular-event-name"));const e=document.querySelector(".regular-event-management");console.log("Контейнер регулярных событий:",e),e&&console.log("HTML контейнера:",e.innerHTML),function(){const e=document.getElementById("add-regular-event");e&&e.addEventListener("click",(async()=>{console.log("Клик по кнопке добавления регулярного события"),console.log("DOM загружен:",document.readyState);const e=document.querySelector(".regular-event-management");console.log("Контейнер регулярных событий:",e),console.log("Видимость контейнера:",e?window.getComputedStyle(e).display:"не найден");const t=document.getElementById("regular-event-name"),s=document.getElementById("regular-event-start-time"),n=document.getElementById("regular-event-end-time");if(console.log("Элемент regular-event-name:",t),console.log("Видимость regular-event-name:",t?window.getComputedStyle(t).display:"не найден"),console.log("Элемент regular-event-start-time:",s),console.log("Видимость regular-event-start-time:",s?window.getComputedStyle(s).display:"не найден"),console.log("Элемент regular-event-end-time:",n),console.log("Видимость regular-event-end-time:",n?window.getComputedStyle(n).display:"не найден"),!t||!s||!n)return void console.error("Не найдены необходимые элементы формы");const r=t.value.trim(),i=s.value,o=n.value;if(!r||!i||!o)return void alert("Пожалуйста, заполните все поля");const a=Array.from(document.querySelectorAll("#regular-event-weekdays .weekday-btn.selected")).map((e=>parseInt(e.dataset.day)));if(0===a.length)return void alert("Пожалуйста, выберите хотя бы один день недели");const l={id:Date.now().toString(),name:r,startTime:i,endTime:o,days:a};Ht.push(l),Ut.set({regularEventsConfig:Ht}),t.value="",s.value="",n.value="",document.querySelectorAll("#regular-event-weekdays .weekday-btn.selected").forEach((e=>e.classList.remove("selected"))),ys()}));const t=document.getElementById("regular-event-weekdays");t&&t.addEventListener("click",(e=>{e.target.classList.contains("weekday-btn")&&e.target.classList.toggle("selected")}))}(),ws(),console.log("=== Состояние после инициализации ==="),console.log("regular-event-time после инициализации:",document.getElementById("regular-event-time")),console.log("regular-event-name после инициализации:",document.getElementById("regular-event-name"));const t=document.querySelector(".regular-event-management");console.log("Контейнер регулярных событий после инициализации:",t),t&&console.log("HTML контейнера после инициализации:",t.innerHTML)}))})();
+/******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
+/******/ 	var __webpack_modules__ = ({
+
+/***/ 45:
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const PostgrestFilterBuilder_1 = __importDefault(__webpack_require__(825));
+class PostgrestQueryBuilder {
+    constructor(url, { headers = {}, schema, fetch, }) {
+        this.url = url;
+        this.headers = headers;
+        this.schema = schema;
+        this.fetch = fetch;
+    }
+    /**
+     * Perform a SELECT query on the table or view.
+     *
+     * @param columns - The columns to retrieve, separated by commas. Columns can be renamed when returned with `customName:columnName`
+     *
+     * @param options - Named parameters
+     *
+     * @param options.head - When set to `true`, `data` will not be returned.
+     * Useful if you only need the count.
+     *
+     * @param options.count - Count algorithm to use to count rows in the table or view.
+     *
+     * `"exact"`: Exact but slow count algorithm. Performs a `COUNT(*)` under the
+     * hood.
+     *
+     * `"planned"`: Approximated but fast count algorithm. Uses the Postgres
+     * statistics under the hood.
+     *
+     * `"estimated"`: Uses exact count for low numbers and planned count for high
+     * numbers.
+     */
+    select(columns, { head = false, count, } = {}) {
+        const method = head ? 'HEAD' : 'GET';
+        // Remove whitespaces except when quoted
+        let quoted = false;
+        const cleanedColumns = (columns !== null && columns !== void 0 ? columns : '*')
+            .split('')
+            .map((c) => {
+            if (/\s/.test(c) && !quoted) {
+                return '';
+            }
+            if (c === '"') {
+                quoted = !quoted;
+            }
+            return c;
+        })
+            .join('');
+        this.url.searchParams.set('select', cleanedColumns);
+        if (count) {
+            this.headers['Prefer'] = `count=${count}`;
+        }
+        return new PostgrestFilterBuilder_1.default({
+            method,
+            url: this.url,
+            headers: this.headers,
+            schema: this.schema,
+            fetch: this.fetch,
+            allowEmpty: false,
+        });
+    }
+    /**
+     * Perform an INSERT into the table or view.
+     *
+     * By default, inserted rows are not returned. To return it, chain the call
+     * with `.select()`.
+     *
+     * @param values - The values to insert. Pass an object to insert a single row
+     * or an array to insert multiple rows.
+     *
+     * @param options - Named parameters
+     *
+     * @param options.count - Count algorithm to use to count inserted rows.
+     *
+     * `"exact"`: Exact but slow count algorithm. Performs a `COUNT(*)` under the
+     * hood.
+     *
+     * `"planned"`: Approximated but fast count algorithm. Uses the Postgres
+     * statistics under the hood.
+     *
+     * `"estimated"`: Uses exact count for low numbers and planned count for high
+     * numbers.
+     *
+     * @param options.defaultToNull - Make missing fields default to `null`.
+     * Otherwise, use the default value for the column. Only applies for bulk
+     * inserts.
+     */
+    insert(values, { count, defaultToNull = true, } = {}) {
+        const method = 'POST';
+        const prefersHeaders = [];
+        if (this.headers['Prefer']) {
+            prefersHeaders.push(this.headers['Prefer']);
+        }
+        if (count) {
+            prefersHeaders.push(`count=${count}`);
+        }
+        if (!defaultToNull) {
+            prefersHeaders.push('missing=default');
+        }
+        this.headers['Prefer'] = prefersHeaders.join(',');
+        if (Array.isArray(values)) {
+            const columns = values.reduce((acc, x) => acc.concat(Object.keys(x)), []);
+            if (columns.length > 0) {
+                const uniqueColumns = [...new Set(columns)].map((column) => `"${column}"`);
+                this.url.searchParams.set('columns', uniqueColumns.join(','));
+            }
+        }
+        return new PostgrestFilterBuilder_1.default({
+            method,
+            url: this.url,
+            headers: this.headers,
+            schema: this.schema,
+            body: values,
+            fetch: this.fetch,
+            allowEmpty: false,
+        });
+    }
+    /**
+     * Perform an UPSERT on the table or view. Depending on the column(s) passed
+     * to `onConflict`, `.upsert()` allows you to perform the equivalent of
+     * `.insert()` if a row with the corresponding `onConflict` columns doesn't
+     * exist, or if it does exist, perform an alternative action depending on
+     * `ignoreDuplicates`.
+     *
+     * By default, upserted rows are not returned. To return it, chain the call
+     * with `.select()`.
+     *
+     * @param values - The values to upsert with. Pass an object to upsert a
+     * single row or an array to upsert multiple rows.
+     *
+     * @param options - Named parameters
+     *
+     * @param options.onConflict - Comma-separated UNIQUE column(s) to specify how
+     * duplicate rows are determined. Two rows are duplicates if all the
+     * `onConflict` columns are equal.
+     *
+     * @param options.ignoreDuplicates - If `true`, duplicate rows are ignored. If
+     * `false`, duplicate rows are merged with existing rows.
+     *
+     * @param options.count - Count algorithm to use to count upserted rows.
+     *
+     * `"exact"`: Exact but slow count algorithm. Performs a `COUNT(*)` under the
+     * hood.
+     *
+     * `"planned"`: Approximated but fast count algorithm. Uses the Postgres
+     * statistics under the hood.
+     *
+     * `"estimated"`: Uses exact count for low numbers and planned count for high
+     * numbers.
+     *
+     * @param options.defaultToNull - Make missing fields default to `null`.
+     * Otherwise, use the default value for the column. This only applies when
+     * inserting new rows, not when merging with existing rows under
+     * `ignoreDuplicates: false`. This also only applies when doing bulk upserts.
+     */
+    upsert(values, { onConflict, ignoreDuplicates = false, count, defaultToNull = true, } = {}) {
+        const method = 'POST';
+        const prefersHeaders = [`resolution=${ignoreDuplicates ? 'ignore' : 'merge'}-duplicates`];
+        if (onConflict !== undefined)
+            this.url.searchParams.set('on_conflict', onConflict);
+        if (this.headers['Prefer']) {
+            prefersHeaders.push(this.headers['Prefer']);
+        }
+        if (count) {
+            prefersHeaders.push(`count=${count}`);
+        }
+        if (!defaultToNull) {
+            prefersHeaders.push('missing=default');
+        }
+        this.headers['Prefer'] = prefersHeaders.join(',');
+        if (Array.isArray(values)) {
+            const columns = values.reduce((acc, x) => acc.concat(Object.keys(x)), []);
+            if (columns.length > 0) {
+                const uniqueColumns = [...new Set(columns)].map((column) => `"${column}"`);
+                this.url.searchParams.set('columns', uniqueColumns.join(','));
+            }
+        }
+        return new PostgrestFilterBuilder_1.default({
+            method,
+            url: this.url,
+            headers: this.headers,
+            schema: this.schema,
+            body: values,
+            fetch: this.fetch,
+            allowEmpty: false,
+        });
+    }
+    /**
+     * Perform an UPDATE on the table or view.
+     *
+     * By default, updated rows are not returned. To return it, chain the call
+     * with `.select()` after filters.
+     *
+     * @param values - The values to update with
+     *
+     * @param options - Named parameters
+     *
+     * @param options.count - Count algorithm to use to count updated rows.
+     *
+     * `"exact"`: Exact but slow count algorithm. Performs a `COUNT(*)` under the
+     * hood.
+     *
+     * `"planned"`: Approximated but fast count algorithm. Uses the Postgres
+     * statistics under the hood.
+     *
+     * `"estimated"`: Uses exact count for low numbers and planned count for high
+     * numbers.
+     */
+    update(values, { count, } = {}) {
+        const method = 'PATCH';
+        const prefersHeaders = [];
+        if (this.headers['Prefer']) {
+            prefersHeaders.push(this.headers['Prefer']);
+        }
+        if (count) {
+            prefersHeaders.push(`count=${count}`);
+        }
+        this.headers['Prefer'] = prefersHeaders.join(',');
+        return new PostgrestFilterBuilder_1.default({
+            method,
+            url: this.url,
+            headers: this.headers,
+            schema: this.schema,
+            body: values,
+            fetch: this.fetch,
+            allowEmpty: false,
+        });
+    }
+    /**
+     * Perform a DELETE on the table or view.
+     *
+     * By default, deleted rows are not returned. To return it, chain the call
+     * with `.select()` after filters.
+     *
+     * @param options - Named parameters
+     *
+     * @param options.count - Count algorithm to use to count deleted rows.
+     *
+     * `"exact"`: Exact but slow count algorithm. Performs a `COUNT(*)` under the
+     * hood.
+     *
+     * `"planned"`: Approximated but fast count algorithm. Uses the Postgres
+     * statistics under the hood.
+     *
+     * `"estimated"`: Uses exact count for low numbers and planned count for high
+     * numbers.
+     */
+    delete({ count, } = {}) {
+        const method = 'DELETE';
+        const prefersHeaders = [];
+        if (count) {
+            prefersHeaders.push(`count=${count}`);
+        }
+        if (this.headers['Prefer']) {
+            prefersHeaders.unshift(this.headers['Prefer']);
+        }
+        this.headers['Prefer'] = prefersHeaders.join(',');
+        return new PostgrestFilterBuilder_1.default({
+            method,
+            url: this.url,
+            headers: this.headers,
+            schema: this.schema,
+            fetch: this.fetch,
+            allowEmpty: false,
+        });
+    }
+}
+exports["default"] = PostgrestQueryBuilder;
+//# sourceMappingURL=PostgrestQueryBuilder.js.map
+
+/***/ }),
+
+/***/ 261:
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const PostgrestBuilder_1 = __importDefault(__webpack_require__(660));
+class PostgrestTransformBuilder extends PostgrestBuilder_1.default {
+    /**
+     * Perform a SELECT on the query result.
+     *
+     * By default, `.insert()`, `.update()`, `.upsert()`, and `.delete()` do not
+     * return modified rows. By calling this method, modified rows are returned in
+     * `data`.
+     *
+     * @param columns - The columns to retrieve, separated by commas
+     */
+    select(columns) {
+        // Remove whitespaces except when quoted
+        let quoted = false;
+        const cleanedColumns = (columns !== null && columns !== void 0 ? columns : '*')
+            .split('')
+            .map((c) => {
+            if (/\s/.test(c) && !quoted) {
+                return '';
+            }
+            if (c === '"') {
+                quoted = !quoted;
+            }
+            return c;
+        })
+            .join('');
+        this.url.searchParams.set('select', cleanedColumns);
+        if (this.headers['Prefer']) {
+            this.headers['Prefer'] += ',';
+        }
+        this.headers['Prefer'] += 'return=representation';
+        return this;
+    }
+    /**
+     * Order the query result by `column`.
+     *
+     * You can call this method multiple times to order by multiple columns.
+     *
+     * You can order referenced tables, but it only affects the ordering of the
+     * parent table if you use `!inner` in the query.
+     *
+     * @param column - The column to order by
+     * @param options - Named parameters
+     * @param options.ascending - If `true`, the result will be in ascending order
+     * @param options.nullsFirst - If `true`, `null`s appear first. If `false`,
+     * `null`s appear last.
+     * @param options.referencedTable - Set this to order a referenced table by
+     * its columns
+     * @param options.foreignTable - Deprecated, use `options.referencedTable`
+     * instead
+     */
+    order(column, { ascending = true, nullsFirst, foreignTable, referencedTable = foreignTable, } = {}) {
+        const key = referencedTable ? `${referencedTable}.order` : 'order';
+        const existingOrder = this.url.searchParams.get(key);
+        this.url.searchParams.set(key, `${existingOrder ? `${existingOrder},` : ''}${column}.${ascending ? 'asc' : 'desc'}${nullsFirst === undefined ? '' : nullsFirst ? '.nullsfirst' : '.nullslast'}`);
+        return this;
+    }
+    /**
+     * Limit the query result by `count`.
+     *
+     * @param count - The maximum number of rows to return
+     * @param options - Named parameters
+     * @param options.referencedTable - Set this to limit rows of referenced
+     * tables instead of the parent table
+     * @param options.foreignTable - Deprecated, use `options.referencedTable`
+     * instead
+     */
+    limit(count, { foreignTable, referencedTable = foreignTable, } = {}) {
+        const key = typeof referencedTable === 'undefined' ? 'limit' : `${referencedTable}.limit`;
+        this.url.searchParams.set(key, `${count}`);
+        return this;
+    }
+    /**
+     * Limit the query result by starting at an offset `from` and ending at the offset `to`.
+     * Only records within this range are returned.
+     * This respects the query order and if there is no order clause the range could behave unexpectedly.
+     * The `from` and `to` values are 0-based and inclusive: `range(1, 3)` will include the second, third
+     * and fourth rows of the query.
+     *
+     * @param from - The starting index from which to limit the result
+     * @param to - The last index to which to limit the result
+     * @param options - Named parameters
+     * @param options.referencedTable - Set this to limit rows of referenced
+     * tables instead of the parent table
+     * @param options.foreignTable - Deprecated, use `options.referencedTable`
+     * instead
+     */
+    range(from, to, { foreignTable, referencedTable = foreignTable, } = {}) {
+        const keyOffset = typeof referencedTable === 'undefined' ? 'offset' : `${referencedTable}.offset`;
+        const keyLimit = typeof referencedTable === 'undefined' ? 'limit' : `${referencedTable}.limit`;
+        this.url.searchParams.set(keyOffset, `${from}`);
+        // Range is inclusive, so add 1
+        this.url.searchParams.set(keyLimit, `${to - from + 1}`);
+        return this;
+    }
+    /**
+     * Set the AbortSignal for the fetch request.
+     *
+     * @param signal - The AbortSignal to use for the fetch request
+     */
+    abortSignal(signal) {
+        this.signal = signal;
+        return this;
+    }
+    /**
+     * Return `data` as a single object instead of an array of objects.
+     *
+     * Query result must be one row (e.g. using `.limit(1)`), otherwise this
+     * returns an error.
+     */
+    single() {
+        this.headers['Accept'] = 'application/vnd.pgrst.object+json';
+        return this;
+    }
+    /**
+     * Return `data` as a single object instead of an array of objects.
+     *
+     * Query result must be zero or one row (e.g. using `.limit(1)`), otherwise
+     * this returns an error.
+     */
+    maybeSingle() {
+        // Temporary partial fix for https://github.com/supabase/postgrest-js/issues/361
+        // Issue persists e.g. for `.insert([...]).select().maybeSingle()`
+        if (this.method === 'GET') {
+            this.headers['Accept'] = 'application/json';
+        }
+        else {
+            this.headers['Accept'] = 'application/vnd.pgrst.object+json';
+        }
+        this.isMaybeSingle = true;
+        return this;
+    }
+    /**
+     * Return `data` as a string in CSV format.
+     */
+    csv() {
+        this.headers['Accept'] = 'text/csv';
+        return this;
+    }
+    /**
+     * Return `data` as an object in [GeoJSON](https://geojson.org) format.
+     */
+    geojson() {
+        this.headers['Accept'] = 'application/geo+json';
+        return this;
+    }
+    /**
+     * Return `data` as the EXPLAIN plan for the query.
+     *
+     * You need to enable the
+     * [db_plan_enabled](https://supabase.com/docs/guides/database/debugging-performance#enabling-explain)
+     * setting before using this method.
+     *
+     * @param options - Named parameters
+     *
+     * @param options.analyze - If `true`, the query will be executed and the
+     * actual run time will be returned
+     *
+     * @param options.verbose - If `true`, the query identifier will be returned
+     * and `data` will include the output columns of the query
+     *
+     * @param options.settings - If `true`, include information on configuration
+     * parameters that affect query planning
+     *
+     * @param options.buffers - If `true`, include information on buffer usage
+     *
+     * @param options.wal - If `true`, include information on WAL record generation
+     *
+     * @param options.format - The format of the output, can be `"text"` (default)
+     * or `"json"`
+     */
+    explain({ analyze = false, verbose = false, settings = false, buffers = false, wal = false, format = 'text', } = {}) {
+        var _a;
+        const options = [
+            analyze ? 'analyze' : null,
+            verbose ? 'verbose' : null,
+            settings ? 'settings' : null,
+            buffers ? 'buffers' : null,
+            wal ? 'wal' : null,
+        ]
+            .filter(Boolean)
+            .join('|');
+        // An Accept header can carry multiple media types but postgrest-js always sends one
+        const forMediatype = (_a = this.headers['Accept']) !== null && _a !== void 0 ? _a : 'application/json';
+        this.headers['Accept'] = `application/vnd.pgrst.plan+${format}; for="${forMediatype}"; options=${options};`;
+        if (format === 'json')
+            return this;
+        else
+            return this;
+    }
+    /**
+     * Rollback the query.
+     *
+     * `data` will still be returned, but the query is not committed.
+     */
+    rollback() {
+        var _a;
+        if (((_a = this.headers['Prefer']) !== null && _a !== void 0 ? _a : '').trim().length > 0) {
+            this.headers['Prefer'] += ',tx=rollback';
+        }
+        else {
+            this.headers['Prefer'] = 'tx=rollback';
+        }
+        return this;
+    }
+    /**
+     * Override the type of the returned `data`.
+     *
+     * @typeParam NewResult - The new result type to override with
+     * @deprecated Use overrideTypes<yourType, { merge: false }>() method at the end of your call chain instead
+     */
+    returns() {
+        return this;
+    }
+}
+exports["default"] = PostgrestTransformBuilder;
+//# sourceMappingURL=PostgrestTransformBuilder.js.map
+
+/***/ }),
+
+/***/ 279:
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.PostgrestError = exports.PostgrestBuilder = exports.PostgrestTransformBuilder = exports.PostgrestFilterBuilder = exports.PostgrestQueryBuilder = exports.PostgrestClient = void 0;
+// Always update wrapper.mjs when updating this file.
+const PostgrestClient_1 = __importDefault(__webpack_require__(961));
+exports.PostgrestClient = PostgrestClient_1.default;
+const PostgrestQueryBuilder_1 = __importDefault(__webpack_require__(45));
+exports.PostgrestQueryBuilder = PostgrestQueryBuilder_1.default;
+const PostgrestFilterBuilder_1 = __importDefault(__webpack_require__(825));
+exports.PostgrestFilterBuilder = PostgrestFilterBuilder_1.default;
+const PostgrestTransformBuilder_1 = __importDefault(__webpack_require__(261));
+exports.PostgrestTransformBuilder = PostgrestTransformBuilder_1.default;
+const PostgrestBuilder_1 = __importDefault(__webpack_require__(660));
+exports.PostgrestBuilder = PostgrestBuilder_1.default;
+const PostgrestError_1 = __importDefault(__webpack_require__(818));
+exports.PostgrestError = PostgrestError_1.default;
+exports["default"] = {
+    PostgrestClient: PostgrestClient_1.default,
+    PostgrestQueryBuilder: PostgrestQueryBuilder_1.default,
+    PostgrestFilterBuilder: PostgrestFilterBuilder_1.default,
+    PostgrestTransformBuilder: PostgrestTransformBuilder_1.default,
+    PostgrestBuilder: PostgrestBuilder_1.default,
+    PostgrestError: PostgrestError_1.default,
+};
+//# sourceMappingURL=index.js.map
+
+/***/ }),
+
+/***/ 519:
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.version = void 0;
+exports.version = '0.0.0-automated';
+//# sourceMappingURL=version.js.map
+
+/***/ }),
+
+/***/ 530:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.DEFAULT_HEADERS = void 0;
+const version_1 = __webpack_require__(519);
+exports.DEFAULT_HEADERS = { 'X-Client-Info': `postgrest-js/${version_1.version}` };
+//# sourceMappingURL=constants.js.map
+
+/***/ }),
+
+/***/ 591:
+/***/ ((module) => {
+
+
+
+module.exports = function () {
+  throw new Error(
+    'ws does not work in the browser. Browser clients must use the native ' +
+      'WebSocket object'
+  );
+};
+
+
+/***/ }),
+
+/***/ 660:
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+// @ts-ignore
+const node_fetch_1 = __importDefault(__webpack_require__(907));
+const PostgrestError_1 = __importDefault(__webpack_require__(818));
+class PostgrestBuilder {
+    constructor(builder) {
+        this.shouldThrowOnError = false;
+        this.method = builder.method;
+        this.url = builder.url;
+        this.headers = builder.headers;
+        this.schema = builder.schema;
+        this.body = builder.body;
+        this.shouldThrowOnError = builder.shouldThrowOnError;
+        this.signal = builder.signal;
+        this.isMaybeSingle = builder.isMaybeSingle;
+        if (builder.fetch) {
+            this.fetch = builder.fetch;
+        }
+        else if (typeof fetch === 'undefined') {
+            this.fetch = node_fetch_1.default;
+        }
+        else {
+            this.fetch = fetch;
+        }
+    }
+    /**
+     * If there's an error with the query, throwOnError will reject the promise by
+     * throwing the error instead of returning it as part of a successful response.
+     *
+     * {@link https://github.com/supabase/supabase-js/issues/92}
+     */
+    throwOnError() {
+        this.shouldThrowOnError = true;
+        return this;
+    }
+    /**
+     * Set an HTTP header for the request.
+     */
+    setHeader(name, value) {
+        this.headers = Object.assign({}, this.headers);
+        this.headers[name] = value;
+        return this;
+    }
+    then(onfulfilled, onrejected) {
+        // https://postgrest.org/en/stable/api.html#switching-schemas
+        if (this.schema === undefined) {
+            // skip
+        }
+        else if (['GET', 'HEAD'].includes(this.method)) {
+            this.headers['Accept-Profile'] = this.schema;
+        }
+        else {
+            this.headers['Content-Profile'] = this.schema;
+        }
+        if (this.method !== 'GET' && this.method !== 'HEAD') {
+            this.headers['Content-Type'] = 'application/json';
+        }
+        // NOTE: Invoke w/o `this` to avoid illegal invocation error.
+        // https://github.com/supabase/postgrest-js/pull/247
+        const _fetch = this.fetch;
+        let res = _fetch(this.url.toString(), {
+            method: this.method,
+            headers: this.headers,
+            body: JSON.stringify(this.body),
+            signal: this.signal,
+        }).then(async (res) => {
+            var _a, _b, _c;
+            let error = null;
+            let data = null;
+            let count = null;
+            let status = res.status;
+            let statusText = res.statusText;
+            if (res.ok) {
+                if (this.method !== 'HEAD') {
+                    const body = await res.text();
+                    if (body === '') {
+                        // Prefer: return=minimal
+                    }
+                    else if (this.headers['Accept'] === 'text/csv') {
+                        data = body;
+                    }
+                    else if (this.headers['Accept'] &&
+                        this.headers['Accept'].includes('application/vnd.pgrst.plan+text')) {
+                        data = body;
+                    }
+                    else {
+                        data = JSON.parse(body);
+                    }
+                }
+                const countHeader = (_a = this.headers['Prefer']) === null || _a === void 0 ? void 0 : _a.match(/count=(exact|planned|estimated)/);
+                const contentRange = (_b = res.headers.get('content-range')) === null || _b === void 0 ? void 0 : _b.split('/');
+                if (countHeader && contentRange && contentRange.length > 1) {
+                    count = parseInt(contentRange[1]);
+                }
+                // Temporary partial fix for https://github.com/supabase/postgrest-js/issues/361
+                // Issue persists e.g. for `.insert([...]).select().maybeSingle()`
+                if (this.isMaybeSingle && this.method === 'GET' && Array.isArray(data)) {
+                    if (data.length > 1) {
+                        error = {
+                            // https://github.com/PostgREST/postgrest/blob/a867d79c42419af16c18c3fb019eba8df992626f/src/PostgREST/Error.hs#L553
+                            code: 'PGRST116',
+                            details: `Results contain ${data.length} rows, application/vnd.pgrst.object+json requires 1 row`,
+                            hint: null,
+                            message: 'JSON object requested, multiple (or no) rows returned',
+                        };
+                        data = null;
+                        count = null;
+                        status = 406;
+                        statusText = 'Not Acceptable';
+                    }
+                    else if (data.length === 1) {
+                        data = data[0];
+                    }
+                    else {
+                        data = null;
+                    }
+                }
+            }
+            else {
+                const body = await res.text();
+                try {
+                    error = JSON.parse(body);
+                    // Workaround for https://github.com/supabase/postgrest-js/issues/295
+                    if (Array.isArray(error) && res.status === 404) {
+                        data = [];
+                        error = null;
+                        status = 200;
+                        statusText = 'OK';
+                    }
+                }
+                catch (_d) {
+                    // Workaround for https://github.com/supabase/postgrest-js/issues/295
+                    if (res.status === 404 && body === '') {
+                        status = 204;
+                        statusText = 'No Content';
+                    }
+                    else {
+                        error = {
+                            message: body,
+                        };
+                    }
+                }
+                if (error && this.isMaybeSingle && ((_c = error === null || error === void 0 ? void 0 : error.details) === null || _c === void 0 ? void 0 : _c.includes('0 rows'))) {
+                    error = null;
+                    status = 200;
+                    statusText = 'OK';
+                }
+                if (error && this.shouldThrowOnError) {
+                    throw new PostgrestError_1.default(error);
+                }
+            }
+            const postgrestResponse = {
+                error,
+                data,
+                count,
+                status,
+                statusText,
+            };
+            return postgrestResponse;
+        });
+        if (!this.shouldThrowOnError) {
+            res = res.catch((fetchError) => {
+                var _a, _b, _c;
+                return ({
+                    error: {
+                        message: `${(_a = fetchError === null || fetchError === void 0 ? void 0 : fetchError.name) !== null && _a !== void 0 ? _a : 'FetchError'}: ${fetchError === null || fetchError === void 0 ? void 0 : fetchError.message}`,
+                        details: `${(_b = fetchError === null || fetchError === void 0 ? void 0 : fetchError.stack) !== null && _b !== void 0 ? _b : ''}`,
+                        hint: '',
+                        code: `${(_c = fetchError === null || fetchError === void 0 ? void 0 : fetchError.code) !== null && _c !== void 0 ? _c : ''}`,
+                    },
+                    data: null,
+                    count: null,
+                    status: 0,
+                    statusText: '',
+                });
+            });
+        }
+        return res.then(onfulfilled, onrejected);
+    }
+    /**
+     * Override the type of the returned `data`.
+     *
+     * @typeParam NewResult - The new result type to override with
+     * @deprecated Use overrideTypes<yourType, { merge: false }>() method at the end of your call chain instead
+     */
+    returns() {
+        /* istanbul ignore next */
+        return this;
+    }
+    /**
+     * Override the type of the returned `data` field in the response.
+     *
+     * @typeParam NewResult - The new type to cast the response data to
+     * @typeParam Options - Optional type configuration (defaults to { merge: true })
+     * @typeParam Options.merge - When true, merges the new type with existing return type. When false, replaces the existing types entirely (defaults to true)
+     * @example
+     * ```typescript
+     * // Merge with existing types (default behavior)
+     * const query = supabase
+     *   .from('users')
+     *   .select()
+     *   .overrideTypes<{ custom_field: string }>()
+     *
+     * // Replace existing types completely
+     * const replaceQuery = supabase
+     *   .from('users')
+     *   .select()
+     *   .overrideTypes<{ id: number; name: string }, { merge: false }>()
+     * ```
+     * @returns A PostgrestBuilder instance with the new type
+     */
+    overrideTypes() {
+        return this;
+    }
+}
+exports["default"] = PostgrestBuilder;
+//# sourceMappingURL=PostgrestBuilder.js.map
+
+/***/ }),
+
+/***/ 818:
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+/**
+ * Error format
+ *
+ * {@link https://postgrest.org/en/stable/api.html?highlight=options#errors-and-http-status-codes}
+ */
+class PostgrestError extends Error {
+    constructor(context) {
+        super(context.message);
+        this.name = 'PostgrestError';
+        this.details = context.details;
+        this.hint = context.hint;
+        this.code = context.code;
+    }
+}
+exports["default"] = PostgrestError;
+//# sourceMappingURL=PostgrestError.js.map
+
+/***/ }),
+
+/***/ 825:
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const PostgrestTransformBuilder_1 = __importDefault(__webpack_require__(261));
+class PostgrestFilterBuilder extends PostgrestTransformBuilder_1.default {
+    /**
+     * Match only rows where `column` is equal to `value`.
+     *
+     * To check if the value of `column` is NULL, you should use `.is()` instead.
+     *
+     * @param column - The column to filter on
+     * @param value - The value to filter with
+     */
+    eq(column, value) {
+        this.url.searchParams.append(column, `eq.${value}`);
+        return this;
+    }
+    /**
+     * Match only rows where `column` is not equal to `value`.
+     *
+     * @param column - The column to filter on
+     * @param value - The value to filter with
+     */
+    neq(column, value) {
+        this.url.searchParams.append(column, `neq.${value}`);
+        return this;
+    }
+    /**
+     * Match only rows where `column` is greater than `value`.
+     *
+     * @param column - The column to filter on
+     * @param value - The value to filter with
+     */
+    gt(column, value) {
+        this.url.searchParams.append(column, `gt.${value}`);
+        return this;
+    }
+    /**
+     * Match only rows where `column` is greater than or equal to `value`.
+     *
+     * @param column - The column to filter on
+     * @param value - The value to filter with
+     */
+    gte(column, value) {
+        this.url.searchParams.append(column, `gte.${value}`);
+        return this;
+    }
+    /**
+     * Match only rows where `column` is less than `value`.
+     *
+     * @param column - The column to filter on
+     * @param value - The value to filter with
+     */
+    lt(column, value) {
+        this.url.searchParams.append(column, `lt.${value}`);
+        return this;
+    }
+    /**
+     * Match only rows where `column` is less than or equal to `value`.
+     *
+     * @param column - The column to filter on
+     * @param value - The value to filter with
+     */
+    lte(column, value) {
+        this.url.searchParams.append(column, `lte.${value}`);
+        return this;
+    }
+    /**
+     * Match only rows where `column` matches `pattern` case-sensitively.
+     *
+     * @param column - The column to filter on
+     * @param pattern - The pattern to match with
+     */
+    like(column, pattern) {
+        this.url.searchParams.append(column, `like.${pattern}`);
+        return this;
+    }
+    /**
+     * Match only rows where `column` matches all of `patterns` case-sensitively.
+     *
+     * @param column - The column to filter on
+     * @param patterns - The patterns to match with
+     */
+    likeAllOf(column, patterns) {
+        this.url.searchParams.append(column, `like(all).{${patterns.join(',')}}`);
+        return this;
+    }
+    /**
+     * Match only rows where `column` matches any of `patterns` case-sensitively.
+     *
+     * @param column - The column to filter on
+     * @param patterns - The patterns to match with
+     */
+    likeAnyOf(column, patterns) {
+        this.url.searchParams.append(column, `like(any).{${patterns.join(',')}}`);
+        return this;
+    }
+    /**
+     * Match only rows where `column` matches `pattern` case-insensitively.
+     *
+     * @param column - The column to filter on
+     * @param pattern - The pattern to match with
+     */
+    ilike(column, pattern) {
+        this.url.searchParams.append(column, `ilike.${pattern}`);
+        return this;
+    }
+    /**
+     * Match only rows where `column` matches all of `patterns` case-insensitively.
+     *
+     * @param column - The column to filter on
+     * @param patterns - The patterns to match with
+     */
+    ilikeAllOf(column, patterns) {
+        this.url.searchParams.append(column, `ilike(all).{${patterns.join(',')}}`);
+        return this;
+    }
+    /**
+     * Match only rows where `column` matches any of `patterns` case-insensitively.
+     *
+     * @param column - The column to filter on
+     * @param patterns - The patterns to match with
+     */
+    ilikeAnyOf(column, patterns) {
+        this.url.searchParams.append(column, `ilike(any).{${patterns.join(',')}}`);
+        return this;
+    }
+    /**
+     * Match only rows where `column` IS `value`.
+     *
+     * For non-boolean columns, this is only relevant for checking if the value of
+     * `column` is NULL by setting `value` to `null`.
+     *
+     * For boolean columns, you can also set `value` to `true` or `false` and it
+     * will behave the same way as `.eq()`.
+     *
+     * @param column - The column to filter on
+     * @param value - The value to filter with
+     */
+    is(column, value) {
+        this.url.searchParams.append(column, `is.${value}`);
+        return this;
+    }
+    /**
+     * Match only rows where `column` is included in the `values` array.
+     *
+     * @param column - The column to filter on
+     * @param values - The values array to filter with
+     */
+    in(column, values) {
+        const cleanedValues = Array.from(new Set(values))
+            .map((s) => {
+            // handle postgrest reserved characters
+            // https://postgrest.org/en/v7.0.0/api.html#reserved-characters
+            if (typeof s === 'string' && new RegExp('[,()]').test(s))
+                return `"${s}"`;
+            else
+                return `${s}`;
+        })
+            .join(',');
+        this.url.searchParams.append(column, `in.(${cleanedValues})`);
+        return this;
+    }
+    /**
+     * Only relevant for jsonb, array, and range columns. Match only rows where
+     * `column` contains every element appearing in `value`.
+     *
+     * @param column - The jsonb, array, or range column to filter on
+     * @param value - The jsonb, array, or range value to filter with
+     */
+    contains(column, value) {
+        if (typeof value === 'string') {
+            // range types can be inclusive '[', ']' or exclusive '(', ')' so just
+            // keep it simple and accept a string
+            this.url.searchParams.append(column, `cs.${value}`);
+        }
+        else if (Array.isArray(value)) {
+            // array
+            this.url.searchParams.append(column, `cs.{${value.join(',')}}`);
+        }
+        else {
+            // json
+            this.url.searchParams.append(column, `cs.${JSON.stringify(value)}`);
+        }
+        return this;
+    }
+    /**
+     * Only relevant for jsonb, array, and range columns. Match only rows where
+     * every element appearing in `column` is contained by `value`.
+     *
+     * @param column - The jsonb, array, or range column to filter on
+     * @param value - The jsonb, array, or range value to filter with
+     */
+    containedBy(column, value) {
+        if (typeof value === 'string') {
+            // range
+            this.url.searchParams.append(column, `cd.${value}`);
+        }
+        else if (Array.isArray(value)) {
+            // array
+            this.url.searchParams.append(column, `cd.{${value.join(',')}}`);
+        }
+        else {
+            // json
+            this.url.searchParams.append(column, `cd.${JSON.stringify(value)}`);
+        }
+        return this;
+    }
+    /**
+     * Only relevant for range columns. Match only rows where every element in
+     * `column` is greater than any element in `range`.
+     *
+     * @param column - The range column to filter on
+     * @param range - The range to filter with
+     */
+    rangeGt(column, range) {
+        this.url.searchParams.append(column, `sr.${range}`);
+        return this;
+    }
+    /**
+     * Only relevant for range columns. Match only rows where every element in
+     * `column` is either contained in `range` or greater than any element in
+     * `range`.
+     *
+     * @param column - The range column to filter on
+     * @param range - The range to filter with
+     */
+    rangeGte(column, range) {
+        this.url.searchParams.append(column, `nxl.${range}`);
+        return this;
+    }
+    /**
+     * Only relevant for range columns. Match only rows where every element in
+     * `column` is less than any element in `range`.
+     *
+     * @param column - The range column to filter on
+     * @param range - The range to filter with
+     */
+    rangeLt(column, range) {
+        this.url.searchParams.append(column, `sl.${range}`);
+        return this;
+    }
+    /**
+     * Only relevant for range columns. Match only rows where every element in
+     * `column` is either contained in `range` or less than any element in
+     * `range`.
+     *
+     * @param column - The range column to filter on
+     * @param range - The range to filter with
+     */
+    rangeLte(column, range) {
+        this.url.searchParams.append(column, `nxr.${range}`);
+        return this;
+    }
+    /**
+     * Only relevant for range columns. Match only rows where `column` is
+     * mutually exclusive to `range` and there can be no element between the two
+     * ranges.
+     *
+     * @param column - The range column to filter on
+     * @param range - The range to filter with
+     */
+    rangeAdjacent(column, range) {
+        this.url.searchParams.append(column, `adj.${range}`);
+        return this;
+    }
+    /**
+     * Only relevant for array and range columns. Match only rows where
+     * `column` and `value` have an element in common.
+     *
+     * @param column - The array or range column to filter on
+     * @param value - The array or range value to filter with
+     */
+    overlaps(column, value) {
+        if (typeof value === 'string') {
+            // range
+            this.url.searchParams.append(column, `ov.${value}`);
+        }
+        else {
+            // array
+            this.url.searchParams.append(column, `ov.{${value.join(',')}}`);
+        }
+        return this;
+    }
+    /**
+     * Only relevant for text and tsvector columns. Match only rows where
+     * `column` matches the query string in `query`.
+     *
+     * @param column - The text or tsvector column to filter on
+     * @param query - The query text to match with
+     * @param options - Named parameters
+     * @param options.config - The text search configuration to use
+     * @param options.type - Change how the `query` text is interpreted
+     */
+    textSearch(column, query, { config, type } = {}) {
+        let typePart = '';
+        if (type === 'plain') {
+            typePart = 'pl';
+        }
+        else if (type === 'phrase') {
+            typePart = 'ph';
+        }
+        else if (type === 'websearch') {
+            typePart = 'w';
+        }
+        const configPart = config === undefined ? '' : `(${config})`;
+        this.url.searchParams.append(column, `${typePart}fts${configPart}.${query}`);
+        return this;
+    }
+    /**
+     * Match only rows where each column in `query` keys is equal to its
+     * associated value. Shorthand for multiple `.eq()`s.
+     *
+     * @param query - The object to filter with, with column names as keys mapped
+     * to their filter values
+     */
+    match(query) {
+        Object.entries(query).forEach(([column, value]) => {
+            this.url.searchParams.append(column, `eq.${value}`);
+        });
+        return this;
+    }
+    /**
+     * Match only rows which doesn't satisfy the filter.
+     *
+     * Unlike most filters, `opearator` and `value` are used as-is and need to
+     * follow [PostgREST
+     * syntax](https://postgrest.org/en/stable/api.html#operators). You also need
+     * to make sure they are properly sanitized.
+     *
+     * @param column - The column to filter on
+     * @param operator - The operator to be negated to filter with, following
+     * PostgREST syntax
+     * @param value - The value to filter with, following PostgREST syntax
+     */
+    not(column, operator, value) {
+        this.url.searchParams.append(column, `not.${operator}.${value}`);
+        return this;
+    }
+    /**
+     * Match only rows which satisfy at least one of the filters.
+     *
+     * Unlike most filters, `filters` is used as-is and needs to follow [PostgREST
+     * syntax](https://postgrest.org/en/stable/api.html#operators). You also need
+     * to make sure it's properly sanitized.
+     *
+     * It's currently not possible to do an `.or()` filter across multiple tables.
+     *
+     * @param filters - The filters to use, following PostgREST syntax
+     * @param options - Named parameters
+     * @param options.referencedTable - Set this to filter on referenced tables
+     * instead of the parent table
+     * @param options.foreignTable - Deprecated, use `referencedTable` instead
+     */
+    or(filters, { foreignTable, referencedTable = foreignTable, } = {}) {
+        const key = referencedTable ? `${referencedTable}.or` : 'or';
+        this.url.searchParams.append(key, `(${filters})`);
+        return this;
+    }
+    /**
+     * Match only rows which satisfy the filter. This is an escape hatch - you
+     * should use the specific filter methods wherever possible.
+     *
+     * Unlike most filters, `opearator` and `value` are used as-is and need to
+     * follow [PostgREST
+     * syntax](https://postgrest.org/en/stable/api.html#operators). You also need
+     * to make sure they are properly sanitized.
+     *
+     * @param column - The column to filter on
+     * @param operator - The operator to filter with, following PostgREST syntax
+     * @param value - The value to filter with, following PostgREST syntax
+     */
+    filter(column, operator, value) {
+        this.url.searchParams.append(column, `${operator}.${value}`);
+        return this;
+    }
+}
+exports["default"] = PostgrestFilterBuilder;
+//# sourceMappingURL=PostgrestFilterBuilder.js.map
+
+/***/ }),
+
+/***/ 907:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Headers: () => (/* binding */ Headers),
+/* harmony export */   Request: () => (/* binding */ Request),
+/* harmony export */   Response: () => (/* binding */ Response),
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__),
+/* harmony export */   fetch: () => (/* binding */ fetch)
+/* harmony export */ });
+
+
+// ref: https://github.com/tc39/proposal-global
+var getGlobal = function() {
+    // the only reliable means to get the global object is
+    // `Function('return this')()`
+    // However, this causes CSP violations in Chrome apps.
+    if (typeof self !== 'undefined') { return self; }
+    if (typeof window !== 'undefined') { return window; }
+    if (typeof __webpack_require__.g !== 'undefined') { return __webpack_require__.g; }
+    throw new Error('unable to locate global object');
+}
+
+var globalObject = getGlobal();
+
+const fetch = globalObject.fetch;
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (globalObject.fetch.bind(globalObject));
+
+const Headers = globalObject.Headers;
+const Request = globalObject.Request;
+const Response = globalObject.Response;
+
+
+/***/ }),
+
+/***/ 961:
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const PostgrestQueryBuilder_1 = __importDefault(__webpack_require__(45));
+const PostgrestFilterBuilder_1 = __importDefault(__webpack_require__(825));
+const constants_1 = __webpack_require__(530);
+/**
+ * PostgREST client.
+ *
+ * @typeParam Database - Types for the schema from the [type
+ * generator](https://supabase.com/docs/reference/javascript/next/typescript-support)
+ *
+ * @typeParam SchemaName - Postgres schema to switch to. Must be a string
+ * literal, the same one passed to the constructor. If the schema is not
+ * `"public"`, this must be supplied manually.
+ */
+class PostgrestClient {
+    // TODO: Add back shouldThrowOnError once we figure out the typings
+    /**
+     * Creates a PostgREST client.
+     *
+     * @param url - URL of the PostgREST endpoint
+     * @param options - Named parameters
+     * @param options.headers - Custom headers
+     * @param options.schema - Postgres schema to switch to
+     * @param options.fetch - Custom fetch
+     */
+    constructor(url, { headers = {}, schema, fetch, } = {}) {
+        this.url = url;
+        this.headers = Object.assign(Object.assign({}, constants_1.DEFAULT_HEADERS), headers);
+        this.schemaName = schema;
+        this.fetch = fetch;
+    }
+    /**
+     * Perform a query on a table or a view.
+     *
+     * @param relation - The table or view name to query
+     */
+    from(relation) {
+        const url = new URL(`${this.url}/${relation}`);
+        return new PostgrestQueryBuilder_1.default(url, {
+            headers: Object.assign({}, this.headers),
+            schema: this.schemaName,
+            fetch: this.fetch,
+        });
+    }
+    /**
+     * Select a schema to query or perform an function (rpc) call.
+     *
+     * The schema needs to be on the list of exposed schemas inside Supabase.
+     *
+     * @param schema - The schema to query
+     */
+    schema(schema) {
+        return new PostgrestClient(this.url, {
+            headers: this.headers,
+            schema,
+            fetch: this.fetch,
+        });
+    }
+    /**
+     * Perform a function call.
+     *
+     * @param fn - The function name to call
+     * @param args - The arguments to pass to the function call
+     * @param options - Named parameters
+     * @param options.head - When set to `true`, `data` will not be returned.
+     * Useful if you only need the count.
+     * @param options.get - When set to `true`, the function will be called with
+     * read-only access mode.
+     * @param options.count - Count algorithm to use to count rows returned by the
+     * function. Only applicable for [set-returning
+     * functions](https://www.postgresql.org/docs/current/functions-srf.html).
+     *
+     * `"exact"`: Exact but slow count algorithm. Performs a `COUNT(*)` under the
+     * hood.
+     *
+     * `"planned"`: Approximated but fast count algorithm. Uses the Postgres
+     * statistics under the hood.
+     *
+     * `"estimated"`: Uses exact count for low numbers and planned count for high
+     * numbers.
+     */
+    rpc(fn, args = {}, { head = false, get = false, count, } = {}) {
+        let method;
+        const url = new URL(`${this.url}/rpc/${fn}`);
+        let body;
+        if (head || get) {
+            method = head ? 'HEAD' : 'GET';
+            Object.entries(args)
+                // params with undefined value needs to be filtered out, otherwise it'll
+                // show up as `?param=undefined`
+                .filter(([_, value]) => value !== undefined)
+                // array values need special syntax
+                .map(([name, value]) => [name, Array.isArray(value) ? `{${value.join(',')}}` : `${value}`])
+                .forEach(([name, value]) => {
+                url.searchParams.append(name, value);
+            });
+        }
+        else {
+            method = 'POST';
+            body = args;
+        }
+        const headers = Object.assign({}, this.headers);
+        if (count) {
+            headers['Prefer'] = `count=${count}`;
+        }
+        return new PostgrestFilterBuilder_1.default({
+            method,
+            url,
+            headers,
+            schema: this.schemaName,
+            body,
+            fetch: this.fetch,
+            allowEmpty: false,
+        });
+    }
+}
+exports["default"] = PostgrestClient;
+//# sourceMappingURL=PostgrestClient.js.map
+
+/***/ })
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/global */
+/******/ 	(() => {
+/******/ 		__webpack_require__.g = (function() {
+/******/ 			if (typeof globalThis === 'object') return globalThis;
+/******/ 			try {
+/******/ 				return this || new Function('return this')();
+/******/ 			} catch (e) {
+/******/ 				if (typeof window === 'object') return window;
+/******/ 			}
+/******/ 		})();
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/************************************************************************/
+var __webpack_exports__ = {};
+
+;// ./node_modules/@supabase/functions-js/dist/module/helper.js
+const resolveFetch = (customFetch) => {
+    let _fetch;
+    if (customFetch) {
+        _fetch = customFetch;
+    }
+    else if (typeof fetch === 'undefined') {
+        _fetch = (...args) => Promise.resolve(/* import() */).then(__webpack_require__.bind(__webpack_require__, 907)).then(({ default: fetch }) => fetch(...args));
+    }
+    else {
+        _fetch = fetch;
+    }
+    return (...args) => _fetch(...args);
+};
+//# sourceMappingURL=helper.js.map
+;// ./node_modules/@supabase/functions-js/dist/module/types.js
+class FunctionsError extends Error {
+    constructor(message, name = 'FunctionsError', context) {
+        super(message);
+        this.name = name;
+        this.context = context;
+    }
+}
+class FunctionsFetchError extends FunctionsError {
+    constructor(context) {
+        super('Failed to send a request to the Edge Function', 'FunctionsFetchError', context);
+    }
+}
+class FunctionsRelayError extends FunctionsError {
+    constructor(context) {
+        super('Relay Error invoking the Edge Function', 'FunctionsRelayError', context);
+    }
+}
+class FunctionsHttpError extends FunctionsError {
+    constructor(context) {
+        super('Edge Function returned a non-2xx status code', 'FunctionsHttpError', context);
+    }
+}
+// Define the enum for the 'region' property
+var FunctionRegion;
+(function (FunctionRegion) {
+    FunctionRegion["Any"] = "any";
+    FunctionRegion["ApNortheast1"] = "ap-northeast-1";
+    FunctionRegion["ApNortheast2"] = "ap-northeast-2";
+    FunctionRegion["ApSouth1"] = "ap-south-1";
+    FunctionRegion["ApSoutheast1"] = "ap-southeast-1";
+    FunctionRegion["ApSoutheast2"] = "ap-southeast-2";
+    FunctionRegion["CaCentral1"] = "ca-central-1";
+    FunctionRegion["EuCentral1"] = "eu-central-1";
+    FunctionRegion["EuWest1"] = "eu-west-1";
+    FunctionRegion["EuWest2"] = "eu-west-2";
+    FunctionRegion["EuWest3"] = "eu-west-3";
+    FunctionRegion["SaEast1"] = "sa-east-1";
+    FunctionRegion["UsEast1"] = "us-east-1";
+    FunctionRegion["UsWest1"] = "us-west-1";
+    FunctionRegion["UsWest2"] = "us-west-2";
+})(FunctionRegion || (FunctionRegion = {}));
+//# sourceMappingURL=types.js.map
+;// ./node_modules/@supabase/functions-js/dist/module/FunctionsClient.js
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+class FunctionsClient {
+    constructor(url, { headers = {}, customFetch, region = FunctionRegion.Any, } = {}) {
+        this.url = url;
+        this.headers = headers;
+        this.region = region;
+        this.fetch = resolveFetch(customFetch);
+    }
+    /**
+     * Updates the authorization header
+     * @param token - the new jwt token sent in the authorisation header
+     */
+    setAuth(token) {
+        this.headers.Authorization = `Bearer ${token}`;
+    }
+    /**
+     * Invokes a function
+     * @param functionName - The name of the Function to invoke.
+     * @param options - Options for invoking the Function.
+     */
+    invoke(functionName, options = {}) {
+        var _a;
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { headers, method, body: functionArgs } = options;
+                let _headers = {};
+                let { region } = options;
+                if (!region) {
+                    region = this.region;
+                }
+                if (region && region !== 'any') {
+                    _headers['x-region'] = region;
+                }
+                let body;
+                if (functionArgs &&
+                    ((headers && !Object.prototype.hasOwnProperty.call(headers, 'Content-Type')) || !headers)) {
+                    if ((typeof Blob !== 'undefined' && functionArgs instanceof Blob) ||
+                        functionArgs instanceof ArrayBuffer) {
+                        // will work for File as File inherits Blob
+                        // also works for ArrayBuffer as it is the same underlying structure as a Blob
+                        _headers['Content-Type'] = 'application/octet-stream';
+                        body = functionArgs;
+                    }
+                    else if (typeof functionArgs === 'string') {
+                        // plain string
+                        _headers['Content-Type'] = 'text/plain';
+                        body = functionArgs;
+                    }
+                    else if (typeof FormData !== 'undefined' && functionArgs instanceof FormData) {
+                        // don't set content-type headers
+                        // Request will automatically add the right boundary value
+                        body = functionArgs;
+                    }
+                    else {
+                        // default, assume this is JSON
+                        _headers['Content-Type'] = 'application/json';
+                        body = JSON.stringify(functionArgs);
+                    }
+                }
+                const response = yield this.fetch(`${this.url}/${functionName}`, {
+                    method: method || 'POST',
+                    // headers priority is (high to low):
+                    // 1. invoke-level headers
+                    // 2. client-level headers
+                    // 3. default Content-Type header
+                    headers: Object.assign(Object.assign(Object.assign({}, _headers), this.headers), headers),
+                    body,
+                }).catch((fetchError) => {
+                    throw new FunctionsFetchError(fetchError);
+                });
+                const isRelayError = response.headers.get('x-relay-error');
+                if (isRelayError && isRelayError === 'true') {
+                    throw new FunctionsRelayError(response);
+                }
+                if (!response.ok) {
+                    throw new FunctionsHttpError(response);
+                }
+                let responseType = ((_a = response.headers.get('Content-Type')) !== null && _a !== void 0 ? _a : 'text/plain').split(';')[0].trim();
+                let data;
+                if (responseType === 'application/json') {
+                    data = yield response.json();
+                }
+                else if (responseType === 'application/octet-stream') {
+                    data = yield response.blob();
+                }
+                else if (responseType === 'text/event-stream') {
+                    data = response;
+                }
+                else if (responseType === 'multipart/form-data') {
+                    data = yield response.formData();
+                }
+                else {
+                    // default to text
+                    data = yield response.text();
+                }
+                return { data, error: null };
+            }
+            catch (error) {
+                return { data: null, error };
+            }
+        });
+    }
+}
+//# sourceMappingURL=FunctionsClient.js.map
+// EXTERNAL MODULE: ./node_modules/@supabase/postgrest-js/dist/cjs/index.js
+var cjs = __webpack_require__(279);
+;// ./node_modules/@supabase/postgrest-js/dist/esm/wrapper.mjs
+
+const {
+  PostgrestClient,
+  PostgrestQueryBuilder,
+  PostgrestFilterBuilder,
+  PostgrestTransformBuilder,
+  PostgrestBuilder,
+  PostgrestError,
+} = cjs
+
+
+
+// compatibility with CJS output
+/* harmony default export */ const wrapper = ({
+  PostgrestClient,
+  PostgrestQueryBuilder,
+  PostgrestFilterBuilder,
+  PostgrestTransformBuilder,
+  PostgrestBuilder,
+  PostgrestError,
+});
+
+;// ./node_modules/@supabase/realtime-js/dist/module/WebSocket.js
+// Node.js WebSocket entry point
+let WebSocketImpl;
+if (typeof window === 'undefined') {
+    // Node.js environment
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    WebSocketImpl = __webpack_require__(591);
+}
+else {
+    // Browser environment
+    WebSocketImpl = window.WebSocket;
+}
+/* harmony default export */ const WebSocket = (WebSocketImpl);
+//# sourceMappingURL=WebSocket.js.map
+;// ./node_modules/@supabase/realtime-js/dist/module/lib/version.js
+const version_version = '2.11.10';
+//# sourceMappingURL=version.js.map
+;// ./node_modules/@supabase/realtime-js/dist/module/lib/constants.js
+
+const DEFAULT_HEADERS = { 'X-Client-Info': `realtime-js/${version_version}` };
+const VSN = '1.0.0';
+const VERSION = (/* unused pure expression or super */ null && (version));
+const DEFAULT_TIMEOUT = 10000;
+const WS_CLOSE_NORMAL = 1000;
+var SOCKET_STATES;
+(function (SOCKET_STATES) {
+    SOCKET_STATES[SOCKET_STATES["connecting"] = 0] = "connecting";
+    SOCKET_STATES[SOCKET_STATES["open"] = 1] = "open";
+    SOCKET_STATES[SOCKET_STATES["closing"] = 2] = "closing";
+    SOCKET_STATES[SOCKET_STATES["closed"] = 3] = "closed";
+})(SOCKET_STATES || (SOCKET_STATES = {}));
+var constants_CHANNEL_STATES;
+(function (CHANNEL_STATES) {
+    CHANNEL_STATES["closed"] = "closed";
+    CHANNEL_STATES["errored"] = "errored";
+    CHANNEL_STATES["joined"] = "joined";
+    CHANNEL_STATES["joining"] = "joining";
+    CHANNEL_STATES["leaving"] = "leaving";
+})(constants_CHANNEL_STATES || (constants_CHANNEL_STATES = {}));
+var CHANNEL_EVENTS;
+(function (CHANNEL_EVENTS) {
+    CHANNEL_EVENTS["close"] = "phx_close";
+    CHANNEL_EVENTS["error"] = "phx_error";
+    CHANNEL_EVENTS["join"] = "phx_join";
+    CHANNEL_EVENTS["reply"] = "phx_reply";
+    CHANNEL_EVENTS["leave"] = "phx_leave";
+    CHANNEL_EVENTS["access_token"] = "access_token";
+})(CHANNEL_EVENTS || (CHANNEL_EVENTS = {}));
+var TRANSPORTS;
+(function (TRANSPORTS) {
+    TRANSPORTS["websocket"] = "websocket";
+})(TRANSPORTS || (TRANSPORTS = {}));
+var CONNECTION_STATE;
+(function (CONNECTION_STATE) {
+    CONNECTION_STATE["Connecting"] = "connecting";
+    CONNECTION_STATE["Open"] = "open";
+    CONNECTION_STATE["Closing"] = "closing";
+    CONNECTION_STATE["Closed"] = "closed";
+})(CONNECTION_STATE || (CONNECTION_STATE = {}));
+//# sourceMappingURL=constants.js.map
+;// ./node_modules/@supabase/realtime-js/dist/module/lib/serializer.js
+// This file draws heavily from https://github.com/phoenixframework/phoenix/commit/cf098e9cf7a44ee6479d31d911a97d3c7430c6fe
+// License: https://github.com/phoenixframework/phoenix/blob/master/LICENSE.md
+class Serializer {
+    constructor() {
+        this.HEADER_LENGTH = 1;
+    }
+    decode(rawPayload, callback) {
+        if (rawPayload.constructor === ArrayBuffer) {
+            return callback(this._binaryDecode(rawPayload));
+        }
+        if (typeof rawPayload === 'string') {
+            return callback(JSON.parse(rawPayload));
+        }
+        return callback({});
+    }
+    _binaryDecode(buffer) {
+        const view = new DataView(buffer);
+        const decoder = new TextDecoder();
+        return this._decodeBroadcast(buffer, view, decoder);
+    }
+    _decodeBroadcast(buffer, view, decoder) {
+        const topicSize = view.getUint8(1);
+        const eventSize = view.getUint8(2);
+        let offset = this.HEADER_LENGTH + 2;
+        const topic = decoder.decode(buffer.slice(offset, offset + topicSize));
+        offset = offset + topicSize;
+        const event = decoder.decode(buffer.slice(offset, offset + eventSize));
+        offset = offset + eventSize;
+        const data = JSON.parse(decoder.decode(buffer.slice(offset, buffer.byteLength)));
+        return { ref: null, topic: topic, event: event, payload: data };
+    }
+}
+//# sourceMappingURL=serializer.js.map
+;// ./node_modules/@supabase/realtime-js/dist/module/lib/timer.js
+/**
+ * Creates a timer that accepts a `timerCalc` function to perform calculated timeout retries, such as exponential backoff.
+ *
+ * @example
+ *    let reconnectTimer = new Timer(() => this.connect(), function(tries){
+ *      return [1000, 5000, 10000][tries - 1] || 10000
+ *    })
+ *    reconnectTimer.scheduleTimeout() // fires after 1000
+ *    reconnectTimer.scheduleTimeout() // fires after 5000
+ *    reconnectTimer.reset()
+ *    reconnectTimer.scheduleTimeout() // fires after 1000
+ */
+class Timer {
+    constructor(callback, timerCalc) {
+        this.callback = callback;
+        this.timerCalc = timerCalc;
+        this.timer = undefined;
+        this.tries = 0;
+        this.callback = callback;
+        this.timerCalc = timerCalc;
+    }
+    reset() {
+        this.tries = 0;
+        clearTimeout(this.timer);
+    }
+    // Cancels any previous scheduleTimeout and schedules callback
+    scheduleTimeout() {
+        clearTimeout(this.timer);
+        this.timer = setTimeout(() => {
+            this.tries = this.tries + 1;
+            this.callback();
+        }, this.timerCalc(this.tries + 1));
+    }
+}
+//# sourceMappingURL=timer.js.map
+;// ./node_modules/@supabase/realtime-js/dist/module/lib/transformers.js
+/**
+ * Helpers to convert the change Payload into native JS types.
+ */
+// Adapted from epgsql (src/epgsql_binary.erl), this module licensed under
+// 3-clause BSD found here: https://raw.githubusercontent.com/epgsql/epgsql/devel/LICENSE
+var PostgresTypes;
+(function (PostgresTypes) {
+    PostgresTypes["abstime"] = "abstime";
+    PostgresTypes["bool"] = "bool";
+    PostgresTypes["date"] = "date";
+    PostgresTypes["daterange"] = "daterange";
+    PostgresTypes["float4"] = "float4";
+    PostgresTypes["float8"] = "float8";
+    PostgresTypes["int2"] = "int2";
+    PostgresTypes["int4"] = "int4";
+    PostgresTypes["int4range"] = "int4range";
+    PostgresTypes["int8"] = "int8";
+    PostgresTypes["int8range"] = "int8range";
+    PostgresTypes["json"] = "json";
+    PostgresTypes["jsonb"] = "jsonb";
+    PostgresTypes["money"] = "money";
+    PostgresTypes["numeric"] = "numeric";
+    PostgresTypes["oid"] = "oid";
+    PostgresTypes["reltime"] = "reltime";
+    PostgresTypes["text"] = "text";
+    PostgresTypes["time"] = "time";
+    PostgresTypes["timestamp"] = "timestamp";
+    PostgresTypes["timestamptz"] = "timestamptz";
+    PostgresTypes["timetz"] = "timetz";
+    PostgresTypes["tsrange"] = "tsrange";
+    PostgresTypes["tstzrange"] = "tstzrange";
+})(PostgresTypes || (PostgresTypes = {}));
+/**
+ * Takes an array of columns and an object of string values then converts each string value
+ * to its mapped type.
+ *
+ * @param {{name: String, type: String}[]} columns
+ * @param {Object} record
+ * @param {Object} options The map of various options that can be applied to the mapper
+ * @param {Array} options.skipTypes The array of types that should not be converted
+ *
+ * @example convertChangeData([{name: 'first_name', type: 'text'}, {name: 'age', type: 'int4'}], {first_name: 'Paul', age:'33'}, {})
+ * //=>{ first_name: 'Paul', age: 33 }
+ */
+const convertChangeData = (columns, record, options = {}) => {
+    var _a;
+    const skipTypes = (_a = options.skipTypes) !== null && _a !== void 0 ? _a : [];
+    return Object.keys(record).reduce((acc, rec_key) => {
+        acc[rec_key] = convertColumn(rec_key, columns, record, skipTypes);
+        return acc;
+    }, {});
+};
+/**
+ * Converts the value of an individual column.
+ *
+ * @param {String} columnName The column that you want to convert
+ * @param {{name: String, type: String}[]} columns All of the columns
+ * @param {Object} record The map of string values
+ * @param {Array} skipTypes An array of types that should not be converted
+ * @return {object} Useless information
+ *
+ * @example convertColumn('age', [{name: 'first_name', type: 'text'}, {name: 'age', type: 'int4'}], {first_name: 'Paul', age: '33'}, [])
+ * //=> 33
+ * @example convertColumn('age', [{name: 'first_name', type: 'text'}, {name: 'age', type: 'int4'}], {first_name: 'Paul', age: '33'}, ['int4'])
+ * //=> "33"
+ */
+const convertColumn = (columnName, columns, record, skipTypes) => {
+    const column = columns.find((x) => x.name === columnName);
+    const colType = column === null || column === void 0 ? void 0 : column.type;
+    const value = record[columnName];
+    if (colType && !skipTypes.includes(colType)) {
+        return convertCell(colType, value);
+    }
+    return noop(value);
+};
+/**
+ * If the value of the cell is `null`, returns null.
+ * Otherwise converts the string value to the correct type.
+ * @param {String} type A postgres column type
+ * @param {String} value The cell value
+ *
+ * @example convertCell('bool', 't')
+ * //=> true
+ * @example convertCell('int8', '10')
+ * //=> 10
+ * @example convertCell('_int4', '{1,2,3,4}')
+ * //=> [1,2,3,4]
+ */
+const convertCell = (type, value) => {
+    // if data type is an array
+    if (type.charAt(0) === '_') {
+        const dataType = type.slice(1, type.length);
+        return toArray(value, dataType);
+    }
+    // If not null, convert to correct type.
+    switch (type) {
+        case PostgresTypes.bool:
+            return toBoolean(value);
+        case PostgresTypes.float4:
+        case PostgresTypes.float8:
+        case PostgresTypes.int2:
+        case PostgresTypes.int4:
+        case PostgresTypes.int8:
+        case PostgresTypes.numeric:
+        case PostgresTypes.oid:
+            return toNumber(value);
+        case PostgresTypes.json:
+        case PostgresTypes.jsonb:
+            return toJson(value);
+        case PostgresTypes.timestamp:
+            return toTimestampString(value); // Format to be consistent with PostgREST
+        case PostgresTypes.abstime: // To allow users to cast it based on Timezone
+        case PostgresTypes.date: // To allow users to cast it based on Timezone
+        case PostgresTypes.daterange:
+        case PostgresTypes.int4range:
+        case PostgresTypes.int8range:
+        case PostgresTypes.money:
+        case PostgresTypes.reltime: // To allow users to cast it based on Timezone
+        case PostgresTypes.text:
+        case PostgresTypes.time: // To allow users to cast it based on Timezone
+        case PostgresTypes.timestamptz: // To allow users to cast it based on Timezone
+        case PostgresTypes.timetz: // To allow users to cast it based on Timezone
+        case PostgresTypes.tsrange:
+        case PostgresTypes.tstzrange:
+            return noop(value);
+        default:
+            // Return the value for remaining types
+            return noop(value);
+    }
+};
+const noop = (value) => {
+    return value;
+};
+const toBoolean = (value) => {
+    switch (value) {
+        case 't':
+            return true;
+        case 'f':
+            return false;
+        default:
+            return value;
+    }
+};
+const toNumber = (value) => {
+    if (typeof value === 'string') {
+        const parsedValue = parseFloat(value);
+        if (!Number.isNaN(parsedValue)) {
+            return parsedValue;
+        }
+    }
+    return value;
+};
+const toJson = (value) => {
+    if (typeof value === 'string') {
+        try {
+            return JSON.parse(value);
+        }
+        catch (error) {
+            console.log(`JSON parse error: ${error}`);
+            return value;
+        }
+    }
+    return value;
+};
+/**
+ * Converts a Postgres Array into a native JS array
+ *
+ * @example toArray('{}', 'int4')
+ * //=> []
+ * @example toArray('{"[2021-01-01,2021-12-31)","(2021-01-01,2021-12-32]"}', 'daterange')
+ * //=> ['[2021-01-01,2021-12-31)', '(2021-01-01,2021-12-32]']
+ * @example toArray([1,2,3,4], 'int4')
+ * //=> [1,2,3,4]
+ */
+const toArray = (value, type) => {
+    if (typeof value !== 'string') {
+        return value;
+    }
+    const lastIdx = value.length - 1;
+    const closeBrace = value[lastIdx];
+    const openBrace = value[0];
+    // Confirm value is a Postgres array by checking curly brackets
+    if (openBrace === '{' && closeBrace === '}') {
+        let arr;
+        const valTrim = value.slice(1, lastIdx);
+        // TODO: find a better solution to separate Postgres array data
+        try {
+            arr = JSON.parse('[' + valTrim + ']');
+        }
+        catch (_) {
+            // WARNING: splitting on comma does not cover all edge cases
+            arr = valTrim ? valTrim.split(',') : [];
+        }
+        return arr.map((val) => convertCell(type, val));
+    }
+    return value;
+};
+/**
+ * Fixes timestamp to be ISO-8601. Swaps the space between the date and time for a 'T'
+ * See https://github.com/supabase/supabase/issues/18
+ *
+ * @example toTimestampString('2019-09-10 00:00:00')
+ * //=> '2019-09-10T00:00:00'
+ */
+const toTimestampString = (value) => {
+    if (typeof value === 'string') {
+        return value.replace(' ', 'T');
+    }
+    return value;
+};
+const httpEndpointURL = (socketUrl) => {
+    let url = socketUrl;
+    url = url.replace(/^ws/i, 'http');
+    url = url.replace(/(\/socket\/websocket|\/socket|\/websocket)\/?$/i, '');
+    return url.replace(/\/+$/, '');
+};
+//# sourceMappingURL=transformers.js.map
+;// ./node_modules/@supabase/realtime-js/dist/module/lib/push.js
+
+class Push {
+    /**
+     * Initializes the Push
+     *
+     * @param channel The Channel
+     * @param event The event, for example `"phx_join"`
+     * @param payload The payload, for example `{user_id: 123}`
+     * @param timeout The push timeout in milliseconds
+     */
+    constructor(channel, event, payload = {}, timeout = DEFAULT_TIMEOUT) {
+        this.channel = channel;
+        this.event = event;
+        this.payload = payload;
+        this.timeout = timeout;
+        this.sent = false;
+        this.timeoutTimer = undefined;
+        this.ref = '';
+        this.receivedResp = null;
+        this.recHooks = [];
+        this.refEvent = null;
+    }
+    resend(timeout) {
+        this.timeout = timeout;
+        this._cancelRefEvent();
+        this.ref = '';
+        this.refEvent = null;
+        this.receivedResp = null;
+        this.sent = false;
+        this.send();
+    }
+    send() {
+        if (this._hasReceived('timeout')) {
+            return;
+        }
+        this.startTimeout();
+        this.sent = true;
+        this.channel.socket.push({
+            topic: this.channel.topic,
+            event: this.event,
+            payload: this.payload,
+            ref: this.ref,
+            join_ref: this.channel._joinRef(),
+        });
+    }
+    updatePayload(payload) {
+        this.payload = Object.assign(Object.assign({}, this.payload), payload);
+    }
+    receive(status, callback) {
+        var _a;
+        if (this._hasReceived(status)) {
+            callback((_a = this.receivedResp) === null || _a === void 0 ? void 0 : _a.response);
+        }
+        this.recHooks.push({ status, callback });
+        return this;
+    }
+    startTimeout() {
+        if (this.timeoutTimer) {
+            return;
+        }
+        this.ref = this.channel.socket._makeRef();
+        this.refEvent = this.channel._replyEventName(this.ref);
+        const callback = (payload) => {
+            this._cancelRefEvent();
+            this._cancelTimeout();
+            this.receivedResp = payload;
+            this._matchReceive(payload);
+        };
+        this.channel._on(this.refEvent, {}, callback);
+        this.timeoutTimer = setTimeout(() => {
+            this.trigger('timeout', {});
+        }, this.timeout);
+    }
+    trigger(status, response) {
+        if (this.refEvent)
+            this.channel._trigger(this.refEvent, { status, response });
+    }
+    destroy() {
+        this._cancelRefEvent();
+        this._cancelTimeout();
+    }
+    _cancelRefEvent() {
+        if (!this.refEvent) {
+            return;
+        }
+        this.channel._off(this.refEvent, {});
+    }
+    _cancelTimeout() {
+        clearTimeout(this.timeoutTimer);
+        this.timeoutTimer = undefined;
+    }
+    _matchReceive({ status, response, }) {
+        this.recHooks
+            .filter((h) => h.status === status)
+            .forEach((h) => h.callback(response));
+    }
+    _hasReceived(status) {
+        return this.receivedResp && this.receivedResp.status === status;
+    }
+}
+//# sourceMappingURL=push.js.map
+;// ./node_modules/@supabase/realtime-js/dist/module/RealtimePresence.js
+/*
+  This file draws heavily from https://github.com/phoenixframework/phoenix/blob/d344ec0a732ab4ee204215b31de69cf4be72e3bf/assets/js/phoenix/presence.js
+  License: https://github.com/phoenixframework/phoenix/blob/d344ec0a732ab4ee204215b31de69cf4be72e3bf/LICENSE.md
+*/
+var REALTIME_PRESENCE_LISTEN_EVENTS;
+(function (REALTIME_PRESENCE_LISTEN_EVENTS) {
+    REALTIME_PRESENCE_LISTEN_EVENTS["SYNC"] = "sync";
+    REALTIME_PRESENCE_LISTEN_EVENTS["JOIN"] = "join";
+    REALTIME_PRESENCE_LISTEN_EVENTS["LEAVE"] = "leave";
+})(REALTIME_PRESENCE_LISTEN_EVENTS || (REALTIME_PRESENCE_LISTEN_EVENTS = {}));
+class RealtimePresence {
+    /**
+     * Initializes the Presence.
+     *
+     * @param channel - The RealtimeChannel
+     * @param opts - The options,
+     *        for example `{events: {state: 'state', diff: 'diff'}}`
+     */
+    constructor(channel, opts) {
+        this.channel = channel;
+        this.state = {};
+        this.pendingDiffs = [];
+        this.joinRef = null;
+        this.caller = {
+            onJoin: () => { },
+            onLeave: () => { },
+            onSync: () => { },
+        };
+        const events = (opts === null || opts === void 0 ? void 0 : opts.events) || {
+            state: 'presence_state',
+            diff: 'presence_diff',
+        };
+        this.channel._on(events.state, {}, (newState) => {
+            const { onJoin, onLeave, onSync } = this.caller;
+            this.joinRef = this.channel._joinRef();
+            this.state = RealtimePresence.syncState(this.state, newState, onJoin, onLeave);
+            this.pendingDiffs.forEach((diff) => {
+                this.state = RealtimePresence.syncDiff(this.state, diff, onJoin, onLeave);
+            });
+            this.pendingDiffs = [];
+            onSync();
+        });
+        this.channel._on(events.diff, {}, (diff) => {
+            const { onJoin, onLeave, onSync } = this.caller;
+            if (this.inPendingSyncState()) {
+                this.pendingDiffs.push(diff);
+            }
+            else {
+                this.state = RealtimePresence.syncDiff(this.state, diff, onJoin, onLeave);
+                onSync();
+            }
+        });
+        this.onJoin((key, currentPresences, newPresences) => {
+            this.channel._trigger('presence', {
+                event: 'join',
+                key,
+                currentPresences,
+                newPresences,
+            });
+        });
+        this.onLeave((key, currentPresences, leftPresences) => {
+            this.channel._trigger('presence', {
+                event: 'leave',
+                key,
+                currentPresences,
+                leftPresences,
+            });
+        });
+        this.onSync(() => {
+            this.channel._trigger('presence', { event: 'sync' });
+        });
+    }
+    /**
+     * Used to sync the list of presences on the server with the
+     * client's state.
+     *
+     * An optional `onJoin` and `onLeave` callback can be provided to
+     * react to changes in the client's local presences across
+     * disconnects and reconnects with the server.
+     *
+     * @internal
+     */
+    static syncState(currentState, newState, onJoin, onLeave) {
+        const state = this.cloneDeep(currentState);
+        const transformedState = this.transformState(newState);
+        const joins = {};
+        const leaves = {};
+        this.map(state, (key, presences) => {
+            if (!transformedState[key]) {
+                leaves[key] = presences;
+            }
+        });
+        this.map(transformedState, (key, newPresences) => {
+            const currentPresences = state[key];
+            if (currentPresences) {
+                const newPresenceRefs = newPresences.map((m) => m.presence_ref);
+                const curPresenceRefs = currentPresences.map((m) => m.presence_ref);
+                const joinedPresences = newPresences.filter((m) => curPresenceRefs.indexOf(m.presence_ref) < 0);
+                const leftPresences = currentPresences.filter((m) => newPresenceRefs.indexOf(m.presence_ref) < 0);
+                if (joinedPresences.length > 0) {
+                    joins[key] = joinedPresences;
+                }
+                if (leftPresences.length > 0) {
+                    leaves[key] = leftPresences;
+                }
+            }
+            else {
+                joins[key] = newPresences;
+            }
+        });
+        return this.syncDiff(state, { joins, leaves }, onJoin, onLeave);
+    }
+    /**
+     * Used to sync a diff of presence join and leave events from the
+     * server, as they happen.
+     *
+     * Like `syncState`, `syncDiff` accepts optional `onJoin` and
+     * `onLeave` callbacks to react to a user joining or leaving from a
+     * device.
+     *
+     * @internal
+     */
+    static syncDiff(state, diff, onJoin, onLeave) {
+        const { joins, leaves } = {
+            joins: this.transformState(diff.joins),
+            leaves: this.transformState(diff.leaves),
+        };
+        if (!onJoin) {
+            onJoin = () => { };
+        }
+        if (!onLeave) {
+            onLeave = () => { };
+        }
+        this.map(joins, (key, newPresences) => {
+            var _a;
+            const currentPresences = (_a = state[key]) !== null && _a !== void 0 ? _a : [];
+            state[key] = this.cloneDeep(newPresences);
+            if (currentPresences.length > 0) {
+                const joinedPresenceRefs = state[key].map((m) => m.presence_ref);
+                const curPresences = currentPresences.filter((m) => joinedPresenceRefs.indexOf(m.presence_ref) < 0);
+                state[key].unshift(...curPresences);
+            }
+            onJoin(key, currentPresences, newPresences);
+        });
+        this.map(leaves, (key, leftPresences) => {
+            let currentPresences = state[key];
+            if (!currentPresences)
+                return;
+            const presenceRefsToRemove = leftPresences.map((m) => m.presence_ref);
+            currentPresences = currentPresences.filter((m) => presenceRefsToRemove.indexOf(m.presence_ref) < 0);
+            state[key] = currentPresences;
+            onLeave(key, currentPresences, leftPresences);
+            if (currentPresences.length === 0)
+                delete state[key];
+        });
+        return state;
+    }
+    /** @internal */
+    static map(obj, func) {
+        return Object.getOwnPropertyNames(obj).map((key) => func(key, obj[key]));
+    }
+    /**
+     * Remove 'metas' key
+     * Change 'phx_ref' to 'presence_ref'
+     * Remove 'phx_ref' and 'phx_ref_prev'
+     *
+     * @example
+     * // returns {
+     *  abc123: [
+     *    { presence_ref: '2', user_id: 1 },
+     *    { presence_ref: '3', user_id: 2 }
+     *  ]
+     * }
+     * RealtimePresence.transformState({
+     *  abc123: {
+     *    metas: [
+     *      { phx_ref: '2', phx_ref_prev: '1' user_id: 1 },
+     *      { phx_ref: '3', user_id: 2 }
+     *    ]
+     *  }
+     * })
+     *
+     * @internal
+     */
+    static transformState(state) {
+        state = this.cloneDeep(state);
+        return Object.getOwnPropertyNames(state).reduce((newState, key) => {
+            const presences = state[key];
+            if ('metas' in presences) {
+                newState[key] = presences.metas.map((presence) => {
+                    presence['presence_ref'] = presence['phx_ref'];
+                    delete presence['phx_ref'];
+                    delete presence['phx_ref_prev'];
+                    return presence;
+                });
+            }
+            else {
+                newState[key] = presences;
+            }
+            return newState;
+        }, {});
+    }
+    /** @internal */
+    static cloneDeep(obj) {
+        return JSON.parse(JSON.stringify(obj));
+    }
+    /** @internal */
+    onJoin(callback) {
+        this.caller.onJoin = callback;
+    }
+    /** @internal */
+    onLeave(callback) {
+        this.caller.onLeave = callback;
+    }
+    /** @internal */
+    onSync(callback) {
+        this.caller.onSync = callback;
+    }
+    /** @internal */
+    inPendingSyncState() {
+        return !this.joinRef || this.joinRef !== this.channel._joinRef();
+    }
+}
+//# sourceMappingURL=RealtimePresence.js.map
+;// ./node_modules/@supabase/realtime-js/dist/module/RealtimeChannel.js
+
+
+
+
+
+
+var REALTIME_POSTGRES_CHANGES_LISTEN_EVENT;
+(function (REALTIME_POSTGRES_CHANGES_LISTEN_EVENT) {
+    REALTIME_POSTGRES_CHANGES_LISTEN_EVENT["ALL"] = "*";
+    REALTIME_POSTGRES_CHANGES_LISTEN_EVENT["INSERT"] = "INSERT";
+    REALTIME_POSTGRES_CHANGES_LISTEN_EVENT["UPDATE"] = "UPDATE";
+    REALTIME_POSTGRES_CHANGES_LISTEN_EVENT["DELETE"] = "DELETE";
+})(REALTIME_POSTGRES_CHANGES_LISTEN_EVENT || (REALTIME_POSTGRES_CHANGES_LISTEN_EVENT = {}));
+var REALTIME_LISTEN_TYPES;
+(function (REALTIME_LISTEN_TYPES) {
+    REALTIME_LISTEN_TYPES["BROADCAST"] = "broadcast";
+    REALTIME_LISTEN_TYPES["PRESENCE"] = "presence";
+    REALTIME_LISTEN_TYPES["POSTGRES_CHANGES"] = "postgres_changes";
+    REALTIME_LISTEN_TYPES["SYSTEM"] = "system";
+})(REALTIME_LISTEN_TYPES || (REALTIME_LISTEN_TYPES = {}));
+var REALTIME_SUBSCRIBE_STATES;
+(function (REALTIME_SUBSCRIBE_STATES) {
+    REALTIME_SUBSCRIBE_STATES["SUBSCRIBED"] = "SUBSCRIBED";
+    REALTIME_SUBSCRIBE_STATES["TIMED_OUT"] = "TIMED_OUT";
+    REALTIME_SUBSCRIBE_STATES["CLOSED"] = "CLOSED";
+    REALTIME_SUBSCRIBE_STATES["CHANNEL_ERROR"] = "CHANNEL_ERROR";
+})(REALTIME_SUBSCRIBE_STATES || (REALTIME_SUBSCRIBE_STATES = {}));
+const REALTIME_CHANNEL_STATES = (/* unused pure expression or super */ null && (CHANNEL_STATES));
+/** A channel is the basic building block of Realtime
+ * and narrows the scope of data flow to subscribed clients.
+ * You can think of a channel as a chatroom where participants are able to see who's online
+ * and send and receive messages.
+ */
+class RealtimeChannel {
+    constructor(
+    /** Topic name can be any string. */
+    topic, params = { config: {} }, socket) {
+        this.topic = topic;
+        this.params = params;
+        this.socket = socket;
+        this.bindings = {};
+        this.state = constants_CHANNEL_STATES.closed;
+        this.joinedOnce = false;
+        this.pushBuffer = [];
+        this.subTopic = topic.replace(/^realtime:/i, '');
+        this.params.config = Object.assign({
+            broadcast: { ack: false, self: false },
+            presence: { key: '' },
+            private: false,
+        }, params.config);
+        this.timeout = this.socket.timeout;
+        this.joinPush = new Push(this, CHANNEL_EVENTS.join, this.params, this.timeout);
+        this.rejoinTimer = new Timer(() => this._rejoinUntilConnected(), this.socket.reconnectAfterMs);
+        this.joinPush.receive('ok', () => {
+            this.state = constants_CHANNEL_STATES.joined;
+            this.rejoinTimer.reset();
+            this.pushBuffer.forEach((pushEvent) => pushEvent.send());
+            this.pushBuffer = [];
+        });
+        this._onClose(() => {
+            this.rejoinTimer.reset();
+            this.socket.log('channel', `close ${this.topic} ${this._joinRef()}`);
+            this.state = constants_CHANNEL_STATES.closed;
+            this.socket._remove(this);
+        });
+        this._onError((reason) => {
+            if (this._isLeaving() || this._isClosed()) {
+                return;
+            }
+            this.socket.log('channel', `error ${this.topic}`, reason);
+            this.state = constants_CHANNEL_STATES.errored;
+            this.rejoinTimer.scheduleTimeout();
+        });
+        this.joinPush.receive('timeout', () => {
+            if (!this._isJoining()) {
+                return;
+            }
+            this.socket.log('channel', `timeout ${this.topic}`, this.joinPush.timeout);
+            this.state = constants_CHANNEL_STATES.errored;
+            this.rejoinTimer.scheduleTimeout();
+        });
+        this._on(CHANNEL_EVENTS.reply, {}, (payload, ref) => {
+            this._trigger(this._replyEventName(ref), payload);
+        });
+        this.presence = new RealtimePresence(this);
+        this.broadcastEndpointURL =
+            httpEndpointURL(this.socket.endPoint) + '/api/broadcast';
+        this.private = this.params.config.private || false;
+    }
+    /** Subscribe registers your client with the server */
+    subscribe(callback, timeout = this.timeout) {
+        var _a, _b;
+        if (!this.socket.isConnected()) {
+            this.socket.connect();
+        }
+        if (this.joinedOnce) {
+            throw `tried to subscribe multiple times. 'subscribe' can only be called a single time per channel instance`;
+        }
+        else {
+            const { config: { broadcast, presence, private: isPrivate }, } = this.params;
+            this._onError((e) => callback === null || callback === void 0 ? void 0 : callback(REALTIME_SUBSCRIBE_STATES.CHANNEL_ERROR, e));
+            this._onClose(() => callback === null || callback === void 0 ? void 0 : callback(REALTIME_SUBSCRIBE_STATES.CLOSED));
+            const accessTokenPayload = {};
+            const config = {
+                broadcast,
+                presence,
+                postgres_changes: (_b = (_a = this.bindings.postgres_changes) === null || _a === void 0 ? void 0 : _a.map((r) => r.filter)) !== null && _b !== void 0 ? _b : [],
+                private: isPrivate,
+            };
+            if (this.socket.accessTokenValue) {
+                accessTokenPayload.access_token = this.socket.accessTokenValue;
+            }
+            this.updateJoinPayload(Object.assign({ config }, accessTokenPayload));
+            this.joinedOnce = true;
+            this._rejoin(timeout);
+            this.joinPush
+                .receive('ok', async ({ postgres_changes }) => {
+                var _a;
+                this.socket.setAuth();
+                if (postgres_changes === undefined) {
+                    callback === null || callback === void 0 ? void 0 : callback(REALTIME_SUBSCRIBE_STATES.SUBSCRIBED);
+                    return;
+                }
+                else {
+                    const clientPostgresBindings = this.bindings.postgres_changes;
+                    const bindingsLen = (_a = clientPostgresBindings === null || clientPostgresBindings === void 0 ? void 0 : clientPostgresBindings.length) !== null && _a !== void 0 ? _a : 0;
+                    const newPostgresBindings = [];
+                    for (let i = 0; i < bindingsLen; i++) {
+                        const clientPostgresBinding = clientPostgresBindings[i];
+                        const { filter: { event, schema, table, filter }, } = clientPostgresBinding;
+                        const serverPostgresFilter = postgres_changes && postgres_changes[i];
+                        if (serverPostgresFilter &&
+                            serverPostgresFilter.event === event &&
+                            serverPostgresFilter.schema === schema &&
+                            serverPostgresFilter.table === table &&
+                            serverPostgresFilter.filter === filter) {
+                            newPostgresBindings.push(Object.assign(Object.assign({}, clientPostgresBinding), { id: serverPostgresFilter.id }));
+                        }
+                        else {
+                            this.unsubscribe();
+                            this.state = constants_CHANNEL_STATES.errored;
+                            callback === null || callback === void 0 ? void 0 : callback(REALTIME_SUBSCRIBE_STATES.CHANNEL_ERROR, new Error('mismatch between server and client bindings for postgres changes'));
+                            return;
+                        }
+                    }
+                    this.bindings.postgres_changes = newPostgresBindings;
+                    callback && callback(REALTIME_SUBSCRIBE_STATES.SUBSCRIBED);
+                    return;
+                }
+            })
+                .receive('error', (error) => {
+                this.state = constants_CHANNEL_STATES.errored;
+                callback === null || callback === void 0 ? void 0 : callback(REALTIME_SUBSCRIBE_STATES.CHANNEL_ERROR, new Error(JSON.stringify(Object.values(error).join(', ') || 'error')));
+                return;
+            })
+                .receive('timeout', () => {
+                callback === null || callback === void 0 ? void 0 : callback(REALTIME_SUBSCRIBE_STATES.TIMED_OUT);
+                return;
+            });
+        }
+        return this;
+    }
+    presenceState() {
+        return this.presence.state;
+    }
+    async track(payload, opts = {}) {
+        return await this.send({
+            type: 'presence',
+            event: 'track',
+            payload,
+        }, opts.timeout || this.timeout);
+    }
+    async untrack(opts = {}) {
+        return await this.send({
+            type: 'presence',
+            event: 'untrack',
+        }, opts);
+    }
+    on(type, filter, callback) {
+        return this._on(type, filter, callback);
+    }
+    /**
+     * Sends a message into the channel.
+     *
+     * @param args Arguments to send to channel
+     * @param args.type The type of event to send
+     * @param args.event The name of the event being sent
+     * @param args.payload Payload to be sent
+     * @param opts Options to be used during the send process
+     */
+    async send(args, opts = {}) {
+        var _a, _b;
+        if (!this._canPush() && args.type === 'broadcast') {
+            const { event, payload: endpoint_payload } = args;
+            const authorization = this.socket.accessTokenValue
+                ? `Bearer ${this.socket.accessTokenValue}`
+                : '';
+            const options = {
+                method: 'POST',
+                headers: {
+                    Authorization: authorization,
+                    apikey: this.socket.apiKey ? this.socket.apiKey : '',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    messages: [
+                        {
+                            topic: this.subTopic,
+                            event,
+                            payload: endpoint_payload,
+                            private: this.private,
+                        },
+                    ],
+                }),
+            };
+            try {
+                const response = await this._fetchWithTimeout(this.broadcastEndpointURL, options, (_a = opts.timeout) !== null && _a !== void 0 ? _a : this.timeout);
+                await ((_b = response.body) === null || _b === void 0 ? void 0 : _b.cancel());
+                return response.ok ? 'ok' : 'error';
+            }
+            catch (error) {
+                if (error.name === 'AbortError') {
+                    return 'timed out';
+                }
+                else {
+                    return 'error';
+                }
+            }
+        }
+        else {
+            return new Promise((resolve) => {
+                var _a, _b, _c;
+                const push = this._push(args.type, args, opts.timeout || this.timeout);
+                if (args.type === 'broadcast' && !((_c = (_b = (_a = this.params) === null || _a === void 0 ? void 0 : _a.config) === null || _b === void 0 ? void 0 : _b.broadcast) === null || _c === void 0 ? void 0 : _c.ack)) {
+                    resolve('ok');
+                }
+                push.receive('ok', () => resolve('ok'));
+                push.receive('error', () => resolve('error'));
+                push.receive('timeout', () => resolve('timed out'));
+            });
+        }
+    }
+    updateJoinPayload(payload) {
+        this.joinPush.updatePayload(payload);
+    }
+    /**
+     * Leaves the channel.
+     *
+     * Unsubscribes from server events, and instructs channel to terminate on server.
+     * Triggers onClose() hooks.
+     *
+     * To receive leave acknowledgements, use the a `receive` hook to bind to the server ack, ie:
+     * channel.unsubscribe().receive("ok", () => alert("left!") )
+     */
+    unsubscribe(timeout = this.timeout) {
+        this.state = constants_CHANNEL_STATES.leaving;
+        const onClose = () => {
+            this.socket.log('channel', `leave ${this.topic}`);
+            this._trigger(CHANNEL_EVENTS.close, 'leave', this._joinRef());
+        };
+        this.joinPush.destroy();
+        return new Promise((resolve) => {
+            const leavePush = new Push(this, CHANNEL_EVENTS.leave, {}, timeout);
+            leavePush
+                .receive('ok', () => {
+                onClose();
+                resolve('ok');
+            })
+                .receive('timeout', () => {
+                onClose();
+                resolve('timed out');
+            })
+                .receive('error', () => {
+                resolve('error');
+            });
+            leavePush.send();
+            if (!this._canPush()) {
+                leavePush.trigger('ok', {});
+            }
+        });
+    }
+    /**
+     * Teardown the channel.
+     *
+     * Destroys and stops related timers.
+     */
+    teardown() {
+        this.pushBuffer.forEach((push) => push.destroy());
+        this.rejoinTimer && clearTimeout(this.rejoinTimer.timer);
+        this.joinPush.destroy();
+    }
+    /** @internal */
+    async _fetchWithTimeout(url, options, timeout) {
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeout);
+        const response = await this.socket.fetch(url, Object.assign(Object.assign({}, options), { signal: controller.signal }));
+        clearTimeout(id);
+        return response;
+    }
+    /** @internal */
+    _push(event, payload, timeout = this.timeout) {
+        if (!this.joinedOnce) {
+            throw `tried to push '${event}' to '${this.topic}' before joining. Use channel.subscribe() before pushing events`;
+        }
+        let pushEvent = new Push(this, event, payload, timeout);
+        if (this._canPush()) {
+            pushEvent.send();
+        }
+        else {
+            pushEvent.startTimeout();
+            this.pushBuffer.push(pushEvent);
+        }
+        return pushEvent;
+    }
+    /**
+     * Overridable message hook
+     *
+     * Receives all events for specialized message handling before dispatching to the channel callbacks.
+     * Must return the payload, modified or unmodified.
+     *
+     * @internal
+     */
+    _onMessage(_event, payload, _ref) {
+        return payload;
+    }
+    /** @internal */
+    _isMember(topic) {
+        return this.topic === topic;
+    }
+    /** @internal */
+    _joinRef() {
+        return this.joinPush.ref;
+    }
+    /** @internal */
+    _trigger(type, payload, ref) {
+        var _a, _b;
+        const typeLower = type.toLocaleLowerCase();
+        const { close, error, leave, join } = CHANNEL_EVENTS;
+        const events = [close, error, leave, join];
+        if (ref && events.indexOf(typeLower) >= 0 && ref !== this._joinRef()) {
+            return;
+        }
+        let handledPayload = this._onMessage(typeLower, payload, ref);
+        if (payload && !handledPayload) {
+            throw 'channel onMessage callbacks must return the payload, modified or unmodified';
+        }
+        if (['insert', 'update', 'delete'].includes(typeLower)) {
+            (_a = this.bindings.postgres_changes) === null || _a === void 0 ? void 0 : _a.filter((bind) => {
+                var _a, _b, _c;
+                return (((_a = bind.filter) === null || _a === void 0 ? void 0 : _a.event) === '*' ||
+                    ((_c = (_b = bind.filter) === null || _b === void 0 ? void 0 : _b.event) === null || _c === void 0 ? void 0 : _c.toLocaleLowerCase()) === typeLower);
+            }).map((bind) => bind.callback(handledPayload, ref));
+        }
+        else {
+            (_b = this.bindings[typeLower]) === null || _b === void 0 ? void 0 : _b.filter((bind) => {
+                var _a, _b, _c, _d, _e, _f;
+                if (['broadcast', 'presence', 'postgres_changes'].includes(typeLower)) {
+                    if ('id' in bind) {
+                        const bindId = bind.id;
+                        const bindEvent = (_a = bind.filter) === null || _a === void 0 ? void 0 : _a.event;
+                        return (bindId &&
+                            ((_b = payload.ids) === null || _b === void 0 ? void 0 : _b.includes(bindId)) &&
+                            (bindEvent === '*' ||
+                                (bindEvent === null || bindEvent === void 0 ? void 0 : bindEvent.toLocaleLowerCase()) ===
+                                    ((_c = payload.data) === null || _c === void 0 ? void 0 : _c.type.toLocaleLowerCase())));
+                    }
+                    else {
+                        const bindEvent = (_e = (_d = bind === null || bind === void 0 ? void 0 : bind.filter) === null || _d === void 0 ? void 0 : _d.event) === null || _e === void 0 ? void 0 : _e.toLocaleLowerCase();
+                        return (bindEvent === '*' ||
+                            bindEvent === ((_f = payload === null || payload === void 0 ? void 0 : payload.event) === null || _f === void 0 ? void 0 : _f.toLocaleLowerCase()));
+                    }
+                }
+                else {
+                    return bind.type.toLocaleLowerCase() === typeLower;
+                }
+            }).map((bind) => {
+                if (typeof handledPayload === 'object' && 'ids' in handledPayload) {
+                    const postgresChanges = handledPayload.data;
+                    const { schema, table, commit_timestamp, type, errors } = postgresChanges;
+                    const enrichedPayload = {
+                        schema: schema,
+                        table: table,
+                        commit_timestamp: commit_timestamp,
+                        eventType: type,
+                        new: {},
+                        old: {},
+                        errors: errors,
+                    };
+                    handledPayload = Object.assign(Object.assign({}, enrichedPayload), this._getPayloadRecords(postgresChanges));
+                }
+                bind.callback(handledPayload, ref);
+            });
+        }
+    }
+    /** @internal */
+    _isClosed() {
+        return this.state === constants_CHANNEL_STATES.closed;
+    }
+    /** @internal */
+    _isJoined() {
+        return this.state === constants_CHANNEL_STATES.joined;
+    }
+    /** @internal */
+    _isJoining() {
+        return this.state === constants_CHANNEL_STATES.joining;
+    }
+    /** @internal */
+    _isLeaving() {
+        return this.state === constants_CHANNEL_STATES.leaving;
+    }
+    /** @internal */
+    _replyEventName(ref) {
+        return `chan_reply_${ref}`;
+    }
+    /** @internal */
+    _on(type, filter, callback) {
+        const typeLower = type.toLocaleLowerCase();
+        const binding = {
+            type: typeLower,
+            filter: filter,
+            callback: callback,
+        };
+        if (this.bindings[typeLower]) {
+            this.bindings[typeLower].push(binding);
+        }
+        else {
+            this.bindings[typeLower] = [binding];
+        }
+        return this;
+    }
+    /** @internal */
+    _off(type, filter) {
+        const typeLower = type.toLocaleLowerCase();
+        this.bindings[typeLower] = this.bindings[typeLower].filter((bind) => {
+            var _a;
+            return !(((_a = bind.type) === null || _a === void 0 ? void 0 : _a.toLocaleLowerCase()) === typeLower &&
+                RealtimeChannel.isEqual(bind.filter, filter));
+        });
+        return this;
+    }
+    /** @internal */
+    static isEqual(obj1, obj2) {
+        if (Object.keys(obj1).length !== Object.keys(obj2).length) {
+            return false;
+        }
+        for (const k in obj1) {
+            if (obj1[k] !== obj2[k]) {
+                return false;
+            }
+        }
+        return true;
+    }
+    /** @internal */
+    _rejoinUntilConnected() {
+        this.rejoinTimer.scheduleTimeout();
+        if (this.socket.isConnected()) {
+            this._rejoin();
+        }
+    }
+    /**
+     * Registers a callback that will be executed when the channel closes.
+     *
+     * @internal
+     */
+    _onClose(callback) {
+        this._on(CHANNEL_EVENTS.close, {}, callback);
+    }
+    /**
+     * Registers a callback that will be executed when the channel encounteres an error.
+     *
+     * @internal
+     */
+    _onError(callback) {
+        this._on(CHANNEL_EVENTS.error, {}, (reason) => callback(reason));
+    }
+    /**
+     * Returns `true` if the socket is connected and the channel has been joined.
+     *
+     * @internal
+     */
+    _canPush() {
+        return this.socket.isConnected() && this._isJoined();
+    }
+    /** @internal */
+    _rejoin(timeout = this.timeout) {
+        if (this._isLeaving()) {
+            return;
+        }
+        this.socket._leaveOpenTopic(this.topic);
+        this.state = constants_CHANNEL_STATES.joining;
+        this.joinPush.resend(timeout);
+    }
+    /** @internal */
+    _getPayloadRecords(payload) {
+        const records = {
+            new: {},
+            old: {},
+        };
+        if (payload.type === 'INSERT' || payload.type === 'UPDATE') {
+            records.new = convertChangeData(payload.columns, payload.record);
+        }
+        if (payload.type === 'UPDATE' || payload.type === 'DELETE') {
+            records.old = convertChangeData(payload.columns, payload.old_record);
+        }
+        return records;
+    }
+}
+//# sourceMappingURL=RealtimeChannel.js.map
+;// ./node_modules/@supabase/realtime-js/dist/module/RealtimeClient.js
+
+
+
+
+
+
+const RealtimeClient_noop = () => { };
+const WORKER_SCRIPT = `
+  addEventListener("message", (e) => {
+    if (e.data.event === "start") {
+      setInterval(() => postMessage({ event: "keepAlive" }), e.data.interval);
+    }
+  });`;
+class RealtimeClient {
+    /**
+     * Initializes the Socket.
+     *
+     * @param endPoint The string WebSocket endpoint, ie, "ws://example.com/socket", "wss://example.com", "/socket" (inherited host & protocol)
+     * @param httpEndpoint The string HTTP endpoint, ie, "https://example.com", "/" (inherited host & protocol)
+     * @param options.transport The Websocket Transport, for example WebSocket. This can be a custom implementation
+     * @param options.timeout The default timeout in milliseconds to trigger push timeouts.
+     * @param options.params The optional params to pass when connecting.
+     * @param options.headers The optional headers to pass when connecting.
+     * @param options.heartbeatIntervalMs The millisec interval to send a heartbeat message.
+     * @param options.logger The optional function for specialized logging, ie: logger: (kind, msg, data) => { console.log(`${kind}: ${msg}`, data) }
+     * @param options.logLevel Sets the log level for Realtime
+     * @param options.encode The function to encode outgoing messages. Defaults to JSON: (payload, callback) => callback(JSON.stringify(payload))
+     * @param options.decode The function to decode incoming messages. Defaults to Serializer's decode.
+     * @param options.reconnectAfterMs he optional function that returns the millsec reconnect interval. Defaults to stepped backoff off.
+     * @param options.worker Use Web Worker to set a side flow. Defaults to false.
+     * @param options.workerUrl The URL of the worker script. Defaults to https://realtime.supabase.com/worker.js that includes a heartbeat event call to keep the connection alive.
+     */
+    constructor(endPoint, options) {
+        var _a;
+        this.accessTokenValue = null;
+        this.apiKey = null;
+        this.channels = new Array();
+        this.endPoint = '';
+        this.httpEndpoint = '';
+        this.headers = DEFAULT_HEADERS;
+        this.params = {};
+        this.timeout = DEFAULT_TIMEOUT;
+        this.heartbeatIntervalMs = 25000;
+        this.heartbeatTimer = undefined;
+        this.pendingHeartbeatRef = null;
+        this.heartbeatCallback = RealtimeClient_noop;
+        this.ref = 0;
+        this.logger = RealtimeClient_noop;
+        this.conn = null;
+        this.sendBuffer = [];
+        this.serializer = new Serializer();
+        this.stateChangeCallbacks = {
+            open: [],
+            close: [],
+            error: [],
+            message: [],
+        };
+        this.accessToken = null;
+        /**
+         * Use either custom fetch, if provided, or default fetch to make HTTP requests
+         *
+         * @internal
+         */
+        this._resolveFetch = (customFetch) => {
+            let _fetch;
+            if (customFetch) {
+                _fetch = customFetch;
+            }
+            else if (typeof fetch === 'undefined') {
+                _fetch = (...args) => Promise.resolve(/* import() */).then(__webpack_require__.bind(__webpack_require__, 907)).then(({ default: fetch }) => fetch(...args));
+            }
+            else {
+                _fetch = fetch;
+            }
+            return (...args) => _fetch(...args);
+        };
+        this.endPoint = `${endPoint}/${TRANSPORTS.websocket}`;
+        this.httpEndpoint = httpEndpointURL(endPoint);
+        if (options === null || options === void 0 ? void 0 : options.transport) {
+            this.transport = options.transport;
+        }
+        else {
+            this.transport = null;
+        }
+        if (options === null || options === void 0 ? void 0 : options.params)
+            this.params = options.params;
+        if (options === null || options === void 0 ? void 0 : options.headers)
+            this.headers = Object.assign(Object.assign({}, this.headers), options.headers);
+        if (options === null || options === void 0 ? void 0 : options.timeout)
+            this.timeout = options.timeout;
+        if (options === null || options === void 0 ? void 0 : options.logger)
+            this.logger = options.logger;
+        if ((options === null || options === void 0 ? void 0 : options.logLevel) || (options === null || options === void 0 ? void 0 : options.log_level)) {
+            this.logLevel = options.logLevel || options.log_level;
+            this.params = Object.assign(Object.assign({}, this.params), { log_level: this.logLevel });
+        }
+        if (options === null || options === void 0 ? void 0 : options.heartbeatIntervalMs)
+            this.heartbeatIntervalMs = options.heartbeatIntervalMs;
+        const accessTokenValue = (_a = options === null || options === void 0 ? void 0 : options.params) === null || _a === void 0 ? void 0 : _a.apikey;
+        if (accessTokenValue) {
+            this.accessTokenValue = accessTokenValue;
+            this.apiKey = accessTokenValue;
+        }
+        this.reconnectAfterMs = (options === null || options === void 0 ? void 0 : options.reconnectAfterMs)
+            ? options.reconnectAfterMs
+            : (tries) => {
+                return [1000, 2000, 5000, 10000][tries - 1] || 10000;
+            };
+        this.encode = (options === null || options === void 0 ? void 0 : options.encode)
+            ? options.encode
+            : (payload, callback) => {
+                return callback(JSON.stringify(payload));
+            };
+        this.decode = (options === null || options === void 0 ? void 0 : options.decode)
+            ? options.decode
+            : this.serializer.decode.bind(this.serializer);
+        this.reconnectTimer = new Timer(async () => {
+            this.disconnect();
+            this.connect();
+        }, this.reconnectAfterMs);
+        this.fetch = this._resolveFetch(options === null || options === void 0 ? void 0 : options.fetch);
+        if (options === null || options === void 0 ? void 0 : options.worker) {
+            if (typeof window !== 'undefined' && !window.Worker) {
+                throw new Error('Web Worker is not supported');
+            }
+            this.worker = (options === null || options === void 0 ? void 0 : options.worker) || false;
+            this.workerUrl = options === null || options === void 0 ? void 0 : options.workerUrl;
+        }
+        this.accessToken = (options === null || options === void 0 ? void 0 : options.accessToken) || null;
+    }
+    /**
+     * Connects the socket, unless already connected.
+     */
+    connect() {
+        if (this.conn) {
+            return;
+        }
+        if (!this.transport) {
+            this.transport = WebSocket;
+        }
+        if (this.transport) {
+            // Detect if using the native browser WebSocket
+            const isBrowser = typeof window !== 'undefined' && this.transport === window.WebSocket;
+            if (isBrowser) {
+                this.conn = new this.transport(this.endpointURL());
+            }
+            else {
+                this.conn = new this.transport(this.endpointURL(), undefined, {
+                    headers: this.headers,
+                });
+            }
+            this.setupConnection();
+            return;
+        }
+        this.conn = new WSWebSocketDummy(this.endpointURL(), undefined, {
+            close: () => {
+                this.conn = null;
+            },
+        });
+    }
+    /**
+     * Returns the URL of the websocket.
+     * @returns string The URL of the websocket.
+     */
+    endpointURL() {
+        return this._appendParams(this.endPoint, Object.assign({}, this.params, { vsn: VSN }));
+    }
+    /**
+     * Disconnects the socket.
+     *
+     * @param code A numeric status code to send on disconnect.
+     * @param reason A custom reason for the disconnect.
+     */
+    disconnect(code, reason) {
+        if (this.conn) {
+            this.conn.onclose = function () { }; // noop
+            if (code) {
+                this.conn.close(code, reason !== null && reason !== void 0 ? reason : '');
+            }
+            else {
+                this.conn.close();
+            }
+            this.conn = null;
+            // remove open handles
+            this.heartbeatTimer && clearInterval(this.heartbeatTimer);
+            this.reconnectTimer.reset();
+            this.channels.forEach((channel) => channel.teardown());
+        }
+    }
+    /**
+     * Returns all created channels
+     */
+    getChannels() {
+        return this.channels;
+    }
+    /**
+     * Unsubscribes and removes a single channel
+     * @param channel A RealtimeChannel instance
+     */
+    async removeChannel(channel) {
+        const status = await channel.unsubscribe();
+        this.channels = this.channels.filter((c) => c._joinRef !== channel._joinRef);
+        if (this.channels.length === 0) {
+            this.disconnect();
+        }
+        return status;
+    }
+    /**
+     * Unsubscribes and removes all channels
+     */
+    async removeAllChannels() {
+        const values_1 = await Promise.all(this.channels.map((channel) => channel.unsubscribe()));
+        this.channels = [];
+        this.disconnect();
+        return values_1;
+    }
+    /**
+     * Logs the message.
+     *
+     * For customized logging, `this.logger` can be overridden.
+     */
+    log(kind, msg, data) {
+        this.logger(kind, msg, data);
+    }
+    /**
+     * Returns the current state of the socket.
+     */
+    connectionState() {
+        switch (this.conn && this.conn.readyState) {
+            case SOCKET_STATES.connecting:
+                return CONNECTION_STATE.Connecting;
+            case SOCKET_STATES.open:
+                return CONNECTION_STATE.Open;
+            case SOCKET_STATES.closing:
+                return CONNECTION_STATE.Closing;
+            default:
+                return CONNECTION_STATE.Closed;
+        }
+    }
+    /**
+     * Returns `true` is the connection is open.
+     */
+    isConnected() {
+        return this.connectionState() === CONNECTION_STATE.Open;
+    }
+    channel(topic, params = { config: {} }) {
+        const realtimeTopic = `realtime:${topic}`;
+        const exists = this.getChannels().find((c) => c.topic === realtimeTopic);
+        if (!exists) {
+            const chan = new RealtimeChannel(`realtime:${topic}`, params, this);
+            this.channels.push(chan);
+            return chan;
+        }
+        else {
+            return exists;
+        }
+    }
+    /**
+     * Push out a message if the socket is connected.
+     *
+     * If the socket is not connected, the message gets enqueued within a local buffer, and sent out when a connection is next established.
+     */
+    push(data) {
+        const { topic, event, payload, ref } = data;
+        const callback = () => {
+            this.encode(data, (result) => {
+                var _a;
+                (_a = this.conn) === null || _a === void 0 ? void 0 : _a.send(result);
+            });
+        };
+        this.log('push', `${topic} ${event} (${ref})`, payload);
+        if (this.isConnected()) {
+            callback();
+        }
+        else {
+            this.sendBuffer.push(callback);
+        }
+    }
+    /**
+     * Sets the JWT access token used for channel subscription authorization and Realtime RLS.
+     *
+     * If param is null it will use the `accessToken` callback function or the token set on the client.
+     *
+     * On callback used, it will set the value of the token internal to the client.
+     *
+     * @param token A JWT string to override the token set on the client.
+     */
+    async setAuth(token = null) {
+        let tokenToSend = token ||
+            (this.accessToken && (await this.accessToken())) ||
+            this.accessTokenValue;
+        if (this.accessTokenValue != tokenToSend) {
+            this.accessTokenValue = tokenToSend;
+            this.channels.forEach((channel) => {
+                tokenToSend &&
+                    channel.updateJoinPayload({
+                        access_token: tokenToSend,
+                        version: this.headers && this.headers['X-Client-Info'],
+                    });
+                if (channel.joinedOnce && channel._isJoined()) {
+                    channel._push(CHANNEL_EVENTS.access_token, {
+                        access_token: tokenToSend,
+                    });
+                }
+            });
+        }
+    }
+    /**
+     * Sends a heartbeat message if the socket is connected.
+     */
+    async sendHeartbeat() {
+        var _a;
+        if (!this.isConnected()) {
+            this.heartbeatCallback('disconnected');
+            return;
+        }
+        if (this.pendingHeartbeatRef) {
+            this.pendingHeartbeatRef = null;
+            this.log('transport', 'heartbeat timeout. Attempting to re-establish connection');
+            this.heartbeatCallback('timeout');
+            (_a = this.conn) === null || _a === void 0 ? void 0 : _a.close(WS_CLOSE_NORMAL, 'hearbeat timeout');
+            return;
+        }
+        this.pendingHeartbeatRef = this._makeRef();
+        this.push({
+            topic: 'phoenix',
+            event: 'heartbeat',
+            payload: {},
+            ref: this.pendingHeartbeatRef,
+        });
+        this.heartbeatCallback('sent');
+        await this.setAuth();
+    }
+    onHeartbeat(callback) {
+        this.heartbeatCallback = callback;
+    }
+    /**
+     * Flushes send buffer
+     */
+    flushSendBuffer() {
+        if (this.isConnected() && this.sendBuffer.length > 0) {
+            this.sendBuffer.forEach((callback) => callback());
+            this.sendBuffer = [];
+        }
+    }
+    /**
+     * Return the next message ref, accounting for overflows
+     *
+     * @internal
+     */
+    _makeRef() {
+        let newRef = this.ref + 1;
+        if (newRef === this.ref) {
+            this.ref = 0;
+        }
+        else {
+            this.ref = newRef;
+        }
+        return this.ref.toString();
+    }
+    /**
+     * Unsubscribe from channels with the specified topic.
+     *
+     * @internal
+     */
+    _leaveOpenTopic(topic) {
+        let dupChannel = this.channels.find((c) => c.topic === topic && (c._isJoined() || c._isJoining()));
+        if (dupChannel) {
+            this.log('transport', `leaving duplicate topic "${topic}"`);
+            dupChannel.unsubscribe();
+        }
+    }
+    /**
+     * Removes a subscription from the socket.
+     *
+     * @param channel An open subscription.
+     *
+     * @internal
+     */
+    _remove(channel) {
+        this.channels = this.channels.filter((c) => c.topic !== channel.topic);
+    }
+    /**
+     * Sets up connection handlers.
+     *
+     * @internal
+     */
+    setupConnection() {
+        if (this.conn) {
+            this.conn.binaryType = 'arraybuffer';
+            this.conn.onopen = () => this._onConnOpen();
+            this.conn.onerror = (error) => this._onConnError(error);
+            this.conn.onmessage = (event) => this._onConnMessage(event);
+            this.conn.onclose = (event) => this._onConnClose(event);
+        }
+    }
+    /** @internal */
+    _onConnMessage(rawMessage) {
+        this.decode(rawMessage.data, (msg) => {
+            let { topic, event, payload, ref } = msg;
+            if (topic === 'phoenix' && event === 'phx_reply') {
+                this.heartbeatCallback(msg.payload.status == 'ok' ? 'ok' : 'error');
+            }
+            if (ref && ref === this.pendingHeartbeatRef) {
+                this.pendingHeartbeatRef = null;
+            }
+            this.log('receive', `${payload.status || ''} ${topic} ${event} ${(ref && '(' + ref + ')') || ''}`, payload);
+            Array.from(this.channels)
+                .filter((channel) => channel._isMember(topic))
+                .forEach((channel) => channel._trigger(event, payload, ref));
+            this.stateChangeCallbacks.message.forEach((callback) => callback(msg));
+        });
+    }
+    /** @internal */
+    _onConnOpen() {
+        this.log('transport', `connected to ${this.endpointURL()}`);
+        this.flushSendBuffer();
+        this.reconnectTimer.reset();
+        if (!this.worker) {
+            this.heartbeatTimer && clearInterval(this.heartbeatTimer);
+            this.heartbeatTimer = setInterval(() => this.sendHeartbeat(), this.heartbeatIntervalMs);
+        }
+        else {
+            if (this.workerUrl) {
+                this.log('worker', `starting worker for from ${this.workerUrl}`);
+            }
+            else {
+                this.log('worker', `starting default worker`);
+            }
+            const objectUrl = this._workerObjectUrl(this.workerUrl);
+            this.workerRef = new Worker(objectUrl);
+            this.workerRef.onerror = (error) => {
+                this.log('worker', 'worker error', error.message);
+                this.workerRef.terminate();
+            };
+            this.workerRef.onmessage = (event) => {
+                if (event.data.event === 'keepAlive') {
+                    this.sendHeartbeat();
+                }
+            };
+            this.workerRef.postMessage({
+                event: 'start',
+                interval: this.heartbeatIntervalMs,
+            });
+        }
+        this.stateChangeCallbacks.open.forEach((callback) => callback());
+    }
+    /** @internal */
+    _onConnClose(event) {
+        this.log('transport', 'close', event);
+        this._triggerChanError();
+        this.heartbeatTimer && clearInterval(this.heartbeatTimer);
+        this.reconnectTimer.scheduleTimeout();
+        this.stateChangeCallbacks.close.forEach((callback) => callback(event));
+    }
+    /** @internal */
+    _onConnError(error) {
+        this.log('transport', error.message);
+        this._triggerChanError();
+        this.stateChangeCallbacks.error.forEach((callback) => callback(error));
+    }
+    /** @internal */
+    _triggerChanError() {
+        this.channels.forEach((channel) => channel._trigger(CHANNEL_EVENTS.error));
+    }
+    /** @internal */
+    _appendParams(url, params) {
+        if (Object.keys(params).length === 0) {
+            return url;
+        }
+        const prefix = url.match(/\?/) ? '&' : '?';
+        const query = new URLSearchParams(params);
+        return `${url}${prefix}${query}`;
+    }
+    _workerObjectUrl(url) {
+        let result_url;
+        if (url) {
+            result_url = url;
+        }
+        else {
+            const blob = new Blob([WORKER_SCRIPT], { type: 'application/javascript' });
+            result_url = URL.createObjectURL(blob);
+        }
+        return result_url;
+    }
+}
+class WSWebSocketDummy {
+    constructor(address, _protocols, options) {
+        this.binaryType = 'arraybuffer';
+        this.onclose = () => { };
+        this.onerror = () => { };
+        this.onmessage = () => { };
+        this.onopen = () => { };
+        this.readyState = SOCKET_STATES.connecting;
+        this.send = () => { };
+        this.url = null;
+        this.url = address;
+        this.close = options.close;
+    }
+}
+//# sourceMappingURL=RealtimeClient.js.map
+;// ./node_modules/@supabase/realtime-js/dist/module/index.js
+
+
+
+
+//# sourceMappingURL=index.js.map
+;// ./node_modules/@supabase/storage-js/dist/module/lib/errors.js
+class StorageError extends Error {
+    constructor(message) {
+        super(message);
+        this.__isStorageError = true;
+        this.name = 'StorageError';
+    }
+}
+function isStorageError(error) {
+    return typeof error === 'object' && error !== null && '__isStorageError' in error;
+}
+class StorageApiError extends StorageError {
+    constructor(message, status) {
+        super(message);
+        this.name = 'StorageApiError';
+        this.status = status;
+    }
+    toJSON() {
+        return {
+            name: this.name,
+            message: this.message,
+            status: this.status,
+        };
+    }
+}
+class StorageUnknownError extends StorageError {
+    constructor(message, originalError) {
+        super(message);
+        this.name = 'StorageUnknownError';
+        this.originalError = originalError;
+    }
+}
+//# sourceMappingURL=errors.js.map
+;// ./node_modules/@supabase/storage-js/dist/module/lib/helpers.js
+var helpers_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+const helpers_resolveFetch = (customFetch) => {
+    let _fetch;
+    if (customFetch) {
+        _fetch = customFetch;
+    }
+    else if (typeof fetch === 'undefined') {
+        _fetch = (...args) => Promise.resolve(/* import() */).then(__webpack_require__.bind(__webpack_require__, 907)).then(({ default: fetch }) => fetch(...args));
+    }
+    else {
+        _fetch = fetch;
+    }
+    return (...args) => _fetch(...args);
+};
+const resolveResponse = () => helpers_awaiter(void 0, void 0, void 0, function* () {
+    if (typeof Response === 'undefined') {
+        // @ts-ignore
+        return (yield Promise.resolve(/* import() */).then(__webpack_require__.bind(__webpack_require__, 907))).Response;
+    }
+    return Response;
+});
+const recursiveToCamel = (item) => {
+    if (Array.isArray(item)) {
+        return item.map((el) => recursiveToCamel(el));
+    }
+    else if (typeof item === 'function' || item !== Object(item)) {
+        return item;
+    }
+    const result = {};
+    Object.entries(item).forEach(([key, value]) => {
+        const newKey = key.replace(/([-_][a-z])/gi, (c) => c.toUpperCase().replace(/[-_]/g, ''));
+        result[newKey] = recursiveToCamel(value);
+    });
+    return result;
+};
+//# sourceMappingURL=helpers.js.map
+;// ./node_modules/@supabase/storage-js/dist/module/lib/fetch.js
+var fetch_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+const _getErrorMessage = (err) => err.msg || err.message || err.error_description || err.error || JSON.stringify(err);
+const handleError = (error, reject, options) => fetch_awaiter(void 0, void 0, void 0, function* () {
+    const Res = yield resolveResponse();
+    if (error instanceof Res && !(options === null || options === void 0 ? void 0 : options.noResolveJson)) {
+        error
+            .json()
+            .then((err) => {
+            reject(new StorageApiError(_getErrorMessage(err), error.status || 500));
+        })
+            .catch((err) => {
+            reject(new StorageUnknownError(_getErrorMessage(err), err));
+        });
+    }
+    else {
+        reject(new StorageUnknownError(_getErrorMessage(error), error));
+    }
+});
+const _getRequestParams = (method, options, parameters, body) => {
+    const params = { method, headers: (options === null || options === void 0 ? void 0 : options.headers) || {} };
+    if (method === 'GET') {
+        return params;
+    }
+    params.headers = Object.assign({ 'Content-Type': 'application/json' }, options === null || options === void 0 ? void 0 : options.headers);
+    if (body) {
+        params.body = JSON.stringify(body);
+    }
+    return Object.assign(Object.assign({}, params), parameters);
+};
+function _handleRequest(fetcher, method, url, options, parameters, body) {
+    return fetch_awaiter(this, void 0, void 0, function* () {
+        return new Promise((resolve, reject) => {
+            fetcher(url, _getRequestParams(method, options, parameters, body))
+                .then((result) => {
+                if (!result.ok)
+                    throw result;
+                if (options === null || options === void 0 ? void 0 : options.noResolveJson)
+                    return result;
+                return result.json();
+            })
+                .then((data) => resolve(data))
+                .catch((error) => handleError(error, reject, options));
+        });
+    });
+}
+function get(fetcher, url, options, parameters) {
+    return fetch_awaiter(this, void 0, void 0, function* () {
+        return _handleRequest(fetcher, 'GET', url, options, parameters);
+    });
+}
+function post(fetcher, url, body, options, parameters) {
+    return fetch_awaiter(this, void 0, void 0, function* () {
+        return _handleRequest(fetcher, 'POST', url, options, parameters, body);
+    });
+}
+function put(fetcher, url, body, options, parameters) {
+    return fetch_awaiter(this, void 0, void 0, function* () {
+        return _handleRequest(fetcher, 'PUT', url, options, parameters, body);
+    });
+}
+function head(fetcher, url, options, parameters) {
+    return fetch_awaiter(this, void 0, void 0, function* () {
+        return _handleRequest(fetcher, 'HEAD', url, Object.assign(Object.assign({}, options), { noResolveJson: true }), parameters);
+    });
+}
+function remove(fetcher, url, body, options, parameters) {
+    return fetch_awaiter(this, void 0, void 0, function* () {
+        return _handleRequest(fetcher, 'DELETE', url, options, parameters, body);
+    });
+}
+//# sourceMappingURL=fetch.js.map
+;// ./node_modules/@supabase/storage-js/dist/module/packages/StorageFileApi.js
+var StorageFileApi_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+const DEFAULT_SEARCH_OPTIONS = {
+    limit: 100,
+    offset: 0,
+    sortBy: {
+        column: 'name',
+        order: 'asc',
+    },
+};
+const DEFAULT_FILE_OPTIONS = {
+    cacheControl: '3600',
+    contentType: 'text/plain;charset=UTF-8',
+    upsert: false,
+};
+class StorageFileApi {
+    constructor(url, headers = {}, bucketId, fetch) {
+        this.url = url;
+        this.headers = headers;
+        this.bucketId = bucketId;
+        this.fetch = helpers_resolveFetch(fetch);
+    }
+    /**
+     * Uploads a file to an existing bucket or replaces an existing file at the specified path with a new one.
+     *
+     * @param method HTTP method.
+     * @param path The relative file path. Should be of the format `folder/subfolder/filename.png`. The bucket must already exist before attempting to upload.
+     * @param fileBody The body of the file to be stored in the bucket.
+     */
+    uploadOrUpdate(method, path, fileBody, fileOptions) {
+        return StorageFileApi_awaiter(this, void 0, void 0, function* () {
+            try {
+                let body;
+                const options = Object.assign(Object.assign({}, DEFAULT_FILE_OPTIONS), fileOptions);
+                let headers = Object.assign(Object.assign({}, this.headers), (method === 'POST' && { 'x-upsert': String(options.upsert) }));
+                const metadata = options.metadata;
+                if (typeof Blob !== 'undefined' && fileBody instanceof Blob) {
+                    body = new FormData();
+                    body.append('cacheControl', options.cacheControl);
+                    if (metadata) {
+                        body.append('metadata', this.encodeMetadata(metadata));
+                    }
+                    body.append('', fileBody);
+                }
+                else if (typeof FormData !== 'undefined' && fileBody instanceof FormData) {
+                    body = fileBody;
+                    body.append('cacheControl', options.cacheControl);
+                    if (metadata) {
+                        body.append('metadata', this.encodeMetadata(metadata));
+                    }
+                }
+                else {
+                    body = fileBody;
+                    headers['cache-control'] = `max-age=${options.cacheControl}`;
+                    headers['content-type'] = options.contentType;
+                    if (metadata) {
+                        headers['x-metadata'] = this.toBase64(this.encodeMetadata(metadata));
+                    }
+                }
+                if (fileOptions === null || fileOptions === void 0 ? void 0 : fileOptions.headers) {
+                    headers = Object.assign(Object.assign({}, headers), fileOptions.headers);
+                }
+                const cleanPath = this._removeEmptyFolders(path);
+                const _path = this._getFinalPath(cleanPath);
+                const res = yield this.fetch(`${this.url}/object/${_path}`, Object.assign({ method, body: body, headers }, ((options === null || options === void 0 ? void 0 : options.duplex) ? { duplex: options.duplex } : {})));
+                const data = yield res.json();
+                if (res.ok) {
+                    return {
+                        data: { path: cleanPath, id: data.Id, fullPath: data.Key },
+                        error: null,
+                    };
+                }
+                else {
+                    const error = data;
+                    return { data: null, error };
+                }
+            }
+            catch (error) {
+                if (isStorageError(error)) {
+                    return { data: null, error };
+                }
+                throw error;
+            }
+        });
+    }
+    /**
+     * Uploads a file to an existing bucket.
+     *
+     * @param path The file path, including the file name. Should be of the format `folder/subfolder/filename.png`. The bucket must already exist before attempting to upload.
+     * @param fileBody The body of the file to be stored in the bucket.
+     */
+    upload(path, fileBody, fileOptions) {
+        return StorageFileApi_awaiter(this, void 0, void 0, function* () {
+            return this.uploadOrUpdate('POST', path, fileBody, fileOptions);
+        });
+    }
+    /**
+     * Upload a file with a token generated from `createSignedUploadUrl`.
+     * @param path The file path, including the file name. Should be of the format `folder/subfolder/filename.png`. The bucket must already exist before attempting to upload.
+     * @param token The token generated from `createSignedUploadUrl`
+     * @param fileBody The body of the file to be stored in the bucket.
+     */
+    uploadToSignedUrl(path, token, fileBody, fileOptions) {
+        return StorageFileApi_awaiter(this, void 0, void 0, function* () {
+            const cleanPath = this._removeEmptyFolders(path);
+            const _path = this._getFinalPath(cleanPath);
+            const url = new URL(this.url + `/object/upload/sign/${_path}`);
+            url.searchParams.set('token', token);
+            try {
+                let body;
+                const options = Object.assign({ upsert: DEFAULT_FILE_OPTIONS.upsert }, fileOptions);
+                const headers = Object.assign(Object.assign({}, this.headers), { 'x-upsert': String(options.upsert) });
+                if (typeof Blob !== 'undefined' && fileBody instanceof Blob) {
+                    body = new FormData();
+                    body.append('cacheControl', options.cacheControl);
+                    body.append('', fileBody);
+                }
+                else if (typeof FormData !== 'undefined' && fileBody instanceof FormData) {
+                    body = fileBody;
+                    body.append('cacheControl', options.cacheControl);
+                }
+                else {
+                    body = fileBody;
+                    headers['cache-control'] = `max-age=${options.cacheControl}`;
+                    headers['content-type'] = options.contentType;
+                }
+                const res = yield this.fetch(url.toString(), {
+                    method: 'PUT',
+                    body: body,
+                    headers,
+                });
+                const data = yield res.json();
+                if (res.ok) {
+                    return {
+                        data: { path: cleanPath, fullPath: data.Key },
+                        error: null,
+                    };
+                }
+                else {
+                    const error = data;
+                    return { data: null, error };
+                }
+            }
+            catch (error) {
+                if (isStorageError(error)) {
+                    return { data: null, error };
+                }
+                throw error;
+            }
+        });
+    }
+    /**
+     * Creates a signed upload URL.
+     * Signed upload URLs can be used to upload files to the bucket without further authentication.
+     * They are valid for 2 hours.
+     * @param path The file path, including the current file name. For example `folder/image.png`.
+     * @param options.upsert If set to true, allows the file to be overwritten if it already exists.
+     */
+    createSignedUploadUrl(path, options) {
+        return StorageFileApi_awaiter(this, void 0, void 0, function* () {
+            try {
+                let _path = this._getFinalPath(path);
+                const headers = Object.assign({}, this.headers);
+                if (options === null || options === void 0 ? void 0 : options.upsert) {
+                    headers['x-upsert'] = 'true';
+                }
+                const data = yield post(this.fetch, `${this.url}/object/upload/sign/${_path}`, {}, { headers });
+                const url = new URL(this.url + data.url);
+                const token = url.searchParams.get('token');
+                if (!token) {
+                    throw new StorageError('No token returned by API');
+                }
+                return { data: { signedUrl: url.toString(), path, token }, error: null };
+            }
+            catch (error) {
+                if (isStorageError(error)) {
+                    return { data: null, error };
+                }
+                throw error;
+            }
+        });
+    }
+    /**
+     * Replaces an existing file at the specified path with a new one.
+     *
+     * @param path The relative file path. Should be of the format `folder/subfolder/filename.png`. The bucket must already exist before attempting to update.
+     * @param fileBody The body of the file to be stored in the bucket.
+     */
+    update(path, fileBody, fileOptions) {
+        return StorageFileApi_awaiter(this, void 0, void 0, function* () {
+            return this.uploadOrUpdate('PUT', path, fileBody, fileOptions);
+        });
+    }
+    /**
+     * Moves an existing file to a new path in the same bucket.
+     *
+     * @param fromPath The original file path, including the current file name. For example `folder/image.png`.
+     * @param toPath The new file path, including the new file name. For example `folder/image-new.png`.
+     * @param options The destination options.
+     */
+    move(fromPath, toPath, options) {
+        return StorageFileApi_awaiter(this, void 0, void 0, function* () {
+            try {
+                const data = yield post(this.fetch, `${this.url}/object/move`, {
+                    bucketId: this.bucketId,
+                    sourceKey: fromPath,
+                    destinationKey: toPath,
+                    destinationBucket: options === null || options === void 0 ? void 0 : options.destinationBucket,
+                }, { headers: this.headers });
+                return { data, error: null };
+            }
+            catch (error) {
+                if (isStorageError(error)) {
+                    return { data: null, error };
+                }
+                throw error;
+            }
+        });
+    }
+    /**
+     * Copies an existing file to a new path in the same bucket.
+     *
+     * @param fromPath The original file path, including the current file name. For example `folder/image.png`.
+     * @param toPath The new file path, including the new file name. For example `folder/image-copy.png`.
+     * @param options The destination options.
+     */
+    copy(fromPath, toPath, options) {
+        return StorageFileApi_awaiter(this, void 0, void 0, function* () {
+            try {
+                const data = yield post(this.fetch, `${this.url}/object/copy`, {
+                    bucketId: this.bucketId,
+                    sourceKey: fromPath,
+                    destinationKey: toPath,
+                    destinationBucket: options === null || options === void 0 ? void 0 : options.destinationBucket,
+                }, { headers: this.headers });
+                return { data: { path: data.Key }, error: null };
+            }
+            catch (error) {
+                if (isStorageError(error)) {
+                    return { data: null, error };
+                }
+                throw error;
+            }
+        });
+    }
+    /**
+     * Creates a signed URL. Use a signed URL to share a file for a fixed amount of time.
+     *
+     * @param path The file path, including the current file name. For example `folder/image.png`.
+     * @param expiresIn The number of seconds until the signed URL expires. For example, `60` for a URL which is valid for one minute.
+     * @param options.download triggers the file as a download if set to true. Set this parameter as the name of the file if you want to trigger the download with a different filename.
+     * @param options.transform Transform the asset before serving it to the client.
+     */
+    createSignedUrl(path, expiresIn, options) {
+        return StorageFileApi_awaiter(this, void 0, void 0, function* () {
+            try {
+                let _path = this._getFinalPath(path);
+                let data = yield post(this.fetch, `${this.url}/object/sign/${_path}`, Object.assign({ expiresIn }, ((options === null || options === void 0 ? void 0 : options.transform) ? { transform: options.transform } : {})), { headers: this.headers });
+                const downloadQueryParam = (options === null || options === void 0 ? void 0 : options.download)
+                    ? `&download=${options.download === true ? '' : options.download}`
+                    : '';
+                const signedUrl = encodeURI(`${this.url}${data.signedURL}${downloadQueryParam}`);
+                data = { signedUrl };
+                return { data, error: null };
+            }
+            catch (error) {
+                if (isStorageError(error)) {
+                    return { data: null, error };
+                }
+                throw error;
+            }
+        });
+    }
+    /**
+     * Creates multiple signed URLs. Use a signed URL to share a file for a fixed amount of time.
+     *
+     * @param paths The file paths to be downloaded, including the current file names. For example `['folder/image.png', 'folder2/image2.png']`.
+     * @param expiresIn The number of seconds until the signed URLs expire. For example, `60` for URLs which are valid for one minute.
+     * @param options.download triggers the file as a download if set to true. Set this parameter as the name of the file if you want to trigger the download with a different filename.
+     */
+    createSignedUrls(paths, expiresIn, options) {
+        return StorageFileApi_awaiter(this, void 0, void 0, function* () {
+            try {
+                const data = yield post(this.fetch, `${this.url}/object/sign/${this.bucketId}`, { expiresIn, paths }, { headers: this.headers });
+                const downloadQueryParam = (options === null || options === void 0 ? void 0 : options.download)
+                    ? `&download=${options.download === true ? '' : options.download}`
+                    : '';
+                return {
+                    data: data.map((datum) => (Object.assign(Object.assign({}, datum), { signedUrl: datum.signedURL
+                            ? encodeURI(`${this.url}${datum.signedURL}${downloadQueryParam}`)
+                            : null }))),
+                    error: null,
+                };
+            }
+            catch (error) {
+                if (isStorageError(error)) {
+                    return { data: null, error };
+                }
+                throw error;
+            }
+        });
+    }
+    /**
+     * Downloads a file from a private bucket. For public buckets, make a request to the URL returned from `getPublicUrl` instead.
+     *
+     * @param path The full path and file name of the file to be downloaded. For example `folder/image.png`.
+     * @param options.transform Transform the asset before serving it to the client.
+     */
+    download(path, options) {
+        return StorageFileApi_awaiter(this, void 0, void 0, function* () {
+            const wantsTransformation = typeof (options === null || options === void 0 ? void 0 : options.transform) !== 'undefined';
+            const renderPath = wantsTransformation ? 'render/image/authenticated' : 'object';
+            const transformationQuery = this.transformOptsToQueryString((options === null || options === void 0 ? void 0 : options.transform) || {});
+            const queryString = transformationQuery ? `?${transformationQuery}` : '';
+            try {
+                const _path = this._getFinalPath(path);
+                const res = yield get(this.fetch, `${this.url}/${renderPath}/${_path}${queryString}`, {
+                    headers: this.headers,
+                    noResolveJson: true,
+                });
+                const data = yield res.blob();
+                return { data, error: null };
+            }
+            catch (error) {
+                if (isStorageError(error)) {
+                    return { data: null, error };
+                }
+                throw error;
+            }
+        });
+    }
+    /**
+     * Retrieves the details of an existing file.
+     * @param path
+     */
+    info(path) {
+        return StorageFileApi_awaiter(this, void 0, void 0, function* () {
+            const _path = this._getFinalPath(path);
+            try {
+                const data = yield get(this.fetch, `${this.url}/object/info/${_path}`, {
+                    headers: this.headers,
+                });
+                return { data: recursiveToCamel(data), error: null };
+            }
+            catch (error) {
+                if (isStorageError(error)) {
+                    return { data: null, error };
+                }
+                throw error;
+            }
+        });
+    }
+    /**
+     * Checks the existence of a file.
+     * @param path
+     */
+    exists(path) {
+        return StorageFileApi_awaiter(this, void 0, void 0, function* () {
+            const _path = this._getFinalPath(path);
+            try {
+                yield head(this.fetch, `${this.url}/object/${_path}`, {
+                    headers: this.headers,
+                });
+                return { data: true, error: null };
+            }
+            catch (error) {
+                if (isStorageError(error) && error instanceof StorageUnknownError) {
+                    const originalError = error.originalError;
+                    if ([400, 404].includes(originalError === null || originalError === void 0 ? void 0 : originalError.status)) {
+                        return { data: false, error };
+                    }
+                }
+                throw error;
+            }
+        });
+    }
+    /**
+     * A simple convenience function to get the URL for an asset in a public bucket. If you do not want to use this function, you can construct the public URL by concatenating the bucket URL with the path to the asset.
+     * This function does not verify if the bucket is public. If a public URL is created for a bucket which is not public, you will not be able to download the asset.
+     *
+     * @param path The path and name of the file to generate the public URL for. For example `folder/image.png`.
+     * @param options.download Triggers the file as a download if set to true. Set this parameter as the name of the file if you want to trigger the download with a different filename.
+     * @param options.transform Transform the asset before serving it to the client.
+     */
+    getPublicUrl(path, options) {
+        const _path = this._getFinalPath(path);
+        const _queryString = [];
+        const downloadQueryParam = (options === null || options === void 0 ? void 0 : options.download)
+            ? `download=${options.download === true ? '' : options.download}`
+            : '';
+        if (downloadQueryParam !== '') {
+            _queryString.push(downloadQueryParam);
+        }
+        const wantsTransformation = typeof (options === null || options === void 0 ? void 0 : options.transform) !== 'undefined';
+        const renderPath = wantsTransformation ? 'render/image' : 'object';
+        const transformationQuery = this.transformOptsToQueryString((options === null || options === void 0 ? void 0 : options.transform) || {});
+        if (transformationQuery !== '') {
+            _queryString.push(transformationQuery);
+        }
+        let queryString = _queryString.join('&');
+        if (queryString !== '') {
+            queryString = `?${queryString}`;
+        }
+        return {
+            data: { publicUrl: encodeURI(`${this.url}/${renderPath}/public/${_path}${queryString}`) },
+        };
+    }
+    /**
+     * Deletes files within the same bucket
+     *
+     * @param paths An array of files to delete, including the path and file name. For example [`'folder/image.png'`].
+     */
+    remove(paths) {
+        return StorageFileApi_awaiter(this, void 0, void 0, function* () {
+            try {
+                const data = yield remove(this.fetch, `${this.url}/object/${this.bucketId}`, { prefixes: paths }, { headers: this.headers });
+                return { data, error: null };
+            }
+            catch (error) {
+                if (isStorageError(error)) {
+                    return { data: null, error };
+                }
+                throw error;
+            }
+        });
+    }
+    /**
+     * Get file metadata
+     * @param id the file id to retrieve metadata
+     */
+    // async getMetadata(
+    //   id: string
+    // ): Promise<
+    //   | {
+    //       data: Metadata
+    //       error: null
+    //     }
+    //   | {
+    //       data: null
+    //       error: StorageError
+    //     }
+    // > {
+    //   try {
+    //     const data = await get(this.fetch, `${this.url}/metadata/${id}`, { headers: this.headers })
+    //     return { data, error: null }
+    //   } catch (error) {
+    //     if (isStorageError(error)) {
+    //       return { data: null, error }
+    //     }
+    //     throw error
+    //   }
+    // }
+    /**
+     * Update file metadata
+     * @param id the file id to update metadata
+     * @param meta the new file metadata
+     */
+    // async updateMetadata(
+    //   id: string,
+    //   meta: Metadata
+    // ): Promise<
+    //   | {
+    //       data: Metadata
+    //       error: null
+    //     }
+    //   | {
+    //       data: null
+    //       error: StorageError
+    //     }
+    // > {
+    //   try {
+    //     const data = await post(
+    //       this.fetch,
+    //       `${this.url}/metadata/${id}`,
+    //       { ...meta },
+    //       { headers: this.headers }
+    //     )
+    //     return { data, error: null }
+    //   } catch (error) {
+    //     if (isStorageError(error)) {
+    //       return { data: null, error }
+    //     }
+    //     throw error
+    //   }
+    // }
+    /**
+     * Lists all the files within a bucket.
+     * @param path The folder path.
+     */
+    list(path, options, parameters) {
+        return StorageFileApi_awaiter(this, void 0, void 0, function* () {
+            try {
+                const body = Object.assign(Object.assign(Object.assign({}, DEFAULT_SEARCH_OPTIONS), options), { prefix: path || '' });
+                const data = yield post(this.fetch, `${this.url}/object/list/${this.bucketId}`, body, { headers: this.headers }, parameters);
+                return { data, error: null };
+            }
+            catch (error) {
+                if (isStorageError(error)) {
+                    return { data: null, error };
+                }
+                throw error;
+            }
+        });
+    }
+    encodeMetadata(metadata) {
+        return JSON.stringify(metadata);
+    }
+    toBase64(data) {
+        if (typeof Buffer !== 'undefined') {
+            return Buffer.from(data).toString('base64');
+        }
+        return btoa(data);
+    }
+    _getFinalPath(path) {
+        return `${this.bucketId}/${path}`;
+    }
+    _removeEmptyFolders(path) {
+        return path.replace(/^\/|\/$/g, '').replace(/\/+/g, '/');
+    }
+    transformOptsToQueryString(transform) {
+        const params = [];
+        if (transform.width) {
+            params.push(`width=${transform.width}`);
+        }
+        if (transform.height) {
+            params.push(`height=${transform.height}`);
+        }
+        if (transform.resize) {
+            params.push(`resize=${transform.resize}`);
+        }
+        if (transform.format) {
+            params.push(`format=${transform.format}`);
+        }
+        if (transform.quality) {
+            params.push(`quality=${transform.quality}`);
+        }
+        return params.join('&');
+    }
+}
+//# sourceMappingURL=StorageFileApi.js.map
+;// ./node_modules/@supabase/storage-js/dist/module/lib/version.js
+// generated by genversion
+const lib_version_version = '2.7.1';
+//# sourceMappingURL=version.js.map
+;// ./node_modules/@supabase/storage-js/dist/module/lib/constants.js
+
+const constants_DEFAULT_HEADERS = { 'X-Client-Info': `storage-js/${lib_version_version}` };
+//# sourceMappingURL=constants.js.map
+;// ./node_modules/@supabase/storage-js/dist/module/packages/StorageBucketApi.js
+var StorageBucketApi_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+class StorageBucketApi {
+    constructor(url, headers = {}, fetch) {
+        this.url = url;
+        this.headers = Object.assign(Object.assign({}, constants_DEFAULT_HEADERS), headers);
+        this.fetch = helpers_resolveFetch(fetch);
+    }
+    /**
+     * Retrieves the details of all Storage buckets within an existing project.
+     */
+    listBuckets() {
+        return StorageBucketApi_awaiter(this, void 0, void 0, function* () {
+            try {
+                const data = yield get(this.fetch, `${this.url}/bucket`, { headers: this.headers });
+                return { data, error: null };
+            }
+            catch (error) {
+                if (isStorageError(error)) {
+                    return { data: null, error };
+                }
+                throw error;
+            }
+        });
+    }
+    /**
+     * Retrieves the details of an existing Storage bucket.
+     *
+     * @param id The unique identifier of the bucket you would like to retrieve.
+     */
+    getBucket(id) {
+        return StorageBucketApi_awaiter(this, void 0, void 0, function* () {
+            try {
+                const data = yield get(this.fetch, `${this.url}/bucket/${id}`, { headers: this.headers });
+                return { data, error: null };
+            }
+            catch (error) {
+                if (isStorageError(error)) {
+                    return { data: null, error };
+                }
+                throw error;
+            }
+        });
+    }
+    /**
+     * Creates a new Storage bucket
+     *
+     * @param id A unique identifier for the bucket you are creating.
+     * @param options.public The visibility of the bucket. Public buckets don't require an authorization token to download objects, but still require a valid token for all other operations. By default, buckets are private.
+     * @param options.fileSizeLimit specifies the max file size in bytes that can be uploaded to this bucket.
+     * The global file size limit takes precedence over this value.
+     * The default value is null, which doesn't set a per bucket file size limit.
+     * @param options.allowedMimeTypes specifies the allowed mime types that this bucket can accept during upload.
+     * The default value is null, which allows files with all mime types to be uploaded.
+     * Each mime type specified can be a wildcard, e.g. image/*, or a specific mime type, e.g. image/png.
+     * @returns newly created bucket id
+     */
+    createBucket(id, options = {
+        public: false,
+    }) {
+        return StorageBucketApi_awaiter(this, void 0, void 0, function* () {
+            try {
+                const data = yield post(this.fetch, `${this.url}/bucket`, {
+                    id,
+                    name: id,
+                    public: options.public,
+                    file_size_limit: options.fileSizeLimit,
+                    allowed_mime_types: options.allowedMimeTypes,
+                }, { headers: this.headers });
+                return { data, error: null };
+            }
+            catch (error) {
+                if (isStorageError(error)) {
+                    return { data: null, error };
+                }
+                throw error;
+            }
+        });
+    }
+    /**
+     * Updates a Storage bucket
+     *
+     * @param id A unique identifier for the bucket you are updating.
+     * @param options.public The visibility of the bucket. Public buckets don't require an authorization token to download objects, but still require a valid token for all other operations.
+     * @param options.fileSizeLimit specifies the max file size in bytes that can be uploaded to this bucket.
+     * The global file size limit takes precedence over this value.
+     * The default value is null, which doesn't set a per bucket file size limit.
+     * @param options.allowedMimeTypes specifies the allowed mime types that this bucket can accept during upload.
+     * The default value is null, which allows files with all mime types to be uploaded.
+     * Each mime type specified can be a wildcard, e.g. image/*, or a specific mime type, e.g. image/png.
+     */
+    updateBucket(id, options) {
+        return StorageBucketApi_awaiter(this, void 0, void 0, function* () {
+            try {
+                const data = yield put(this.fetch, `${this.url}/bucket/${id}`, {
+                    id,
+                    name: id,
+                    public: options.public,
+                    file_size_limit: options.fileSizeLimit,
+                    allowed_mime_types: options.allowedMimeTypes,
+                }, { headers: this.headers });
+                return { data, error: null };
+            }
+            catch (error) {
+                if (isStorageError(error)) {
+                    return { data: null, error };
+                }
+                throw error;
+            }
+        });
+    }
+    /**
+     * Removes all objects inside a single bucket.
+     *
+     * @param id The unique identifier of the bucket you would like to empty.
+     */
+    emptyBucket(id) {
+        return StorageBucketApi_awaiter(this, void 0, void 0, function* () {
+            try {
+                const data = yield post(this.fetch, `${this.url}/bucket/${id}/empty`, {}, { headers: this.headers });
+                return { data, error: null };
+            }
+            catch (error) {
+                if (isStorageError(error)) {
+                    return { data: null, error };
+                }
+                throw error;
+            }
+        });
+    }
+    /**
+     * Deletes an existing bucket. A bucket can't be deleted with existing objects inside it.
+     * You must first `empty()` the bucket.
+     *
+     * @param id The unique identifier of the bucket you would like to delete.
+     */
+    deleteBucket(id) {
+        return StorageBucketApi_awaiter(this, void 0, void 0, function* () {
+            try {
+                const data = yield remove(this.fetch, `${this.url}/bucket/${id}`, {}, { headers: this.headers });
+                return { data, error: null };
+            }
+            catch (error) {
+                if (isStorageError(error)) {
+                    return { data: null, error };
+                }
+                throw error;
+            }
+        });
+    }
+}
+//# sourceMappingURL=StorageBucketApi.js.map
+;// ./node_modules/@supabase/storage-js/dist/module/StorageClient.js
+
+
+class StorageClient extends StorageBucketApi {
+    constructor(url, headers = {}, fetch) {
+        super(url, headers, fetch);
+    }
+    /**
+     * Perform file operation in a bucket.
+     *
+     * @param id The bucket id to operate on.
+     */
+    from(id) {
+        return new StorageFileApi(this.url, this.headers, id, this.fetch);
+    }
+}
+//# sourceMappingURL=StorageClient.js.map
+;// ./node_modules/@supabase/supabase-js/dist/module/lib/version.js
+const module_lib_version_version = '2.50.0';
+//# sourceMappingURL=version.js.map
+;// ./node_modules/@supabase/supabase-js/dist/module/lib/constants.js
+
+let JS_ENV = '';
+// @ts-ignore
+if (typeof Deno !== 'undefined') {
+    JS_ENV = 'deno';
+}
+else if (typeof document !== 'undefined') {
+    JS_ENV = 'web';
+}
+else if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+    JS_ENV = 'react-native';
+}
+else {
+    JS_ENV = 'node';
+}
+const lib_constants_DEFAULT_HEADERS = { 'X-Client-Info': `supabase-js-${JS_ENV}/${module_lib_version_version}` };
+const DEFAULT_GLOBAL_OPTIONS = {
+    headers: lib_constants_DEFAULT_HEADERS,
+};
+const DEFAULT_DB_OPTIONS = {
+    schema: 'public',
+};
+const DEFAULT_AUTH_OPTIONS = {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true,
+    flowType: 'implicit',
+};
+const DEFAULT_REALTIME_OPTIONS = {};
+//# sourceMappingURL=constants.js.map
+// EXTERNAL MODULE: ./node_modules/@supabase/node-fetch/browser.js
+var browser = __webpack_require__(907);
+;// ./node_modules/@supabase/supabase-js/dist/module/lib/fetch.js
+var lib_fetch_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+// @ts-ignore
+
+const fetch_resolveFetch = (customFetch) => {
+    let _fetch;
+    if (customFetch) {
+        _fetch = customFetch;
+    }
+    else if (typeof fetch === 'undefined') {
+        _fetch = browser["default"];
+    }
+    else {
+        _fetch = fetch;
+    }
+    return (...args) => _fetch(...args);
+};
+const resolveHeadersConstructor = () => {
+    if (typeof Headers === 'undefined') {
+        return browser.Headers;
+    }
+    return Headers;
+};
+const fetchWithAuth = (supabaseKey, getAccessToken, customFetch) => {
+    const fetch = fetch_resolveFetch(customFetch);
+    const HeadersConstructor = resolveHeadersConstructor();
+    return (input, init) => lib_fetch_awaiter(void 0, void 0, void 0, function* () {
+        var _a;
+        const accessToken = (_a = (yield getAccessToken())) !== null && _a !== void 0 ? _a : supabaseKey;
+        let headers = new HeadersConstructor(init === null || init === void 0 ? void 0 : init.headers);
+        if (!headers.has('apikey')) {
+            headers.set('apikey', supabaseKey);
+        }
+        if (!headers.has('Authorization')) {
+            headers.set('Authorization', `Bearer ${accessToken}`);
+        }
+        return fetch(input, Object.assign(Object.assign({}, init), { headers }));
+    });
+};
+//# sourceMappingURL=fetch.js.map
+;// ./node_modules/@supabase/supabase-js/dist/module/lib/helpers.js
+var lib_helpers_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+function uuid() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        var r = (Math.random() * 16) | 0, v = c == 'x' ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+    });
+}
+function ensureTrailingSlash(url) {
+    return url.endsWith('/') ? url : url + '/';
+}
+const isBrowser = () => typeof window !== 'undefined';
+function applySettingDefaults(options, defaults) {
+    var _a, _b;
+    const { db: dbOptions, auth: authOptions, realtime: realtimeOptions, global: globalOptions, } = options;
+    const { db: DEFAULT_DB_OPTIONS, auth: DEFAULT_AUTH_OPTIONS, realtime: DEFAULT_REALTIME_OPTIONS, global: DEFAULT_GLOBAL_OPTIONS, } = defaults;
+    const result = {
+        db: Object.assign(Object.assign({}, DEFAULT_DB_OPTIONS), dbOptions),
+        auth: Object.assign(Object.assign({}, DEFAULT_AUTH_OPTIONS), authOptions),
+        realtime: Object.assign(Object.assign({}, DEFAULT_REALTIME_OPTIONS), realtimeOptions),
+        global: Object.assign(Object.assign(Object.assign({}, DEFAULT_GLOBAL_OPTIONS), globalOptions), { headers: Object.assign(Object.assign({}, ((_a = DEFAULT_GLOBAL_OPTIONS === null || DEFAULT_GLOBAL_OPTIONS === void 0 ? void 0 : DEFAULT_GLOBAL_OPTIONS.headers) !== null && _a !== void 0 ? _a : {})), ((_b = globalOptions === null || globalOptions === void 0 ? void 0 : globalOptions.headers) !== null && _b !== void 0 ? _b : {})) }),
+        accessToken: () => lib_helpers_awaiter(this, void 0, void 0, function* () { return ''; }),
+    };
+    if (options.accessToken) {
+        result.accessToken = options.accessToken;
+    }
+    else {
+        // hack around Required<>
+        delete result.accessToken;
+    }
+    return result;
+}
+//# sourceMappingURL=helpers.js.map
+;// ./node_modules/@supabase/auth-js/dist/module/lib/version.js
+const dist_module_lib_version_version = '2.70.0';
+//# sourceMappingURL=version.js.map
+;// ./node_modules/@supabase/auth-js/dist/module/lib/constants.js
+
+/** Current session will be checked for refresh at this interval. */
+const AUTO_REFRESH_TICK_DURATION_MS = 30 * 1000;
+/**
+ * A token refresh will be attempted this many ticks before the current session expires. */
+const AUTO_REFRESH_TICK_THRESHOLD = 3;
+/*
+ * Earliest time before an access token expires that the session should be refreshed.
+ */
+const EXPIRY_MARGIN_MS = AUTO_REFRESH_TICK_THRESHOLD * AUTO_REFRESH_TICK_DURATION_MS;
+const GOTRUE_URL = 'http://localhost:9999';
+const STORAGE_KEY = 'supabase.auth.token';
+const AUDIENCE = '';
+const module_lib_constants_DEFAULT_HEADERS = { 'X-Client-Info': `gotrue-js/${dist_module_lib_version_version}` };
+const NETWORK_FAILURE = {
+    MAX_RETRIES: 10,
+    RETRY_INTERVAL: 2, // in deciseconds
+};
+const API_VERSION_HEADER_NAME = 'X-Supabase-Api-Version';
+const API_VERSIONS = {
+    '2024-01-01': {
+        timestamp: Date.parse('2024-01-01T00:00:00.0Z'),
+        name: '2024-01-01',
+    },
+};
+const BASE64URL_REGEX = /^([a-z0-9_-]{4})*($|[a-z0-9_-]{3}$|[a-z0-9_-]{2}$)$/i;
+const JWKS_TTL = 600000; // 10 minutes
+//# sourceMappingURL=constants.js.map
+;// ./node_modules/@supabase/auth-js/dist/module/lib/errors.js
+class AuthError extends Error {
+    constructor(message, status, code) {
+        super(message);
+        this.__isAuthError = true;
+        this.name = 'AuthError';
+        this.status = status;
+        this.code = code;
+    }
+}
+function isAuthError(error) {
+    return typeof error === 'object' && error !== null && '__isAuthError' in error;
+}
+class AuthApiError extends AuthError {
+    constructor(message, status, code) {
+        super(message, status, code);
+        this.name = 'AuthApiError';
+        this.status = status;
+        this.code = code;
+    }
+}
+function isAuthApiError(error) {
+    return isAuthError(error) && error.name === 'AuthApiError';
+}
+class AuthUnknownError extends AuthError {
+    constructor(message, originalError) {
+        super(message);
+        this.name = 'AuthUnknownError';
+        this.originalError = originalError;
+    }
+}
+class CustomAuthError extends AuthError {
+    constructor(message, name, status, code) {
+        super(message, status, code);
+        this.name = name;
+        this.status = status;
+    }
+}
+class AuthSessionMissingError extends CustomAuthError {
+    constructor() {
+        super('Auth session missing!', 'AuthSessionMissingError', 400, undefined);
+    }
+}
+function isAuthSessionMissingError(error) {
+    return isAuthError(error) && error.name === 'AuthSessionMissingError';
+}
+class AuthInvalidTokenResponseError extends CustomAuthError {
+    constructor() {
+        super('Auth session or user missing', 'AuthInvalidTokenResponseError', 500, undefined);
+    }
+}
+class AuthInvalidCredentialsError extends CustomAuthError {
+    constructor(message) {
+        super(message, 'AuthInvalidCredentialsError', 400, undefined);
+    }
+}
+class AuthImplicitGrantRedirectError extends CustomAuthError {
+    constructor(message, details = null) {
+        super(message, 'AuthImplicitGrantRedirectError', 500, undefined);
+        this.details = null;
+        this.details = details;
+    }
+    toJSON() {
+        return {
+            name: this.name,
+            message: this.message,
+            status: this.status,
+            details: this.details,
+        };
+    }
+}
+function isAuthImplicitGrantRedirectError(error) {
+    return isAuthError(error) && error.name === 'AuthImplicitGrantRedirectError';
+}
+class AuthPKCEGrantCodeExchangeError extends CustomAuthError {
+    constructor(message, details = null) {
+        super(message, 'AuthPKCEGrantCodeExchangeError', 500, undefined);
+        this.details = null;
+        this.details = details;
+    }
+    toJSON() {
+        return {
+            name: this.name,
+            message: this.message,
+            status: this.status,
+            details: this.details,
+        };
+    }
+}
+class AuthRetryableFetchError extends CustomAuthError {
+    constructor(message, status) {
+        super(message, 'AuthRetryableFetchError', status, undefined);
+    }
+}
+function isAuthRetryableFetchError(error) {
+    return isAuthError(error) && error.name === 'AuthRetryableFetchError';
+}
+/**
+ * This error is thrown on certain methods when the password used is deemed
+ * weak. Inspect the reasons to identify what password strength rules are
+ * inadequate.
+ */
+class AuthWeakPasswordError extends CustomAuthError {
+    constructor(message, status, reasons) {
+        super(message, 'AuthWeakPasswordError', status, 'weak_password');
+        this.reasons = reasons;
+    }
+}
+function isAuthWeakPasswordError(error) {
+    return isAuthError(error) && error.name === 'AuthWeakPasswordError';
+}
+class AuthInvalidJwtError extends CustomAuthError {
+    constructor(message) {
+        super(message, 'AuthInvalidJwtError', 400, 'invalid_jwt');
+    }
+}
+//# sourceMappingURL=errors.js.map
+;// ./node_modules/@supabase/auth-js/dist/module/lib/base64url.js
+/**
+ * Avoid modifying this file. It's part of
+ * https://github.com/supabase-community/base64url-js.  Submit all fixes on
+ * that repo!
+ */
+/**
+ * An array of characters that encode 6 bits into a Base64-URL alphabet
+ * character.
+ */
+const TO_BASE64URL = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_'.split('');
+/**
+ * An array of characters that can appear in a Base64-URL encoded string but
+ * should be ignored.
+ */
+const IGNORE_BASE64URL = ' \t\n\r='.split('');
+/**
+ * An array of 128 numbers that map a Base64-URL character to 6 bits, or if -2
+ * used to skip the character, or if -1 used to error out.
+ */
+const FROM_BASE64URL = (() => {
+    const charMap = new Array(128);
+    for (let i = 0; i < charMap.length; i += 1) {
+        charMap[i] = -1;
+    }
+    for (let i = 0; i < IGNORE_BASE64URL.length; i += 1) {
+        charMap[IGNORE_BASE64URL[i].charCodeAt(0)] = -2;
+    }
+    for (let i = 0; i < TO_BASE64URL.length; i += 1) {
+        charMap[TO_BASE64URL[i].charCodeAt(0)] = i;
+    }
+    return charMap;
+})();
+/**
+ * Converts a byte to a Base64-URL string.
+ *
+ * @param byte The byte to convert, or null to flush at the end of the byte sequence.
+ * @param state The Base64 conversion state. Pass an initial value of `{ queue: 0, queuedBits: 0 }`.
+ * @param emit A function called with the next Base64 character when ready.
+ */
+function byteToBase64URL(byte, state, emit) {
+    if (byte !== null) {
+        state.queue = (state.queue << 8) | byte;
+        state.queuedBits += 8;
+        while (state.queuedBits >= 6) {
+            const pos = (state.queue >> (state.queuedBits - 6)) & 63;
+            emit(TO_BASE64URL[pos]);
+            state.queuedBits -= 6;
+        }
+    }
+    else if (state.queuedBits > 0) {
+        state.queue = state.queue << (6 - state.queuedBits);
+        state.queuedBits = 6;
+        while (state.queuedBits >= 6) {
+            const pos = (state.queue >> (state.queuedBits - 6)) & 63;
+            emit(TO_BASE64URL[pos]);
+            state.queuedBits -= 6;
+        }
+    }
+}
+/**
+ * Converts a String char code (extracted using `string.charCodeAt(position)`) to a sequence of Base64-URL characters.
+ *
+ * @param charCode The char code of the JavaScript string.
+ * @param state The Base64 state. Pass an initial value of `{ queue: 0, queuedBits: 0 }`.
+ * @param emit A function called with the next byte.
+ */
+function byteFromBase64URL(charCode, state, emit) {
+    const bits = FROM_BASE64URL[charCode];
+    if (bits > -1) {
+        // valid Base64-URL character
+        state.queue = (state.queue << 6) | bits;
+        state.queuedBits += 6;
+        while (state.queuedBits >= 8) {
+            emit((state.queue >> (state.queuedBits - 8)) & 0xff);
+            state.queuedBits -= 8;
+        }
+    }
+    else if (bits === -2) {
+        // ignore spaces, tabs, newlines, =
+        return;
+    }
+    else {
+        throw new Error(`Invalid Base64-URL character "${String.fromCharCode(charCode)}"`);
+    }
+}
+/**
+ * Converts a JavaScript string (which may include any valid character) into a
+ * Base64-URL encoded string. The string is first encoded in UTF-8 which is
+ * then encoded as Base64-URL.
+ *
+ * @param str The string to convert.
+ */
+function stringToBase64URL(str) {
+    const base64 = [];
+    const emitter = (char) => {
+        base64.push(char);
+    };
+    const state = { queue: 0, queuedBits: 0 };
+    stringToUTF8(str, (byte) => {
+        byteToBase64URL(byte, state, emitter);
+    });
+    byteToBase64URL(null, state, emitter);
+    return base64.join('');
+}
+/**
+ * Converts a Base64-URL encoded string into a JavaScript string. It is assumed
+ * that the underlying string has been encoded as UTF-8.
+ *
+ * @param str The Base64-URL encoded string.
+ */
+function stringFromBase64URL(str) {
+    const conv = [];
+    const utf8Emit = (codepoint) => {
+        conv.push(String.fromCodePoint(codepoint));
+    };
+    const utf8State = {
+        utf8seq: 0,
+        codepoint: 0,
+    };
+    const b64State = { queue: 0, queuedBits: 0 };
+    const byteEmit = (byte) => {
+        stringFromUTF8(byte, utf8State, utf8Emit);
+    };
+    for (let i = 0; i < str.length; i += 1) {
+        byteFromBase64URL(str.charCodeAt(i), b64State, byteEmit);
+    }
+    return conv.join('');
+}
+/**
+ * Converts a Unicode codepoint to a multi-byte UTF-8 sequence.
+ *
+ * @param codepoint The Unicode codepoint.
+ * @param emit      Function which will be called for each UTF-8 byte that represents the codepoint.
+ */
+function codepointToUTF8(codepoint, emit) {
+    if (codepoint <= 0x7f) {
+        emit(codepoint);
+        return;
+    }
+    else if (codepoint <= 0x7ff) {
+        emit(0xc0 | (codepoint >> 6));
+        emit(0x80 | (codepoint & 0x3f));
+        return;
+    }
+    else if (codepoint <= 0xffff) {
+        emit(0xe0 | (codepoint >> 12));
+        emit(0x80 | ((codepoint >> 6) & 0x3f));
+        emit(0x80 | (codepoint & 0x3f));
+        return;
+    }
+    else if (codepoint <= 0x10ffff) {
+        emit(0xf0 | (codepoint >> 18));
+        emit(0x80 | ((codepoint >> 12) & 0x3f));
+        emit(0x80 | ((codepoint >> 6) & 0x3f));
+        emit(0x80 | (codepoint & 0x3f));
+        return;
+    }
+    throw new Error(`Unrecognized Unicode codepoint: ${codepoint.toString(16)}`);
+}
+/**
+ * Converts a JavaScript string to a sequence of UTF-8 bytes.
+ *
+ * @param str  The string to convert to UTF-8.
+ * @param emit Function which will be called for each UTF-8 byte of the string.
+ */
+function stringToUTF8(str, emit) {
+    for (let i = 0; i < str.length; i += 1) {
+        let codepoint = str.charCodeAt(i);
+        if (codepoint > 0xd7ff && codepoint <= 0xdbff) {
+            // most UTF-16 codepoints are Unicode codepoints, except values in this
+            // range where the next UTF-16 codepoint needs to be combined with the
+            // current one to get the Unicode codepoint
+            const highSurrogate = ((codepoint - 0xd800) * 0x400) & 0xffff;
+            const lowSurrogate = (str.charCodeAt(i + 1) - 0xdc00) & 0xffff;
+            codepoint = (lowSurrogate | highSurrogate) + 0x10000;
+            i += 1;
+        }
+        codepointToUTF8(codepoint, emit);
+    }
+}
+/**
+ * Converts a UTF-8 byte to a Unicode codepoint.
+ *
+ * @param byte  The UTF-8 byte next in the sequence.
+ * @param state The shared state between consecutive UTF-8 bytes in the
+ *              sequence, an object with the shape `{ utf8seq: 0, codepoint: 0 }`.
+ * @param emit  Function which will be called for each codepoint.
+ */
+function stringFromUTF8(byte, state, emit) {
+    if (state.utf8seq === 0) {
+        if (byte <= 0x7f) {
+            emit(byte);
+            return;
+        }
+        // count the number of 1 leading bits until you reach 0
+        for (let leadingBit = 1; leadingBit < 6; leadingBit += 1) {
+            if (((byte >> (7 - leadingBit)) & 1) === 0) {
+                state.utf8seq = leadingBit;
+                break;
+            }
+        }
+        if (state.utf8seq === 2) {
+            state.codepoint = byte & 31;
+        }
+        else if (state.utf8seq === 3) {
+            state.codepoint = byte & 15;
+        }
+        else if (state.utf8seq === 4) {
+            state.codepoint = byte & 7;
+        }
+        else {
+            throw new Error('Invalid UTF-8 sequence');
+        }
+        state.utf8seq -= 1;
+    }
+    else if (state.utf8seq > 0) {
+        if (byte <= 0x7f) {
+            throw new Error('Invalid UTF-8 sequence');
+        }
+        state.codepoint = (state.codepoint << 6) | (byte & 63);
+        state.utf8seq -= 1;
+        if (state.utf8seq === 0) {
+            emit(state.codepoint);
+        }
+    }
+}
+/**
+ * Helper functions to convert different types of strings to Uint8Array
+ */
+function base64UrlToUint8Array(str) {
+    const result = [];
+    const state = { queue: 0, queuedBits: 0 };
+    const onByte = (byte) => {
+        result.push(byte);
+    };
+    for (let i = 0; i < str.length; i += 1) {
+        byteFromBase64URL(str.charCodeAt(i), state, onByte);
+    }
+    return new Uint8Array(result);
+}
+function stringToUint8Array(str) {
+    const result = [];
+    stringToUTF8(str, (byte) => result.push(byte));
+    return new Uint8Array(result);
+}
+function bytesToBase64URL(bytes) {
+    const result = [];
+    const state = { queue: 0, queuedBits: 0 };
+    const onChar = (char) => {
+        result.push(char);
+    };
+    bytes.forEach((byte) => byteToBase64URL(byte, state, onChar));
+    // always call with `null` after processing all bytes
+    byteToBase64URL(null, state, onChar);
+    return result.join('');
+}
+//# sourceMappingURL=base64url.js.map
+;// ./node_modules/@supabase/auth-js/dist/module/lib/helpers.js
+
+
+
+function expiresAt(expiresIn) {
+    const timeNow = Math.round(Date.now() / 1000);
+    return timeNow + expiresIn;
+}
+function helpers_uuid() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        const r = (Math.random() * 16) | 0, v = c == 'x' ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+    });
+}
+const helpers_isBrowser = () => typeof window !== 'undefined' && typeof document !== 'undefined';
+const localStorageWriteTests = {
+    tested: false,
+    writable: false,
+};
+/**
+ * Checks whether localStorage is supported on this browser.
+ */
+const supportsLocalStorage = () => {
+    if (!helpers_isBrowser()) {
+        return false;
+    }
+    try {
+        if (typeof globalThis.localStorage !== 'object') {
+            return false;
+        }
+    }
+    catch (e) {
+        // DOM exception when accessing `localStorage`
+        return false;
+    }
+    if (localStorageWriteTests.tested) {
+        return localStorageWriteTests.writable;
+    }
+    const randomKey = `lswt-${Math.random()}${Math.random()}`;
+    try {
+        globalThis.localStorage.setItem(randomKey, randomKey);
+        globalThis.localStorage.removeItem(randomKey);
+        localStorageWriteTests.tested = true;
+        localStorageWriteTests.writable = true;
+    }
+    catch (e) {
+        // localStorage can't be written to
+        // https://www.chromium.org/for-testers/bug-reporting-guidelines/uncaught-securityerror-failed-to-read-the-localstorage-property-from-window-access-is-denied-for-this-document
+        localStorageWriteTests.tested = true;
+        localStorageWriteTests.writable = false;
+    }
+    return localStorageWriteTests.writable;
+};
+/**
+ * Extracts parameters encoded in the URL both in the query and fragment.
+ */
+function parseParametersFromURL(href) {
+    const result = {};
+    const url = new URL(href);
+    if (url.hash && url.hash[0] === '#') {
+        try {
+            const hashSearchParams = new URLSearchParams(url.hash.substring(1));
+            hashSearchParams.forEach((value, key) => {
+                result[key] = value;
+            });
+        }
+        catch (e) {
+            // hash is not a query string
+        }
+    }
+    // search parameters take precedence over hash parameters
+    url.searchParams.forEach((value, key) => {
+        result[key] = value;
+    });
+    return result;
+}
+const lib_helpers_resolveFetch = (customFetch) => {
+    let _fetch;
+    if (customFetch) {
+        _fetch = customFetch;
+    }
+    else if (typeof fetch === 'undefined') {
+        _fetch = (...args) => Promise.resolve(/* import() */).then(__webpack_require__.bind(__webpack_require__, 907)).then(({ default: fetch }) => fetch(...args));
+    }
+    else {
+        _fetch = fetch;
+    }
+    return (...args) => _fetch(...args);
+};
+const looksLikeFetchResponse = (maybeResponse) => {
+    return (typeof maybeResponse === 'object' &&
+        maybeResponse !== null &&
+        'status' in maybeResponse &&
+        'ok' in maybeResponse &&
+        'json' in maybeResponse &&
+        typeof maybeResponse.json === 'function');
+};
+// Storage helpers
+const setItemAsync = async (storage, key, data) => {
+    await storage.setItem(key, JSON.stringify(data));
+};
+const getItemAsync = async (storage, key) => {
+    const value = await storage.getItem(key);
+    if (!value) {
+        return null;
+    }
+    try {
+        return JSON.parse(value);
+    }
+    catch (_a) {
+        return value;
+    }
+};
+const removeItemAsync = async (storage, key) => {
+    await storage.removeItem(key);
+};
+/**
+ * A deferred represents some asynchronous work that is not yet finished, which
+ * may or may not culminate in a value.
+ * Taken from: https://github.com/mike-north/types/blob/master/src/async.ts
+ */
+class Deferred {
+    constructor() {
+        // eslint-disable-next-line @typescript-eslint/no-extra-semi
+        ;
+        this.promise = new Deferred.promiseConstructor((res, rej) => {
+            // eslint-disable-next-line @typescript-eslint/no-extra-semi
+            ;
+            this.resolve = res;
+            this.reject = rej;
+        });
+    }
+}
+Deferred.promiseConstructor = Promise;
+function decodeJWT(token) {
+    const parts = token.split('.');
+    if (parts.length !== 3) {
+        throw new AuthInvalidJwtError('Invalid JWT structure');
+    }
+    // Regex checks for base64url format
+    for (let i = 0; i < parts.length; i++) {
+        if (!BASE64URL_REGEX.test(parts[i])) {
+            throw new AuthInvalidJwtError('JWT not in base64url format');
+        }
+    }
+    const data = {
+        // using base64url lib
+        header: JSON.parse(stringFromBase64URL(parts[0])),
+        payload: JSON.parse(stringFromBase64URL(parts[1])),
+        signature: base64UrlToUint8Array(parts[2]),
+        raw: {
+            header: parts[0],
+            payload: parts[1],
+        },
+    };
+    return data;
+}
+/**
+ * Creates a promise that resolves to null after some time.
+ */
+async function sleep(time) {
+    return await new Promise((accept) => {
+        setTimeout(() => accept(null), time);
+    });
+}
+/**
+ * Converts the provided async function into a retryable function. Each result
+ * or thrown error is sent to the isRetryable function which should return true
+ * if the function should run again.
+ */
+function retryable(fn, isRetryable) {
+    const promise = new Promise((accept, reject) => {
+        // eslint-disable-next-line @typescript-eslint/no-extra-semi
+        ;
+        (async () => {
+            for (let attempt = 0; attempt < Infinity; attempt++) {
+                try {
+                    const result = await fn(attempt);
+                    if (!isRetryable(attempt, null, result)) {
+                        accept(result);
+                        return;
+                    }
+                }
+                catch (e) {
+                    if (!isRetryable(attempt, e)) {
+                        reject(e);
+                        return;
+                    }
+                }
+            }
+        })();
+    });
+    return promise;
+}
+function dec2hex(dec) {
+    return ('0' + dec.toString(16)).substr(-2);
+}
+// Functions below taken from: https://stackoverflow.com/questions/63309409/creating-a-code-verifier-and-challenge-for-pkce-auth-on-spotify-api-in-reactjs
+function generatePKCEVerifier() {
+    const verifierLength = 56;
+    const array = new Uint32Array(verifierLength);
+    if (typeof crypto === 'undefined') {
+        const charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+        const charSetLen = charSet.length;
+        let verifier = '';
+        for (let i = 0; i < verifierLength; i++) {
+            verifier += charSet.charAt(Math.floor(Math.random() * charSetLen));
+        }
+        return verifier;
+    }
+    crypto.getRandomValues(array);
+    return Array.from(array, dec2hex).join('');
+}
+async function sha256(randomString) {
+    const encoder = new TextEncoder();
+    const encodedData = encoder.encode(randomString);
+    const hash = await crypto.subtle.digest('SHA-256', encodedData);
+    const bytes = new Uint8Array(hash);
+    return Array.from(bytes)
+        .map((c) => String.fromCharCode(c))
+        .join('');
+}
+async function generatePKCEChallenge(verifier) {
+    const hasCryptoSupport = typeof crypto !== 'undefined' &&
+        typeof crypto.subtle !== 'undefined' &&
+        typeof TextEncoder !== 'undefined';
+    if (!hasCryptoSupport) {
+        console.warn('WebCrypto API is not supported. Code challenge method will default to use plain instead of sha256.');
+        return verifier;
+    }
+    const hashed = await sha256(verifier);
+    return btoa(hashed).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+async function getCodeChallengeAndMethod(storage, storageKey, isPasswordRecovery = false) {
+    const codeVerifier = generatePKCEVerifier();
+    let storedCodeVerifier = codeVerifier;
+    if (isPasswordRecovery) {
+        storedCodeVerifier += '/PASSWORD_RECOVERY';
+    }
+    await setItemAsync(storage, `${storageKey}-code-verifier`, storedCodeVerifier);
+    const codeChallenge = await generatePKCEChallenge(codeVerifier);
+    const codeChallengeMethod = codeVerifier === codeChallenge ? 'plain' : 's256';
+    return [codeChallenge, codeChallengeMethod];
+}
+/** Parses the API version which is 2YYY-MM-DD. */
+const API_VERSION_REGEX = /^2[0-9]{3}-(0[1-9]|1[0-2])-(0[1-9]|1[0-9]|2[0-9]|3[0-1])$/i;
+function parseResponseAPIVersion(response) {
+    const apiVersion = response.headers.get(API_VERSION_HEADER_NAME);
+    if (!apiVersion) {
+        return null;
+    }
+    if (!apiVersion.match(API_VERSION_REGEX)) {
+        return null;
+    }
+    try {
+        const date = new Date(`${apiVersion}T00:00:00.0Z`);
+        return date;
+    }
+    catch (e) {
+        return null;
+    }
+}
+function validateExp(exp) {
+    if (!exp) {
+        throw new Error('Missing exp claim');
+    }
+    const timeNow = Math.floor(Date.now() / 1000);
+    if (exp <= timeNow) {
+        throw new Error('JWT has expired');
+    }
+}
+function getAlgorithm(alg) {
+    switch (alg) {
+        case 'RS256':
+            return {
+                name: 'RSASSA-PKCS1-v1_5',
+                hash: { name: 'SHA-256' },
+            };
+        case 'ES256':
+            return {
+                name: 'ECDSA',
+                namedCurve: 'P-256',
+                hash: { name: 'SHA-256' },
+            };
+        default:
+            throw new Error('Invalid alg claim');
+    }
+}
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+function validateUUID(str) {
+    if (!UUID_REGEX.test(str)) {
+        throw new Error('@supabase/auth-js: Expected parameter to be UUID but is not');
+    }
+}
+//# sourceMappingURL=helpers.js.map
+;// ./node_modules/@supabase/auth-js/dist/module/lib/fetch.js
+var __rest = (undefined && undefined.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
+
+
+
+const fetch_getErrorMessage = (err) => err.msg || err.message || err.error_description || err.error || JSON.stringify(err);
+const NETWORK_ERROR_CODES = [502, 503, 504];
+async function fetch_handleError(error) {
+    var _a;
+    if (!looksLikeFetchResponse(error)) {
+        throw new AuthRetryableFetchError(fetch_getErrorMessage(error), 0);
+    }
+    if (NETWORK_ERROR_CODES.includes(error.status)) {
+        // status in 500...599 range - server had an error, request might be retryed.
+        throw new AuthRetryableFetchError(fetch_getErrorMessage(error), error.status);
+    }
+    let data;
+    try {
+        data = await error.json();
+    }
+    catch (e) {
+        throw new AuthUnknownError(fetch_getErrorMessage(e), e);
+    }
+    let errorCode = undefined;
+    const responseAPIVersion = parseResponseAPIVersion(error);
+    if (responseAPIVersion &&
+        responseAPIVersion.getTime() >= API_VERSIONS['2024-01-01'].timestamp &&
+        typeof data === 'object' &&
+        data &&
+        typeof data.code === 'string') {
+        errorCode = data.code;
+    }
+    else if (typeof data === 'object' && data && typeof data.error_code === 'string') {
+        errorCode = data.error_code;
+    }
+    if (!errorCode) {
+        // Legacy support for weak password errors, when there were no error codes
+        if (typeof data === 'object' &&
+            data &&
+            typeof data.weak_password === 'object' &&
+            data.weak_password &&
+            Array.isArray(data.weak_password.reasons) &&
+            data.weak_password.reasons.length &&
+            data.weak_password.reasons.reduce((a, i) => a && typeof i === 'string', true)) {
+            throw new AuthWeakPasswordError(fetch_getErrorMessage(data), error.status, data.weak_password.reasons);
+        }
+    }
+    else if (errorCode === 'weak_password') {
+        throw new AuthWeakPasswordError(fetch_getErrorMessage(data), error.status, ((_a = data.weak_password) === null || _a === void 0 ? void 0 : _a.reasons) || []);
+    }
+    else if (errorCode === 'session_not_found') {
+        // The `session_id` inside the JWT does not correspond to a row in the
+        // `sessions` table. This usually means the user has signed out, has been
+        // deleted, or their session has somehow been terminated.
+        throw new AuthSessionMissingError();
+    }
+    throw new AuthApiError(fetch_getErrorMessage(data), error.status || 500, errorCode);
+}
+const fetch_getRequestParams = (method, options, parameters, body) => {
+    const params = { method, headers: (options === null || options === void 0 ? void 0 : options.headers) || {} };
+    if (method === 'GET') {
+        return params;
+    }
+    params.headers = Object.assign({ 'Content-Type': 'application/json;charset=UTF-8' }, options === null || options === void 0 ? void 0 : options.headers);
+    params.body = JSON.stringify(body);
+    return Object.assign(Object.assign({}, params), parameters);
+};
+async function _request(fetcher, method, url, options) {
+    var _a;
+    const headers = Object.assign({}, options === null || options === void 0 ? void 0 : options.headers);
+    if (!headers[API_VERSION_HEADER_NAME]) {
+        headers[API_VERSION_HEADER_NAME] = API_VERSIONS['2024-01-01'].name;
+    }
+    if (options === null || options === void 0 ? void 0 : options.jwt) {
+        headers['Authorization'] = `Bearer ${options.jwt}`;
+    }
+    const qs = (_a = options === null || options === void 0 ? void 0 : options.query) !== null && _a !== void 0 ? _a : {};
+    if (options === null || options === void 0 ? void 0 : options.redirectTo) {
+        qs['redirect_to'] = options.redirectTo;
+    }
+    const queryString = Object.keys(qs).length ? '?' + new URLSearchParams(qs).toString() : '';
+    const data = await fetch_handleRequest(fetcher, method, url + queryString, {
+        headers,
+        noResolveJson: options === null || options === void 0 ? void 0 : options.noResolveJson,
+    }, {}, options === null || options === void 0 ? void 0 : options.body);
+    return (options === null || options === void 0 ? void 0 : options.xform) ? options === null || options === void 0 ? void 0 : options.xform(data) : { data: Object.assign({}, data), error: null };
+}
+async function fetch_handleRequest(fetcher, method, url, options, parameters, body) {
+    const requestParams = fetch_getRequestParams(method, options, parameters, body);
+    let result;
+    try {
+        result = await fetcher(url, Object.assign({}, requestParams));
+    }
+    catch (e) {
+        console.error(e);
+        // fetch failed, likely due to a network or CORS error
+        throw new AuthRetryableFetchError(fetch_getErrorMessage(e), 0);
+    }
+    if (!result.ok) {
+        await fetch_handleError(result);
+    }
+    if (options === null || options === void 0 ? void 0 : options.noResolveJson) {
+        return result;
+    }
+    try {
+        return await result.json();
+    }
+    catch (e) {
+        await fetch_handleError(e);
+    }
+}
+function _sessionResponse(data) {
+    var _a;
+    let session = null;
+    if (hasSession(data)) {
+        session = Object.assign({}, data);
+        if (!data.expires_at) {
+            session.expires_at = expiresAt(data.expires_in);
+        }
+    }
+    const user = (_a = data.user) !== null && _a !== void 0 ? _a : data;
+    return { data: { session, user }, error: null };
+}
+function _sessionResponsePassword(data) {
+    const response = _sessionResponse(data);
+    if (!response.error &&
+        data.weak_password &&
+        typeof data.weak_password === 'object' &&
+        Array.isArray(data.weak_password.reasons) &&
+        data.weak_password.reasons.length &&
+        data.weak_password.message &&
+        typeof data.weak_password.message === 'string' &&
+        data.weak_password.reasons.reduce((a, i) => a && typeof i === 'string', true)) {
+        response.data.weak_password = data.weak_password;
+    }
+    return response;
+}
+function _userResponse(data) {
+    var _a;
+    const user = (_a = data.user) !== null && _a !== void 0 ? _a : data;
+    return { data: { user }, error: null };
+}
+function _ssoResponse(data) {
+    return { data, error: null };
+}
+function _generateLinkResponse(data) {
+    const { action_link, email_otp, hashed_token, redirect_to, verification_type } = data, rest = __rest(data, ["action_link", "email_otp", "hashed_token", "redirect_to", "verification_type"]);
+    const properties = {
+        action_link,
+        email_otp,
+        hashed_token,
+        redirect_to,
+        verification_type,
+    };
+    const user = Object.assign({}, rest);
+    return {
+        data: {
+            properties,
+            user,
+        },
+        error: null,
+    };
+}
+function _noResolveJsonResponse(data) {
+    return data;
+}
+/**
+ * hasSession checks if the response object contains a valid session
+ * @param data A response object
+ * @returns true if a session is in the response
+ */
+function hasSession(data) {
+    return data.access_token && data.refresh_token && data.expires_in;
+}
+//# sourceMappingURL=fetch.js.map
+;// ./node_modules/@supabase/auth-js/dist/module/lib/types.js
+const SIGN_OUT_SCOPES = ['global', 'local', 'others'];
+//# sourceMappingURL=types.js.map
+;// ./node_modules/@supabase/auth-js/dist/module/GoTrueAdminApi.js
+var GoTrueAdminApi_rest = (undefined && undefined.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
+
+
+
+
+class GoTrueAdminApi_GoTrueAdminApi {
+    constructor({ url = '', headers = {}, fetch, }) {
+        this.url = url;
+        this.headers = headers;
+        this.fetch = lib_helpers_resolveFetch(fetch);
+        this.mfa = {
+            listFactors: this._listFactors.bind(this),
+            deleteFactor: this._deleteFactor.bind(this),
+        };
+    }
+    /**
+     * Removes a logged-in session.
+     * @param jwt A valid, logged-in JWT.
+     * @param scope The logout sope.
+     */
+    async signOut(jwt, scope = SIGN_OUT_SCOPES[0]) {
+        if (SIGN_OUT_SCOPES.indexOf(scope) < 0) {
+            throw new Error(`@supabase/auth-js: Parameter scope must be one of ${SIGN_OUT_SCOPES.join(', ')}`);
+        }
+        try {
+            await _request(this.fetch, 'POST', `${this.url}/logout?scope=${scope}`, {
+                headers: this.headers,
+                jwt,
+                noResolveJson: true,
+            });
+            return { data: null, error: null };
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return { data: null, error };
+            }
+            throw error;
+        }
+    }
+    /**
+     * Sends an invite link to an email address.
+     * @param email The email address of the user.
+     * @param options Additional options to be included when inviting.
+     */
+    async inviteUserByEmail(email, options = {}) {
+        try {
+            return await _request(this.fetch, 'POST', `${this.url}/invite`, {
+                body: { email, data: options.data },
+                headers: this.headers,
+                redirectTo: options.redirectTo,
+                xform: _userResponse,
+            });
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return { data: { user: null }, error };
+            }
+            throw error;
+        }
+    }
+    /**
+     * Generates email links and OTPs to be sent via a custom email provider.
+     * @param email The user's email.
+     * @param options.password User password. For signup only.
+     * @param options.data Optional user metadata. For signup only.
+     * @param options.redirectTo The redirect url which should be appended to the generated link
+     */
+    async generateLink(params) {
+        try {
+            const { options } = params, rest = GoTrueAdminApi_rest(params, ["options"]);
+            const body = Object.assign(Object.assign({}, rest), options);
+            if ('newEmail' in rest) {
+                // replace newEmail with new_email in request body
+                body.new_email = rest === null || rest === void 0 ? void 0 : rest.newEmail;
+                delete body['newEmail'];
+            }
+            return await _request(this.fetch, 'POST', `${this.url}/admin/generate_link`, {
+                body: body,
+                headers: this.headers,
+                xform: _generateLinkResponse,
+                redirectTo: options === null || options === void 0 ? void 0 : options.redirectTo,
+            });
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return {
+                    data: {
+                        properties: null,
+                        user: null,
+                    },
+                    error,
+                };
+            }
+            throw error;
+        }
+    }
+    // User Admin API
+    /**
+     * Creates a new user.
+     * This function should only be called on a server. Never expose your `service_role` key in the browser.
+     */
+    async createUser(attributes) {
+        try {
+            return await _request(this.fetch, 'POST', `${this.url}/admin/users`, {
+                body: attributes,
+                headers: this.headers,
+                xform: _userResponse,
+            });
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return { data: { user: null }, error };
+            }
+            throw error;
+        }
+    }
+    /**
+     * Get a list of users.
+     *
+     * This function should only be called on a server. Never expose your `service_role` key in the browser.
+     * @param params An object which supports `page` and `perPage` as numbers, to alter the paginated results.
+     */
+    async listUsers(params) {
+        var _a, _b, _c, _d, _e, _f, _g;
+        try {
+            const pagination = { nextPage: null, lastPage: 0, total: 0 };
+            const response = await _request(this.fetch, 'GET', `${this.url}/admin/users`, {
+                headers: this.headers,
+                noResolveJson: true,
+                query: {
+                    page: (_b = (_a = params === null || params === void 0 ? void 0 : params.page) === null || _a === void 0 ? void 0 : _a.toString()) !== null && _b !== void 0 ? _b : '',
+                    per_page: (_d = (_c = params === null || params === void 0 ? void 0 : params.perPage) === null || _c === void 0 ? void 0 : _c.toString()) !== null && _d !== void 0 ? _d : '',
+                },
+                xform: _noResolveJsonResponse,
+            });
+            if (response.error)
+                throw response.error;
+            const users = await response.json();
+            const total = (_e = response.headers.get('x-total-count')) !== null && _e !== void 0 ? _e : 0;
+            const links = (_g = (_f = response.headers.get('link')) === null || _f === void 0 ? void 0 : _f.split(',')) !== null && _g !== void 0 ? _g : [];
+            if (links.length > 0) {
+                links.forEach((link) => {
+                    const page = parseInt(link.split(';')[0].split('=')[1].substring(0, 1));
+                    const rel = JSON.parse(link.split(';')[1].split('=')[1]);
+                    pagination[`${rel}Page`] = page;
+                });
+                pagination.total = parseInt(total);
+            }
+            return { data: Object.assign(Object.assign({}, users), pagination), error: null };
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return { data: { users: [] }, error };
+            }
+            throw error;
+        }
+    }
+    /**
+     * Get user by id.
+     *
+     * @param uid The user's unique identifier
+     *
+     * This function should only be called on a server. Never expose your `service_role` key in the browser.
+     */
+    async getUserById(uid) {
+        validateUUID(uid);
+        try {
+            return await _request(this.fetch, 'GET', `${this.url}/admin/users/${uid}`, {
+                headers: this.headers,
+                xform: _userResponse,
+            });
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return { data: { user: null }, error };
+            }
+            throw error;
+        }
+    }
+    /**
+     * Updates the user data.
+     *
+     * @param attributes The data you want to update.
+     *
+     * This function should only be called on a server. Never expose your `service_role` key in the browser.
+     */
+    async updateUserById(uid, attributes) {
+        validateUUID(uid);
+        try {
+            return await _request(this.fetch, 'PUT', `${this.url}/admin/users/${uid}`, {
+                body: attributes,
+                headers: this.headers,
+                xform: _userResponse,
+            });
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return { data: { user: null }, error };
+            }
+            throw error;
+        }
+    }
+    /**
+     * Delete a user. Requires a `service_role` key.
+     *
+     * @param id The user id you want to remove.
+     * @param shouldSoftDelete If true, then the user will be soft-deleted from the auth schema. Soft deletion allows user identification from the hashed user ID but is not reversible.
+     * Defaults to false for backward compatibility.
+     *
+     * This function should only be called on a server. Never expose your `service_role` key in the browser.
+     */
+    async deleteUser(id, shouldSoftDelete = false) {
+        validateUUID(id);
+        try {
+            return await _request(this.fetch, 'DELETE', `${this.url}/admin/users/${id}`, {
+                headers: this.headers,
+                body: {
+                    should_soft_delete: shouldSoftDelete,
+                },
+                xform: _userResponse,
+            });
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return { data: { user: null }, error };
+            }
+            throw error;
+        }
+    }
+    async _listFactors(params) {
+        validateUUID(params.userId);
+        try {
+            const { data, error } = await _request(this.fetch, 'GET', `${this.url}/admin/users/${params.userId}/factors`, {
+                headers: this.headers,
+                xform: (factors) => {
+                    return { data: { factors }, error: null };
+                },
+            });
+            return { data, error };
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return { data: null, error };
+            }
+            throw error;
+        }
+    }
+    async _deleteFactor(params) {
+        validateUUID(params.userId);
+        validateUUID(params.id);
+        try {
+            const data = await _request(this.fetch, 'DELETE', `${this.url}/admin/users/${params.userId}/factors/${params.id}`, {
+                headers: this.headers,
+            });
+            return { data, error: null };
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return { data: null, error };
+            }
+            throw error;
+        }
+    }
+}
+//# sourceMappingURL=GoTrueAdminApi.js.map
+;// ./node_modules/@supabase/auth-js/dist/module/lib/local-storage.js
+
+/**
+ * Provides safe access to the globalThis.localStorage property.
+ */
+const localStorageAdapter = {
+    getItem: (key) => {
+        if (!supportsLocalStorage()) {
+            return null;
+        }
+        return globalThis.localStorage.getItem(key);
+    },
+    setItem: (key, value) => {
+        if (!supportsLocalStorage()) {
+            return;
+        }
+        globalThis.localStorage.setItem(key, value);
+    },
+    removeItem: (key) => {
+        if (!supportsLocalStorage()) {
+            return;
+        }
+        globalThis.localStorage.removeItem(key);
+    },
+};
+/**
+ * Returns a localStorage-like object that stores the key-value pairs in
+ * memory.
+ */
+function memoryLocalStorageAdapter(store = {}) {
+    return {
+        getItem: (key) => {
+            return store[key] || null;
+        },
+        setItem: (key, value) => {
+            store[key] = value;
+        },
+        removeItem: (key) => {
+            delete store[key];
+        },
+    };
+}
+//# sourceMappingURL=local-storage.js.map
+;// ./node_modules/@supabase/auth-js/dist/module/lib/polyfills.js
+/**
+ * https://mathiasbynens.be/notes/globalthis
+ */
+function polyfillGlobalThis() {
+    if (typeof globalThis === 'object')
+        return;
+    try {
+        Object.defineProperty(Object.prototype, '__magic__', {
+            get: function () {
+                return this;
+            },
+            configurable: true,
+        });
+        // @ts-expect-error 'Allow access to magic'
+        __magic__.globalThis = __magic__;
+        // @ts-expect-error 'Allow access to magic'
+        delete Object.prototype.__magic__;
+    }
+    catch (e) {
+        if (typeof self !== 'undefined') {
+            // @ts-expect-error 'Allow access to globals'
+            self.globalThis = self;
+        }
+    }
+}
+//# sourceMappingURL=polyfills.js.map
+;// ./node_modules/@supabase/auth-js/dist/module/lib/locks.js
+
+/**
+ * @experimental
+ */
+const internals = {
+    /**
+     * @experimental
+     */
+    debug: !!(globalThis &&
+        supportsLocalStorage() &&
+        globalThis.localStorage &&
+        globalThis.localStorage.getItem('supabase.gotrue-js.locks.debug') === 'true'),
+};
+/**
+ * An error thrown when a lock cannot be acquired after some amount of time.
+ *
+ * Use the {@link #isAcquireTimeout} property instead of checking with `instanceof`.
+ */
+class LockAcquireTimeoutError extends Error {
+    constructor(message) {
+        super(message);
+        this.isAcquireTimeout = true;
+    }
+}
+class NavigatorLockAcquireTimeoutError extends LockAcquireTimeoutError {
+}
+class ProcessLockAcquireTimeoutError extends (/* unused pure expression or super */ null && (LockAcquireTimeoutError)) {
+}
+/**
+ * Implements a global exclusive lock using the Navigator LockManager API. It
+ * is available on all browsers released after 2022-03-15 with Safari being the
+ * last one to release support. If the API is not available, this function will
+ * throw. Make sure you check availablility before configuring {@link
+ * GoTrueClient}.
+ *
+ * You can turn on debugging by setting the `supabase.gotrue-js.locks.debug`
+ * local storage item to `true`.
+ *
+ * Internals:
+ *
+ * Since the LockManager API does not preserve stack traces for the async
+ * function passed in the `request` method, a trick is used where acquiring the
+ * lock releases a previously started promise to run the operation in the `fn`
+ * function. The lock waits for that promise to finish (with or without error),
+ * while the function will finally wait for the result anyway.
+ *
+ * @param name Name of the lock to be acquired.
+ * @param acquireTimeout If negative, no timeout. If 0 an error is thrown if
+ *                       the lock can't be acquired without waiting. If positive, the lock acquire
+ *                       will time out after so many milliseconds. An error is
+ *                       a timeout if it has `isAcquireTimeout` set to true.
+ * @param fn The operation to run once the lock is acquired.
+ */
+async function navigatorLock(name, acquireTimeout, fn) {
+    if (internals.debug) {
+        console.log('@supabase/gotrue-js: navigatorLock: acquire lock', name, acquireTimeout);
+    }
+    const abortController = new globalThis.AbortController();
+    if (acquireTimeout > 0) {
+        setTimeout(() => {
+            abortController.abort();
+            if (internals.debug) {
+                console.log('@supabase/gotrue-js: navigatorLock acquire timed out', name);
+            }
+        }, acquireTimeout);
+    }
+    // MDN article: https://developer.mozilla.org/en-US/docs/Web/API/LockManager/request
+    // Wrapping navigator.locks.request() with a plain Promise is done as some
+    // libraries like zone.js patch the Promise object to track the execution
+    // context. However, it appears that most browsers use an internal promise
+    // implementation when using the navigator.locks.request() API causing them
+    // to lose context and emit confusing log messages or break certain features.
+    // This wrapping is believed to help zone.js track the execution context
+    // better.
+    return await Promise.resolve().then(() => globalThis.navigator.locks.request(name, acquireTimeout === 0
+        ? {
+            mode: 'exclusive',
+            ifAvailable: true,
+        }
+        : {
+            mode: 'exclusive',
+            signal: abortController.signal,
+        }, async (lock) => {
+        if (lock) {
+            if (internals.debug) {
+                console.log('@supabase/gotrue-js: navigatorLock: acquired', name, lock.name);
+            }
+            try {
+                return await fn();
+            }
+            finally {
+                if (internals.debug) {
+                    console.log('@supabase/gotrue-js: navigatorLock: released', name, lock.name);
+                }
+            }
+        }
+        else {
+            if (acquireTimeout === 0) {
+                if (internals.debug) {
+                    console.log('@supabase/gotrue-js: navigatorLock: not immediately available', name);
+                }
+                throw new NavigatorLockAcquireTimeoutError(`Acquiring an exclusive Navigator LockManager lock "${name}" immediately failed`);
+            }
+            else {
+                if (internals.debug) {
+                    try {
+                        const result = await globalThis.navigator.locks.query();
+                        console.log('@supabase/gotrue-js: Navigator LockManager state', JSON.stringify(result, null, '  '));
+                    }
+                    catch (e) {
+                        console.warn('@supabase/gotrue-js: Error when querying Navigator LockManager state', e);
+                    }
+                }
+                // Browser is not following the Navigator LockManager spec, it
+                // returned a null lock when we didn't use ifAvailable. So we can
+                // pretend the lock is acquired in the name of backward compatibility
+                // and user experience and just run the function.
+                console.warn('@supabase/gotrue-js: Navigator LockManager returned a null lock when using #request without ifAvailable set to true, it appears this browser is not following the LockManager spec https://developer.mozilla.org/en-US/docs/Web/API/LockManager/request');
+                return await fn();
+            }
+        }
+    }));
+}
+const PROCESS_LOCKS = {};
+/**
+ * Implements a global exclusive lock that works only in the current process.
+ * Useful for environments like React Native or other non-browser
+ * single-process (i.e. no concept of "tabs") environments.
+ *
+ * Use {@link #navigatorLock} in browser environments.
+ *
+ * @param name Name of the lock to be acquired.
+ * @param acquireTimeout If negative, no timeout. If 0 an error is thrown if
+ *                       the lock can't be acquired without waiting. If positive, the lock acquire
+ *                       will time out after so many milliseconds. An error is
+ *                       a timeout if it has `isAcquireTimeout` set to true.
+ * @param fn The operation to run once the lock is acquired.
+ */
+async function processLock(name, acquireTimeout, fn) {
+    var _a;
+    const previousOperation = (_a = PROCESS_LOCKS[name]) !== null && _a !== void 0 ? _a : Promise.resolve();
+    const currentOperation = Promise.race([
+        previousOperation.catch(() => {
+            // ignore error of previous operation that we're waiting to finish
+            return null;
+        }),
+        acquireTimeout >= 0
+            ? new Promise((_, reject) => {
+                setTimeout(() => {
+                    reject(new ProcessLockAcquireTimeoutError(`Acquring process lock with name "${name}" timed out`));
+                }, acquireTimeout);
+            })
+            : null,
+    ].filter((x) => x))
+        .catch((e) => {
+        if (e && e.isAcquireTimeout) {
+            throw e;
+        }
+        return null;
+    })
+        .then(async () => {
+        // previous operations finished and we didn't get a race on the acquire
+        // timeout, so the current operation can finally start
+        return await fn();
+    });
+    PROCESS_LOCKS[name] = currentOperation.catch(async (e) => {
+        if (e && e.isAcquireTimeout) {
+            // if the current operation timed out, it doesn't mean that the previous
+            // operation finished, so we need contnue waiting for it to finish
+            await previousOperation;
+            return null;
+        }
+        throw e;
+    });
+    // finally wait for the current operation to finish successfully, with an
+    // error or with an acquire timeout error
+    return await currentOperation;
+}
+//# sourceMappingURL=locks.js.map
+;// ./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js
+
+
+
+
+
+
+
+
+
+
+polyfillGlobalThis(); // Make "globalThis" available
+const DEFAULT_OPTIONS = {
+    url: GOTRUE_URL,
+    storageKey: STORAGE_KEY,
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true,
+    headers: module_lib_constants_DEFAULT_HEADERS,
+    flowType: 'implicit',
+    debug: false,
+    hasCustomAuthorizationHeader: false,
+};
+async function lockNoOp(name, acquireTimeout, fn) {
+    return await fn();
+}
+class GoTrueClient {
+    /**
+     * Create a new client for use in the browser.
+     */
+    constructor(options) {
+        var _a, _b;
+        this.memoryStorage = null;
+        this.stateChangeEmitters = new Map();
+        this.autoRefreshTicker = null;
+        this.visibilityChangedCallback = null;
+        this.refreshingDeferred = null;
+        /**
+         * Keeps track of the async client initialization.
+         * When null or not yet resolved the auth state is `unknown`
+         * Once resolved the the auth state is known and it's save to call any further client methods.
+         * Keep extra care to never reject or throw uncaught errors
+         */
+        this.initializePromise = null;
+        this.detectSessionInUrl = true;
+        this.hasCustomAuthorizationHeader = false;
+        this.suppressGetSessionWarning = false;
+        this.lockAcquired = false;
+        this.pendingInLock = [];
+        /**
+         * Used to broadcast state change events to other tabs listening.
+         */
+        this.broadcastChannel = null;
+        this.logger = console.log;
+        this.instanceID = GoTrueClient.nextInstanceID;
+        GoTrueClient.nextInstanceID += 1;
+        if (this.instanceID > 0 && helpers_isBrowser()) {
+            console.warn('Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key.');
+        }
+        const settings = Object.assign(Object.assign({}, DEFAULT_OPTIONS), options);
+        this.logDebugMessages = !!settings.debug;
+        if (typeof settings.debug === 'function') {
+            this.logger = settings.debug;
+        }
+        this.persistSession = settings.persistSession;
+        this.storageKey = settings.storageKey;
+        this.autoRefreshToken = settings.autoRefreshToken;
+        this.admin = new GoTrueAdminApi_GoTrueAdminApi({
+            url: settings.url,
+            headers: settings.headers,
+            fetch: settings.fetch,
+        });
+        this.url = settings.url;
+        this.headers = settings.headers;
+        this.fetch = lib_helpers_resolveFetch(settings.fetch);
+        this.lock = settings.lock || lockNoOp;
+        this.detectSessionInUrl = settings.detectSessionInUrl;
+        this.flowType = settings.flowType;
+        this.hasCustomAuthorizationHeader = settings.hasCustomAuthorizationHeader;
+        if (settings.lock) {
+            this.lock = settings.lock;
+        }
+        else if (helpers_isBrowser() && ((_a = globalThis === null || globalThis === void 0 ? void 0 : globalThis.navigator) === null || _a === void 0 ? void 0 : _a.locks)) {
+            this.lock = navigatorLock;
+        }
+        else {
+            this.lock = lockNoOp;
+        }
+        this.jwks = { keys: [] };
+        this.jwks_cached_at = Number.MIN_SAFE_INTEGER;
+        this.mfa = {
+            verify: this._verify.bind(this),
+            enroll: this._enroll.bind(this),
+            unenroll: this._unenroll.bind(this),
+            challenge: this._challenge.bind(this),
+            listFactors: this._listFactors.bind(this),
+            challengeAndVerify: this._challengeAndVerify.bind(this),
+            getAuthenticatorAssuranceLevel: this._getAuthenticatorAssuranceLevel.bind(this),
+        };
+        if (this.persistSession) {
+            if (settings.storage) {
+                this.storage = settings.storage;
+            }
+            else {
+                if (supportsLocalStorage()) {
+                    this.storage = localStorageAdapter;
+                }
+                else {
+                    this.memoryStorage = {};
+                    this.storage = memoryLocalStorageAdapter(this.memoryStorage);
+                }
+            }
+        }
+        else {
+            this.memoryStorage = {};
+            this.storage = memoryLocalStorageAdapter(this.memoryStorage);
+        }
+        if (helpers_isBrowser() && globalThis.BroadcastChannel && this.persistSession && this.storageKey) {
+            try {
+                this.broadcastChannel = new globalThis.BroadcastChannel(this.storageKey);
+            }
+            catch (e) {
+                console.error('Failed to create a new BroadcastChannel, multi-tab state changes will not be available', e);
+            }
+            (_b = this.broadcastChannel) === null || _b === void 0 ? void 0 : _b.addEventListener('message', async (event) => {
+                this._debug('received broadcast notification from other tab or client', event);
+                await this._notifyAllSubscribers(event.data.event, event.data.session, false); // broadcast = false so we don't get an endless loop of messages
+            });
+        }
+        this.initialize();
+    }
+    _debug(...args) {
+        if (this.logDebugMessages) {
+            this.logger(`GoTrueClient@${this.instanceID} (${dist_module_lib_version_version}) ${new Date().toISOString()}`, ...args);
+        }
+        return this;
+    }
+    /**
+     * Initializes the client session either from the url or from storage.
+     * This method is automatically called when instantiating the client, but should also be called
+     * manually when checking for an error from an auth redirect (oauth, magiclink, password recovery, etc).
+     */
+    async initialize() {
+        if (this.initializePromise) {
+            return await this.initializePromise;
+        }
+        this.initializePromise = (async () => {
+            return await this._acquireLock(-1, async () => {
+                return await this._initialize();
+            });
+        })();
+        return await this.initializePromise;
+    }
+    /**
+     * IMPORTANT:
+     * 1. Never throw in this method, as it is called from the constructor
+     * 2. Never return a session from this method as it would be cached over
+     *    the whole lifetime of the client
+     */
+    async _initialize() {
+        var _a;
+        try {
+            const params = parseParametersFromURL(window.location.href);
+            let callbackUrlType = 'none';
+            if (this._isImplicitGrantCallback(params)) {
+                callbackUrlType = 'implicit';
+            }
+            else if (await this._isPKCECallback(params)) {
+                callbackUrlType = 'pkce';
+            }
+            /**
+             * Attempt to get the session from the URL only if these conditions are fulfilled
+             *
+             * Note: If the URL isn't one of the callback url types (implicit or pkce),
+             * then there could be an existing session so we don't want to prematurely remove it
+             */
+            if (helpers_isBrowser() && this.detectSessionInUrl && callbackUrlType !== 'none') {
+                const { data, error } = await this._getSessionFromURL(params, callbackUrlType);
+                if (error) {
+                    this._debug('#_initialize()', 'error detecting session from URL', error);
+                    if (isAuthImplicitGrantRedirectError(error)) {
+                        const errorCode = (_a = error.details) === null || _a === void 0 ? void 0 : _a.code;
+                        if (errorCode === 'identity_already_exists' ||
+                            errorCode === 'identity_not_found' ||
+                            errorCode === 'single_identity_not_deletable') {
+                            return { error };
+                        }
+                    }
+                    // failed login attempt via url,
+                    // remove old session as in verifyOtp, signUp and signInWith*
+                    await this._removeSession();
+                    return { error };
+                }
+                const { session, redirectType } = data;
+                this._debug('#_initialize()', 'detected session in URL', session, 'redirect type', redirectType);
+                await this._saveSession(session);
+                setTimeout(async () => {
+                    if (redirectType === 'recovery') {
+                        await this._notifyAllSubscribers('PASSWORD_RECOVERY', session);
+                    }
+                    else {
+                        await this._notifyAllSubscribers('SIGNED_IN', session);
+                    }
+                }, 0);
+                return { error: null };
+            }
+            // no login attempt via callback url try to recover session from storage
+            await this._recoverAndRefresh();
+            return { error: null };
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return { error };
+            }
+            return {
+                error: new AuthUnknownError('Unexpected error during initialization', error),
+            };
+        }
+        finally {
+            await this._handleVisibilityChange();
+            this._debug('#_initialize()', 'end');
+        }
+    }
+    /**
+     * Creates a new anonymous user.
+     *
+     * @returns A session where the is_anonymous claim in the access token JWT set to true
+     */
+    async signInAnonymously(credentials) {
+        var _a, _b, _c;
+        try {
+            const res = await _request(this.fetch, 'POST', `${this.url}/signup`, {
+                headers: this.headers,
+                body: {
+                    data: (_b = (_a = credentials === null || credentials === void 0 ? void 0 : credentials.options) === null || _a === void 0 ? void 0 : _a.data) !== null && _b !== void 0 ? _b : {},
+                    gotrue_meta_security: { captcha_token: (_c = credentials === null || credentials === void 0 ? void 0 : credentials.options) === null || _c === void 0 ? void 0 : _c.captchaToken },
+                },
+                xform: _sessionResponse,
+            });
+            const { data, error } = res;
+            if (error || !data) {
+                return { data: { user: null, session: null }, error: error };
+            }
+            const session = data.session;
+            const user = data.user;
+            if (data.session) {
+                await this._saveSession(data.session);
+                await this._notifyAllSubscribers('SIGNED_IN', session);
+            }
+            return { data: { user, session }, error: null };
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return { data: { user: null, session: null }, error };
+            }
+            throw error;
+        }
+    }
+    /**
+     * Creates a new user.
+     *
+     * Be aware that if a user account exists in the system you may get back an
+     * error message that attempts to hide this information from the user.
+     * This method has support for PKCE via email signups. The PKCE flow cannot be used when autoconfirm is enabled.
+     *
+     * @returns A logged-in session if the server has "autoconfirm" ON
+     * @returns A user if the server has "autoconfirm" OFF
+     */
+    async signUp(credentials) {
+        var _a, _b, _c;
+        try {
+            let res;
+            if ('email' in credentials) {
+                const { email, password, options } = credentials;
+                let codeChallenge = null;
+                let codeChallengeMethod = null;
+                if (this.flowType === 'pkce') {
+                    ;
+                    [codeChallenge, codeChallengeMethod] = await getCodeChallengeAndMethod(this.storage, this.storageKey);
+                }
+                res = await _request(this.fetch, 'POST', `${this.url}/signup`, {
+                    headers: this.headers,
+                    redirectTo: options === null || options === void 0 ? void 0 : options.emailRedirectTo,
+                    body: {
+                        email,
+                        password,
+                        data: (_a = options === null || options === void 0 ? void 0 : options.data) !== null && _a !== void 0 ? _a : {},
+                        gotrue_meta_security: { captcha_token: options === null || options === void 0 ? void 0 : options.captchaToken },
+                        code_challenge: codeChallenge,
+                        code_challenge_method: codeChallengeMethod,
+                    },
+                    xform: _sessionResponse,
+                });
+            }
+            else if ('phone' in credentials) {
+                const { phone, password, options } = credentials;
+                res = await _request(this.fetch, 'POST', `${this.url}/signup`, {
+                    headers: this.headers,
+                    body: {
+                        phone,
+                        password,
+                        data: (_b = options === null || options === void 0 ? void 0 : options.data) !== null && _b !== void 0 ? _b : {},
+                        channel: (_c = options === null || options === void 0 ? void 0 : options.channel) !== null && _c !== void 0 ? _c : 'sms',
+                        gotrue_meta_security: { captcha_token: options === null || options === void 0 ? void 0 : options.captchaToken },
+                    },
+                    xform: _sessionResponse,
+                });
+            }
+            else {
+                throw new AuthInvalidCredentialsError('You must provide either an email or phone number and a password');
+            }
+            const { data, error } = res;
+            if (error || !data) {
+                return { data: { user: null, session: null }, error: error };
+            }
+            const session = data.session;
+            const user = data.user;
+            if (data.session) {
+                await this._saveSession(data.session);
+                await this._notifyAllSubscribers('SIGNED_IN', session);
+            }
+            return { data: { user, session }, error: null };
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return { data: { user: null, session: null }, error };
+            }
+            throw error;
+        }
+    }
+    /**
+     * Log in an existing user with an email and password or phone and password.
+     *
+     * Be aware that you may get back an error message that will not distinguish
+     * between the cases where the account does not exist or that the
+     * email/phone and password combination is wrong or that the account can only
+     * be accessed via social login.
+     */
+    async signInWithPassword(credentials) {
+        try {
+            let res;
+            if ('email' in credentials) {
+                const { email, password, options } = credentials;
+                res = await _request(this.fetch, 'POST', `${this.url}/token?grant_type=password`, {
+                    headers: this.headers,
+                    body: {
+                        email,
+                        password,
+                        gotrue_meta_security: { captcha_token: options === null || options === void 0 ? void 0 : options.captchaToken },
+                    },
+                    xform: _sessionResponsePassword,
+                });
+            }
+            else if ('phone' in credentials) {
+                const { phone, password, options } = credentials;
+                res = await _request(this.fetch, 'POST', `${this.url}/token?grant_type=password`, {
+                    headers: this.headers,
+                    body: {
+                        phone,
+                        password,
+                        gotrue_meta_security: { captcha_token: options === null || options === void 0 ? void 0 : options.captchaToken },
+                    },
+                    xform: _sessionResponsePassword,
+                });
+            }
+            else {
+                throw new AuthInvalidCredentialsError('You must provide either an email or phone number and a password');
+            }
+            const { data, error } = res;
+            if (error) {
+                return { data: { user: null, session: null }, error };
+            }
+            else if (!data || !data.session || !data.user) {
+                return { data: { user: null, session: null }, error: new AuthInvalidTokenResponseError() };
+            }
+            if (data.session) {
+                await this._saveSession(data.session);
+                await this._notifyAllSubscribers('SIGNED_IN', data.session);
+            }
+            return {
+                data: Object.assign({ user: data.user, session: data.session }, (data.weak_password ? { weakPassword: data.weak_password } : null)),
+                error,
+            };
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return { data: { user: null, session: null }, error };
+            }
+            throw error;
+        }
+    }
+    /**
+     * Log in an existing user via a third-party provider.
+     * This method supports the PKCE flow.
+     */
+    async signInWithOAuth(credentials) {
+        var _a, _b, _c, _d;
+        return await this._handleProviderSignIn(credentials.provider, {
+            redirectTo: (_a = credentials.options) === null || _a === void 0 ? void 0 : _a.redirectTo,
+            scopes: (_b = credentials.options) === null || _b === void 0 ? void 0 : _b.scopes,
+            queryParams: (_c = credentials.options) === null || _c === void 0 ? void 0 : _c.queryParams,
+            skipBrowserRedirect: (_d = credentials.options) === null || _d === void 0 ? void 0 : _d.skipBrowserRedirect,
+        });
+    }
+    /**
+     * Log in an existing user by exchanging an Auth Code issued during the PKCE flow.
+     */
+    async exchangeCodeForSession(authCode) {
+        await this.initializePromise;
+        return this._acquireLock(-1, async () => {
+            return this._exchangeCodeForSession(authCode);
+        });
+    }
+    /**
+     * Signs in a user by verifying a message signed by the user's private key.
+     * Only Solana supported at this time, using the Sign in with Solana standard.
+     */
+    async signInWithWeb3(credentials) {
+        const { chain } = credentials;
+        if (chain === 'solana') {
+            return await this.signInWithSolana(credentials);
+        }
+        throw new Error(`@supabase/auth-js: Unsupported chain "${chain}"`);
+    }
+    async signInWithSolana(credentials) {
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
+        let message;
+        let signature;
+        if ('message' in credentials) {
+            message = credentials.message;
+            signature = credentials.signature;
+        }
+        else {
+            const { chain, wallet, statement, options } = credentials;
+            let resolvedWallet;
+            if (!helpers_isBrowser()) {
+                if (typeof wallet !== 'object' || !(options === null || options === void 0 ? void 0 : options.url)) {
+                    throw new Error('@supabase/auth-js: Both wallet and url must be specified in non-browser environments.');
+                }
+                resolvedWallet = wallet;
+            }
+            else if (typeof wallet === 'object') {
+                resolvedWallet = wallet;
+            }
+            else {
+                const windowAny = window;
+                if ('solana' in windowAny &&
+                    typeof windowAny.solana === 'object' &&
+                    (('signIn' in windowAny.solana && typeof windowAny.solana.signIn === 'function') ||
+                        ('signMessage' in windowAny.solana &&
+                            typeof windowAny.solana.signMessage === 'function'))) {
+                    resolvedWallet = windowAny.solana;
+                }
+                else {
+                    throw new Error(`@supabase/auth-js: No compatible Solana wallet interface on the window object (window.solana) detected. Make sure the user already has a wallet installed and connected for this app. Prefer passing the wallet interface object directly to signInWithWeb3({ chain: 'solana', wallet: resolvedUserWallet }) instead.`);
+                }
+            }
+            const url = new URL((_a = options === null || options === void 0 ? void 0 : options.url) !== null && _a !== void 0 ? _a : window.location.href);
+            if ('signIn' in resolvedWallet && resolvedWallet.signIn) {
+                const output = await resolvedWallet.signIn(Object.assign(Object.assign(Object.assign({ issuedAt: new Date().toISOString() }, options === null || options === void 0 ? void 0 : options.signInWithSolana), { 
+                    // non-overridable properties
+                    version: '1', domain: url.host, uri: url.href }), (statement ? { statement } : null)));
+                let outputToProcess;
+                if (Array.isArray(output) && output[0] && typeof output[0] === 'object') {
+                    outputToProcess = output[0];
+                }
+                else if (output &&
+                    typeof output === 'object' &&
+                    'signedMessage' in output &&
+                    'signature' in output) {
+                    outputToProcess = output;
+                }
+                else {
+                    throw new Error('@supabase/auth-js: Wallet method signIn() returned unrecognized value');
+                }
+                if ('signedMessage' in outputToProcess &&
+                    'signature' in outputToProcess &&
+                    (typeof outputToProcess.signedMessage === 'string' ||
+                        outputToProcess.signedMessage instanceof Uint8Array) &&
+                    outputToProcess.signature instanceof Uint8Array) {
+                    message =
+                        typeof outputToProcess.signedMessage === 'string'
+                            ? outputToProcess.signedMessage
+                            : new TextDecoder().decode(outputToProcess.signedMessage);
+                    signature = outputToProcess.signature;
+                }
+                else {
+                    throw new Error('@supabase/auth-js: Wallet method signIn() API returned object without signedMessage and signature fields');
+                }
+            }
+            else {
+                if (!('signMessage' in resolvedWallet) ||
+                    typeof resolvedWallet.signMessage !== 'function' ||
+                    !('publicKey' in resolvedWallet) ||
+                    typeof resolvedWallet !== 'object' ||
+                    !resolvedWallet.publicKey ||
+                    !('toBase58' in resolvedWallet.publicKey) ||
+                    typeof resolvedWallet.publicKey.toBase58 !== 'function') {
+                    throw new Error('@supabase/auth-js: Wallet does not have a compatible signMessage() and publicKey.toBase58() API');
+                }
+                message = [
+                    `${url.host} wants you to sign in with your Solana account:`,
+                    resolvedWallet.publicKey.toBase58(),
+                    ...(statement ? ['', statement, ''] : ['']),
+                    'Version: 1',
+                    `URI: ${url.href}`,
+                    `Issued At: ${(_c = (_b = options === null || options === void 0 ? void 0 : options.signInWithSolana) === null || _b === void 0 ? void 0 : _b.issuedAt) !== null && _c !== void 0 ? _c : new Date().toISOString()}`,
+                    ...(((_d = options === null || options === void 0 ? void 0 : options.signInWithSolana) === null || _d === void 0 ? void 0 : _d.notBefore)
+                        ? [`Not Before: ${options.signInWithSolana.notBefore}`]
+                        : []),
+                    ...(((_e = options === null || options === void 0 ? void 0 : options.signInWithSolana) === null || _e === void 0 ? void 0 : _e.expirationTime)
+                        ? [`Expiration Time: ${options.signInWithSolana.expirationTime}`]
+                        : []),
+                    ...(((_f = options === null || options === void 0 ? void 0 : options.signInWithSolana) === null || _f === void 0 ? void 0 : _f.chainId)
+                        ? [`Chain ID: ${options.signInWithSolana.chainId}`]
+                        : []),
+                    ...(((_g = options === null || options === void 0 ? void 0 : options.signInWithSolana) === null || _g === void 0 ? void 0 : _g.nonce) ? [`Nonce: ${options.signInWithSolana.nonce}`] : []),
+                    ...(((_h = options === null || options === void 0 ? void 0 : options.signInWithSolana) === null || _h === void 0 ? void 0 : _h.requestId)
+                        ? [`Request ID: ${options.signInWithSolana.requestId}`]
+                        : []),
+                    ...(((_k = (_j = options === null || options === void 0 ? void 0 : options.signInWithSolana) === null || _j === void 0 ? void 0 : _j.resources) === null || _k === void 0 ? void 0 : _k.length)
+                        ? [
+                            'Resources',
+                            ...options.signInWithSolana.resources.map((resource) => `- ${resource}`),
+                        ]
+                        : []),
+                ].join('\n');
+                const maybeSignature = await resolvedWallet.signMessage(new TextEncoder().encode(message), 'utf8');
+                if (!maybeSignature || !(maybeSignature instanceof Uint8Array)) {
+                    throw new Error('@supabase/auth-js: Wallet signMessage() API returned an recognized value');
+                }
+                signature = maybeSignature;
+            }
+        }
+        try {
+            const { data, error } = await _request(this.fetch, 'POST', `${this.url}/token?grant_type=web3`, {
+                headers: this.headers,
+                body: Object.assign({ chain: 'solana', message, signature: bytesToBase64URL(signature) }, (((_l = credentials.options) === null || _l === void 0 ? void 0 : _l.captchaToken)
+                    ? { gotrue_meta_security: { captcha_token: (_m = credentials.options) === null || _m === void 0 ? void 0 : _m.captchaToken } }
+                    : null)),
+                xform: _sessionResponse,
+            });
+            if (error) {
+                throw error;
+            }
+            if (!data || !data.session || !data.user) {
+                return {
+                    data: { user: null, session: null },
+                    error: new AuthInvalidTokenResponseError(),
+                };
+            }
+            if (data.session) {
+                await this._saveSession(data.session);
+                await this._notifyAllSubscribers('SIGNED_IN', data.session);
+            }
+            return { data: Object.assign({}, data), error };
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return { data: { user: null, session: null }, error };
+            }
+            throw error;
+        }
+    }
+    async _exchangeCodeForSession(authCode) {
+        const storageItem = await getItemAsync(this.storage, `${this.storageKey}-code-verifier`);
+        const [codeVerifier, redirectType] = (storageItem !== null && storageItem !== void 0 ? storageItem : '').split('/');
+        try {
+            const { data, error } = await _request(this.fetch, 'POST', `${this.url}/token?grant_type=pkce`, {
+                headers: this.headers,
+                body: {
+                    auth_code: authCode,
+                    code_verifier: codeVerifier,
+                },
+                xform: _sessionResponse,
+            });
+            await removeItemAsync(this.storage, `${this.storageKey}-code-verifier`);
+            if (error) {
+                throw error;
+            }
+            if (!data || !data.session || !data.user) {
+                return {
+                    data: { user: null, session: null, redirectType: null },
+                    error: new AuthInvalidTokenResponseError(),
+                };
+            }
+            if (data.session) {
+                await this._saveSession(data.session);
+                await this._notifyAllSubscribers('SIGNED_IN', data.session);
+            }
+            return { data: Object.assign(Object.assign({}, data), { redirectType: redirectType !== null && redirectType !== void 0 ? redirectType : null }), error };
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return { data: { user: null, session: null, redirectType: null }, error };
+            }
+            throw error;
+        }
+    }
+    /**
+     * Allows signing in with an OIDC ID token. The authentication provider used
+     * should be enabled and configured.
+     */
+    async signInWithIdToken(credentials) {
+        try {
+            const { options, provider, token, access_token, nonce } = credentials;
+            const res = await _request(this.fetch, 'POST', `${this.url}/token?grant_type=id_token`, {
+                headers: this.headers,
+                body: {
+                    provider,
+                    id_token: token,
+                    access_token,
+                    nonce,
+                    gotrue_meta_security: { captcha_token: options === null || options === void 0 ? void 0 : options.captchaToken },
+                },
+                xform: _sessionResponse,
+            });
+            const { data, error } = res;
+            if (error) {
+                return { data: { user: null, session: null }, error };
+            }
+            else if (!data || !data.session || !data.user) {
+                return {
+                    data: { user: null, session: null },
+                    error: new AuthInvalidTokenResponseError(),
+                };
+            }
+            if (data.session) {
+                await this._saveSession(data.session);
+                await this._notifyAllSubscribers('SIGNED_IN', data.session);
+            }
+            return { data, error };
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return { data: { user: null, session: null }, error };
+            }
+            throw error;
+        }
+    }
+    /**
+     * Log in a user using magiclink or a one-time password (OTP).
+     *
+     * If the `{{ .ConfirmationURL }}` variable is specified in the email template, a magiclink will be sent.
+     * If the `{{ .Token }}` variable is specified in the email template, an OTP will be sent.
+     * If you're using phone sign-ins, only an OTP will be sent. You won't be able to send a magiclink for phone sign-ins.
+     *
+     * Be aware that you may get back an error message that will not distinguish
+     * between the cases where the account does not exist or, that the account
+     * can only be accessed via social login.
+     *
+     * Do note that you will need to configure a Whatsapp sender on Twilio
+     * if you are using phone sign in with the 'whatsapp' channel. The whatsapp
+     * channel is not supported on other providers
+     * at this time.
+     * This method supports PKCE when an email is passed.
+     */
+    async signInWithOtp(credentials) {
+        var _a, _b, _c, _d, _e;
+        try {
+            if ('email' in credentials) {
+                const { email, options } = credentials;
+                let codeChallenge = null;
+                let codeChallengeMethod = null;
+                if (this.flowType === 'pkce') {
+                    ;
+                    [codeChallenge, codeChallengeMethod] = await getCodeChallengeAndMethod(this.storage, this.storageKey);
+                }
+                const { error } = await _request(this.fetch, 'POST', `${this.url}/otp`, {
+                    headers: this.headers,
+                    body: {
+                        email,
+                        data: (_a = options === null || options === void 0 ? void 0 : options.data) !== null && _a !== void 0 ? _a : {},
+                        create_user: (_b = options === null || options === void 0 ? void 0 : options.shouldCreateUser) !== null && _b !== void 0 ? _b : true,
+                        gotrue_meta_security: { captcha_token: options === null || options === void 0 ? void 0 : options.captchaToken },
+                        code_challenge: codeChallenge,
+                        code_challenge_method: codeChallengeMethod,
+                    },
+                    redirectTo: options === null || options === void 0 ? void 0 : options.emailRedirectTo,
+                });
+                return { data: { user: null, session: null }, error };
+            }
+            if ('phone' in credentials) {
+                const { phone, options } = credentials;
+                const { data, error } = await _request(this.fetch, 'POST', `${this.url}/otp`, {
+                    headers: this.headers,
+                    body: {
+                        phone,
+                        data: (_c = options === null || options === void 0 ? void 0 : options.data) !== null && _c !== void 0 ? _c : {},
+                        create_user: (_d = options === null || options === void 0 ? void 0 : options.shouldCreateUser) !== null && _d !== void 0 ? _d : true,
+                        gotrue_meta_security: { captcha_token: options === null || options === void 0 ? void 0 : options.captchaToken },
+                        channel: (_e = options === null || options === void 0 ? void 0 : options.channel) !== null && _e !== void 0 ? _e : 'sms',
+                    },
+                });
+                return { data: { user: null, session: null, messageId: data === null || data === void 0 ? void 0 : data.message_id }, error };
+            }
+            throw new AuthInvalidCredentialsError('You must provide either an email or phone number.');
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return { data: { user: null, session: null }, error };
+            }
+            throw error;
+        }
+    }
+    /**
+     * Log in a user given a User supplied OTP or TokenHash received through mobile or email.
+     */
+    async verifyOtp(params) {
+        var _a, _b;
+        try {
+            let redirectTo = undefined;
+            let captchaToken = undefined;
+            if ('options' in params) {
+                redirectTo = (_a = params.options) === null || _a === void 0 ? void 0 : _a.redirectTo;
+                captchaToken = (_b = params.options) === null || _b === void 0 ? void 0 : _b.captchaToken;
+            }
+            const { data, error } = await _request(this.fetch, 'POST', `${this.url}/verify`, {
+                headers: this.headers,
+                body: Object.assign(Object.assign({}, params), { gotrue_meta_security: { captcha_token: captchaToken } }),
+                redirectTo,
+                xform: _sessionResponse,
+            });
+            if (error) {
+                throw error;
+            }
+            if (!data) {
+                throw new Error('An error occurred on token verification.');
+            }
+            const session = data.session;
+            const user = data.user;
+            if (session === null || session === void 0 ? void 0 : session.access_token) {
+                await this._saveSession(session);
+                await this._notifyAllSubscribers(params.type == 'recovery' ? 'PASSWORD_RECOVERY' : 'SIGNED_IN', session);
+            }
+            return { data: { user, session }, error: null };
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return { data: { user: null, session: null }, error };
+            }
+            throw error;
+        }
+    }
+    /**
+     * Attempts a single-sign on using an enterprise Identity Provider. A
+     * successful SSO attempt will redirect the current page to the identity
+     * provider authorization page. The redirect URL is implementation and SSO
+     * protocol specific.
+     *
+     * You can use it by providing a SSO domain. Typically you can extract this
+     * domain by asking users for their email address. If this domain is
+     * registered on the Auth instance the redirect will use that organization's
+     * currently active SSO Identity Provider for the login.
+     *
+     * If you have built an organization-specific login page, you can use the
+     * organization's SSO Identity Provider UUID directly instead.
+     */
+    async signInWithSSO(params) {
+        var _a, _b, _c;
+        try {
+            let codeChallenge = null;
+            let codeChallengeMethod = null;
+            if (this.flowType === 'pkce') {
+                ;
+                [codeChallenge, codeChallengeMethod] = await getCodeChallengeAndMethod(this.storage, this.storageKey);
+            }
+            return await _request(this.fetch, 'POST', `${this.url}/sso`, {
+                body: Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({}, ('providerId' in params ? { provider_id: params.providerId } : null)), ('domain' in params ? { domain: params.domain } : null)), { redirect_to: (_b = (_a = params.options) === null || _a === void 0 ? void 0 : _a.redirectTo) !== null && _b !== void 0 ? _b : undefined }), (((_c = params === null || params === void 0 ? void 0 : params.options) === null || _c === void 0 ? void 0 : _c.captchaToken)
+                    ? { gotrue_meta_security: { captcha_token: params.options.captchaToken } }
+                    : null)), { skip_http_redirect: true, code_challenge: codeChallenge, code_challenge_method: codeChallengeMethod }),
+                headers: this.headers,
+                xform: _ssoResponse,
+            });
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return { data: null, error };
+            }
+            throw error;
+        }
+    }
+    /**
+     * Sends a reauthentication OTP to the user's email or phone number.
+     * Requires the user to be signed-in.
+     */
+    async reauthenticate() {
+        await this.initializePromise;
+        return await this._acquireLock(-1, async () => {
+            return await this._reauthenticate();
+        });
+    }
+    async _reauthenticate() {
+        try {
+            return await this._useSession(async (result) => {
+                const { data: { session }, error: sessionError, } = result;
+                if (sessionError)
+                    throw sessionError;
+                if (!session)
+                    throw new AuthSessionMissingError();
+                const { error } = await _request(this.fetch, 'GET', `${this.url}/reauthenticate`, {
+                    headers: this.headers,
+                    jwt: session.access_token,
+                });
+                return { data: { user: null, session: null }, error };
+            });
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return { data: { user: null, session: null }, error };
+            }
+            throw error;
+        }
+    }
+    /**
+     * Resends an existing signup confirmation email, email change email, SMS OTP or phone change OTP.
+     */
+    async resend(credentials) {
+        try {
+            const endpoint = `${this.url}/resend`;
+            if ('email' in credentials) {
+                const { email, type, options } = credentials;
+                const { error } = await _request(this.fetch, 'POST', endpoint, {
+                    headers: this.headers,
+                    body: {
+                        email,
+                        type,
+                        gotrue_meta_security: { captcha_token: options === null || options === void 0 ? void 0 : options.captchaToken },
+                    },
+                    redirectTo: options === null || options === void 0 ? void 0 : options.emailRedirectTo,
+                });
+                return { data: { user: null, session: null }, error };
+            }
+            else if ('phone' in credentials) {
+                const { phone, type, options } = credentials;
+                const { data, error } = await _request(this.fetch, 'POST', endpoint, {
+                    headers: this.headers,
+                    body: {
+                        phone,
+                        type,
+                        gotrue_meta_security: { captcha_token: options === null || options === void 0 ? void 0 : options.captchaToken },
+                    },
+                });
+                return { data: { user: null, session: null, messageId: data === null || data === void 0 ? void 0 : data.message_id }, error };
+            }
+            throw new AuthInvalidCredentialsError('You must provide either an email or phone number and a type');
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return { data: { user: null, session: null }, error };
+            }
+            throw error;
+        }
+    }
+    /**
+     * Returns the session, refreshing it if necessary.
+     *
+     * The session returned can be null if the session is not detected which can happen in the event a user is not signed-in or has logged out.
+     *
+     * **IMPORTANT:** This method loads values directly from the storage attached
+     * to the client. If that storage is based on request cookies for example,
+     * the values in it may not be authentic and therefore it's strongly advised
+     * against using this method and its results in such circumstances. A warning
+     * will be emitted if this is detected. Use {@link #getUser()} instead.
+     */
+    async getSession() {
+        await this.initializePromise;
+        const result = await this._acquireLock(-1, async () => {
+            return this._useSession(async (result) => {
+                return result;
+            });
+        });
+        return result;
+    }
+    /**
+     * Acquires a global lock based on the storage key.
+     */
+    async _acquireLock(acquireTimeout, fn) {
+        this._debug('#_acquireLock', 'begin', acquireTimeout);
+        try {
+            if (this.lockAcquired) {
+                const last = this.pendingInLock.length
+                    ? this.pendingInLock[this.pendingInLock.length - 1]
+                    : Promise.resolve();
+                const result = (async () => {
+                    await last;
+                    return await fn();
+                })();
+                this.pendingInLock.push((async () => {
+                    try {
+                        await result;
+                    }
+                    catch (e) {
+                        // we just care if it finished
+                    }
+                })());
+                return result;
+            }
+            return await this.lock(`lock:${this.storageKey}`, acquireTimeout, async () => {
+                this._debug('#_acquireLock', 'lock acquired for storage key', this.storageKey);
+                try {
+                    this.lockAcquired = true;
+                    const result = fn();
+                    this.pendingInLock.push((async () => {
+                        try {
+                            await result;
+                        }
+                        catch (e) {
+                            // we just care if it finished
+                        }
+                    })());
+                    await result;
+                    // keep draining the queue until there's nothing to wait on
+                    while (this.pendingInLock.length) {
+                        const waitOn = [...this.pendingInLock];
+                        await Promise.all(waitOn);
+                        this.pendingInLock.splice(0, waitOn.length);
+                    }
+                    return await result;
+                }
+                finally {
+                    this._debug('#_acquireLock', 'lock released for storage key', this.storageKey);
+                    this.lockAcquired = false;
+                }
+            });
+        }
+        finally {
+            this._debug('#_acquireLock', 'end');
+        }
+    }
+    /**
+     * Use instead of {@link #getSession} inside the library. It is
+     * semantically usually what you want, as getting a session involves some
+     * processing afterwards that requires only one client operating on the
+     * session at once across multiple tabs or processes.
+     */
+    async _useSession(fn) {
+        this._debug('#_useSession', 'begin');
+        try {
+            // the use of __loadSession here is the only correct use of the function!
+            const result = await this.__loadSession();
+            return await fn(result);
+        }
+        finally {
+            this._debug('#_useSession', 'end');
+        }
+    }
+    /**
+     * NEVER USE DIRECTLY!
+     *
+     * Always use {@link #_useSession}.
+     */
+    async __loadSession() {
+        this._debug('#__loadSession()', 'begin');
+        if (!this.lockAcquired) {
+            this._debug('#__loadSession()', 'used outside of an acquired lock!', new Error().stack);
+        }
+        try {
+            let currentSession = null;
+            const maybeSession = await getItemAsync(this.storage, this.storageKey);
+            this._debug('#getSession()', 'session from storage', maybeSession);
+            if (maybeSession !== null) {
+                if (this._isValidSession(maybeSession)) {
+                    currentSession = maybeSession;
+                }
+                else {
+                    this._debug('#getSession()', 'session from storage is not valid');
+                    await this._removeSession();
+                }
+            }
+            if (!currentSession) {
+                return { data: { session: null }, error: null };
+            }
+            // A session is considered expired before the access token _actually_
+            // expires. When the autoRefreshToken option is off (or when the tab is
+            // in the background), very eager users of getSession() -- like
+            // realtime-js -- might send a valid JWT which will expire by the time it
+            // reaches the server.
+            const hasExpired = currentSession.expires_at
+                ? currentSession.expires_at * 1000 - Date.now() < EXPIRY_MARGIN_MS
+                : false;
+            this._debug('#__loadSession()', `session has${hasExpired ? '' : ' not'} expired`, 'expires_at', currentSession.expires_at);
+            if (!hasExpired) {
+                if (this.storage.isServer) {
+                    let suppressWarning = this.suppressGetSessionWarning;
+                    const proxySession = new Proxy(currentSession, {
+                        get: (target, prop, receiver) => {
+                            if (!suppressWarning && prop === 'user') {
+                                // only show warning when the user object is being accessed from the server
+                                console.warn('Using the user object as returned from supabase.auth.getSession() or from some supabase.auth.onAuthStateChange() events could be insecure! This value comes directly from the storage medium (usually cookies on the server) and may not be authentic. Use supabase.auth.getUser() instead which authenticates the data by contacting the Supabase Auth server.');
+                                suppressWarning = true; // keeps this proxy instance from logging additional warnings
+                                this.suppressGetSessionWarning = true; // keeps this client's future proxy instances from warning
+                            }
+                            return Reflect.get(target, prop, receiver);
+                        },
+                    });
+                    currentSession = proxySession;
+                }
+                return { data: { session: currentSession }, error: null };
+            }
+            const { session, error } = await this._callRefreshToken(currentSession.refresh_token);
+            if (error) {
+                return { data: { session: null }, error };
+            }
+            return { data: { session }, error: null };
+        }
+        finally {
+            this._debug('#__loadSession()', 'end');
+        }
+    }
+    /**
+     * Gets the current user details if there is an existing session. This method
+     * performs a network request to the Supabase Auth server, so the returned
+     * value is authentic and can be used to base authorization rules on.
+     *
+     * @param jwt Takes in an optional access token JWT. If no JWT is provided, the JWT from the current session is used.
+     */
+    async getUser(jwt) {
+        if (jwt) {
+            return await this._getUser(jwt);
+        }
+        await this.initializePromise;
+        const result = await this._acquireLock(-1, async () => {
+            return await this._getUser();
+        });
+        return result;
+    }
+    async _getUser(jwt) {
+        try {
+            if (jwt) {
+                return await _request(this.fetch, 'GET', `${this.url}/user`, {
+                    headers: this.headers,
+                    jwt: jwt,
+                    xform: _userResponse,
+                });
+            }
+            return await this._useSession(async (result) => {
+                var _a, _b, _c;
+                const { data, error } = result;
+                if (error) {
+                    throw error;
+                }
+                // returns an error if there is no access_token or custom authorization header
+                if (!((_a = data.session) === null || _a === void 0 ? void 0 : _a.access_token) && !this.hasCustomAuthorizationHeader) {
+                    return { data: { user: null }, error: new AuthSessionMissingError() };
+                }
+                return await _request(this.fetch, 'GET', `${this.url}/user`, {
+                    headers: this.headers,
+                    jwt: (_c = (_b = data.session) === null || _b === void 0 ? void 0 : _b.access_token) !== null && _c !== void 0 ? _c : undefined,
+                    xform: _userResponse,
+                });
+            });
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                if (isAuthSessionMissingError(error)) {
+                    // JWT contains a `session_id` which does not correspond to an active
+                    // session in the database, indicating the user is signed out.
+                    await this._removeSession();
+                    await removeItemAsync(this.storage, `${this.storageKey}-code-verifier`);
+                }
+                return { data: { user: null }, error };
+            }
+            throw error;
+        }
+    }
+    /**
+     * Updates user data for a logged in user.
+     */
+    async updateUser(attributes, options = {}) {
+        await this.initializePromise;
+        return await this._acquireLock(-1, async () => {
+            return await this._updateUser(attributes, options);
+        });
+    }
+    async _updateUser(attributes, options = {}) {
+        try {
+            return await this._useSession(async (result) => {
+                const { data: sessionData, error: sessionError } = result;
+                if (sessionError) {
+                    throw sessionError;
+                }
+                if (!sessionData.session) {
+                    throw new AuthSessionMissingError();
+                }
+                const session = sessionData.session;
+                let codeChallenge = null;
+                let codeChallengeMethod = null;
+                if (this.flowType === 'pkce' && attributes.email != null) {
+                    ;
+                    [codeChallenge, codeChallengeMethod] = await getCodeChallengeAndMethod(this.storage, this.storageKey);
+                }
+                const { data, error: userError } = await _request(this.fetch, 'PUT', `${this.url}/user`, {
+                    headers: this.headers,
+                    redirectTo: options === null || options === void 0 ? void 0 : options.emailRedirectTo,
+                    body: Object.assign(Object.assign({}, attributes), { code_challenge: codeChallenge, code_challenge_method: codeChallengeMethod }),
+                    jwt: session.access_token,
+                    xform: _userResponse,
+                });
+                if (userError)
+                    throw userError;
+                session.user = data.user;
+                await this._saveSession(session);
+                await this._notifyAllSubscribers('USER_UPDATED', session);
+                return { data: { user: session.user }, error: null };
+            });
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return { data: { user: null }, error };
+            }
+            throw error;
+        }
+    }
+    /**
+     * Sets the session data from the current session. If the current session is expired, setSession will take care of refreshing it to obtain a new session.
+     * If the refresh token or access token in the current session is invalid, an error will be thrown.
+     * @param currentSession The current session that minimally contains an access token and refresh token.
+     */
+    async setSession(currentSession) {
+        await this.initializePromise;
+        return await this._acquireLock(-1, async () => {
+            return await this._setSession(currentSession);
+        });
+    }
+    async _setSession(currentSession) {
+        try {
+            if (!currentSession.access_token || !currentSession.refresh_token) {
+                throw new AuthSessionMissingError();
+            }
+            const timeNow = Date.now() / 1000;
+            let expiresAt = timeNow;
+            let hasExpired = true;
+            let session = null;
+            const { payload } = decodeJWT(currentSession.access_token);
+            if (payload.exp) {
+                expiresAt = payload.exp;
+                hasExpired = expiresAt <= timeNow;
+            }
+            if (hasExpired) {
+                const { session: refreshedSession, error } = await this._callRefreshToken(currentSession.refresh_token);
+                if (error) {
+                    return { data: { user: null, session: null }, error: error };
+                }
+                if (!refreshedSession) {
+                    return { data: { user: null, session: null }, error: null };
+                }
+                session = refreshedSession;
+            }
+            else {
+                const { data, error } = await this._getUser(currentSession.access_token);
+                if (error) {
+                    throw error;
+                }
+                session = {
+                    access_token: currentSession.access_token,
+                    refresh_token: currentSession.refresh_token,
+                    user: data.user,
+                    token_type: 'bearer',
+                    expires_in: expiresAt - timeNow,
+                    expires_at: expiresAt,
+                };
+                await this._saveSession(session);
+                await this._notifyAllSubscribers('SIGNED_IN', session);
+            }
+            return { data: { user: session.user, session }, error: null };
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return { data: { session: null, user: null }, error };
+            }
+            throw error;
+        }
+    }
+    /**
+     * Returns a new session, regardless of expiry status.
+     * Takes in an optional current session. If not passed in, then refreshSession() will attempt to retrieve it from getSession().
+     * If the current session's refresh token is invalid, an error will be thrown.
+     * @param currentSession The current session. If passed in, it must contain a refresh token.
+     */
+    async refreshSession(currentSession) {
+        await this.initializePromise;
+        return await this._acquireLock(-1, async () => {
+            return await this._refreshSession(currentSession);
+        });
+    }
+    async _refreshSession(currentSession) {
+        try {
+            return await this._useSession(async (result) => {
+                var _a;
+                if (!currentSession) {
+                    const { data, error } = result;
+                    if (error) {
+                        throw error;
+                    }
+                    currentSession = (_a = data.session) !== null && _a !== void 0 ? _a : undefined;
+                }
+                if (!(currentSession === null || currentSession === void 0 ? void 0 : currentSession.refresh_token)) {
+                    throw new AuthSessionMissingError();
+                }
+                const { session, error } = await this._callRefreshToken(currentSession.refresh_token);
+                if (error) {
+                    return { data: { user: null, session: null }, error: error };
+                }
+                if (!session) {
+                    return { data: { user: null, session: null }, error: null };
+                }
+                return { data: { user: session.user, session }, error: null };
+            });
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return { data: { user: null, session: null }, error };
+            }
+            throw error;
+        }
+    }
+    /**
+     * Gets the session data from a URL string
+     */
+    async _getSessionFromURL(params, callbackUrlType) {
+        try {
+            if (!helpers_isBrowser())
+                throw new AuthImplicitGrantRedirectError('No browser detected.');
+            // If there's an error in the URL, it doesn't matter what flow it is, we just return the error.
+            if (params.error || params.error_description || params.error_code) {
+                // The error class returned implies that the redirect is from an implicit grant flow
+                // but it could also be from a redirect error from a PKCE flow.
+                throw new AuthImplicitGrantRedirectError(params.error_description || 'Error in URL with unspecified error_description', {
+                    error: params.error || 'unspecified_error',
+                    code: params.error_code || 'unspecified_code',
+                });
+            }
+            // Checks for mismatches between the flowType initialised in the client and the URL parameters
+            switch (callbackUrlType) {
+                case 'implicit':
+                    if (this.flowType === 'pkce') {
+                        throw new AuthPKCEGrantCodeExchangeError('Not a valid PKCE flow url.');
+                    }
+                    break;
+                case 'pkce':
+                    if (this.flowType === 'implicit') {
+                        throw new AuthImplicitGrantRedirectError('Not a valid implicit grant flow url.');
+                    }
+                    break;
+                default:
+                // there's no mismatch so we continue
+            }
+            // Since this is a redirect for PKCE, we attempt to retrieve the code from the URL for the code exchange
+            if (callbackUrlType === 'pkce') {
+                this._debug('#_initialize()', 'begin', 'is PKCE flow', true);
+                if (!params.code)
+                    throw new AuthPKCEGrantCodeExchangeError('No code detected.');
+                const { data, error } = await this._exchangeCodeForSession(params.code);
+                if (error)
+                    throw error;
+                const url = new URL(window.location.href);
+                url.searchParams.delete('code');
+                window.history.replaceState(window.history.state, '', url.toString());
+                return { data: { session: data.session, redirectType: null }, error: null };
+            }
+            const { provider_token, provider_refresh_token, access_token, refresh_token, expires_in, expires_at, token_type, } = params;
+            if (!access_token || !expires_in || !refresh_token || !token_type) {
+                throw new AuthImplicitGrantRedirectError('No session defined in URL');
+            }
+            const timeNow = Math.round(Date.now() / 1000);
+            const expiresIn = parseInt(expires_in);
+            let expiresAt = timeNow + expiresIn;
+            if (expires_at) {
+                expiresAt = parseInt(expires_at);
+            }
+            const actuallyExpiresIn = expiresAt - timeNow;
+            if (actuallyExpiresIn * 1000 <= AUTO_REFRESH_TICK_DURATION_MS) {
+                console.warn(`@supabase/gotrue-js: Session as retrieved from URL expires in ${actuallyExpiresIn}s, should have been closer to ${expiresIn}s`);
+            }
+            const issuedAt = expiresAt - expiresIn;
+            if (timeNow - issuedAt >= 120) {
+                console.warn('@supabase/gotrue-js: Session as retrieved from URL was issued over 120s ago, URL could be stale', issuedAt, expiresAt, timeNow);
+            }
+            else if (timeNow - issuedAt < 0) {
+                console.warn('@supabase/gotrue-js: Session as retrieved from URL was issued in the future? Check the device clock for skew', issuedAt, expiresAt, timeNow);
+            }
+            const { data, error } = await this._getUser(access_token);
+            if (error)
+                throw error;
+            const session = {
+                provider_token,
+                provider_refresh_token,
+                access_token,
+                expires_in: expiresIn,
+                expires_at: expiresAt,
+                refresh_token,
+                token_type,
+                user: data.user,
+            };
+            // Remove tokens from URL
+            window.location.hash = '';
+            this._debug('#_getSessionFromURL()', 'clearing window.location.hash');
+            return { data: { session, redirectType: params.type }, error: null };
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return { data: { session: null, redirectType: null }, error };
+            }
+            throw error;
+        }
+    }
+    /**
+     * Checks if the current URL contains parameters given by an implicit oauth grant flow (https://www.rfc-editor.org/rfc/rfc6749.html#section-4.2)
+     */
+    _isImplicitGrantCallback(params) {
+        return Boolean(params.access_token || params.error_description);
+    }
+    /**
+     * Checks if the current URL and backing storage contain parameters given by a PKCE flow
+     */
+    async _isPKCECallback(params) {
+        const currentStorageContent = await getItemAsync(this.storage, `${this.storageKey}-code-verifier`);
+        return !!(params.code && currentStorageContent);
+    }
+    /**
+     * Inside a browser context, `signOut()` will remove the logged in user from the browser session and log them out - removing all items from localstorage and then trigger a `"SIGNED_OUT"` event.
+     *
+     * For server-side management, you can revoke all refresh tokens for a user by passing a user's JWT through to `auth.api.signOut(JWT: string)`.
+     * There is no way to revoke a user's access token jwt until it expires. It is recommended to set a shorter expiry on the jwt for this reason.
+     *
+     * If using `others` scope, no `SIGNED_OUT` event is fired!
+     */
+    async signOut(options = { scope: 'global' }) {
+        await this.initializePromise;
+        return await this._acquireLock(-1, async () => {
+            return await this._signOut(options);
+        });
+    }
+    async _signOut({ scope } = { scope: 'global' }) {
+        return await this._useSession(async (result) => {
+            var _a;
+            const { data, error: sessionError } = result;
+            if (sessionError) {
+                return { error: sessionError };
+            }
+            const accessToken = (_a = data.session) === null || _a === void 0 ? void 0 : _a.access_token;
+            if (accessToken) {
+                const { error } = await this.admin.signOut(accessToken, scope);
+                if (error) {
+                    // ignore 404s since user might not exist anymore
+                    // ignore 401s since an invalid or expired JWT should sign out the current session
+                    if (!(isAuthApiError(error) &&
+                        (error.status === 404 || error.status === 401 || error.status === 403))) {
+                        return { error };
+                    }
+                }
+            }
+            if (scope !== 'others') {
+                await this._removeSession();
+                await removeItemAsync(this.storage, `${this.storageKey}-code-verifier`);
+            }
+            return { error: null };
+        });
+    }
+    /**
+     * Receive a notification every time an auth event happens.
+     * @param callback A callback function to be invoked when an auth event happens.
+     */
+    onAuthStateChange(callback) {
+        const id = helpers_uuid();
+        const subscription = {
+            id,
+            callback,
+            unsubscribe: () => {
+                this._debug('#unsubscribe()', 'state change callback with id removed', id);
+                this.stateChangeEmitters.delete(id);
+            },
+        };
+        this._debug('#onAuthStateChange()', 'registered callback with id', id);
+        this.stateChangeEmitters.set(id, subscription);
+        (async () => {
+            await this.initializePromise;
+            await this._acquireLock(-1, async () => {
+                this._emitInitialSession(id);
+            });
+        })();
+        return { data: { subscription } };
+    }
+    async _emitInitialSession(id) {
+        return await this._useSession(async (result) => {
+            var _a, _b;
+            try {
+                const { data: { session }, error, } = result;
+                if (error)
+                    throw error;
+                await ((_a = this.stateChangeEmitters.get(id)) === null || _a === void 0 ? void 0 : _a.callback('INITIAL_SESSION', session));
+                this._debug('INITIAL_SESSION', 'callback id', id, 'session', session);
+            }
+            catch (err) {
+                await ((_b = this.stateChangeEmitters.get(id)) === null || _b === void 0 ? void 0 : _b.callback('INITIAL_SESSION', null));
+                this._debug('INITIAL_SESSION', 'callback id', id, 'error', err);
+                console.error(err);
+            }
+        });
+    }
+    /**
+     * Sends a password reset request to an email address. This method supports the PKCE flow.
+     *
+     * @param email The email address of the user.
+     * @param options.redirectTo The URL to send the user to after they click the password reset link.
+     * @param options.captchaToken Verification token received when the user completes the captcha on the site.
+     */
+    async resetPasswordForEmail(email, options = {}) {
+        let codeChallenge = null;
+        let codeChallengeMethod = null;
+        if (this.flowType === 'pkce') {
+            ;
+            [codeChallenge, codeChallengeMethod] = await getCodeChallengeAndMethod(this.storage, this.storageKey, true // isPasswordRecovery
+            );
+        }
+        try {
+            return await _request(this.fetch, 'POST', `${this.url}/recover`, {
+                body: {
+                    email,
+                    code_challenge: codeChallenge,
+                    code_challenge_method: codeChallengeMethod,
+                    gotrue_meta_security: { captcha_token: options.captchaToken },
+                },
+                headers: this.headers,
+                redirectTo: options.redirectTo,
+            });
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return { data: null, error };
+            }
+            throw error;
+        }
+    }
+    /**
+     * Gets all the identities linked to a user.
+     */
+    async getUserIdentities() {
+        var _a;
+        try {
+            const { data, error } = await this.getUser();
+            if (error)
+                throw error;
+            return { data: { identities: (_a = data.user.identities) !== null && _a !== void 0 ? _a : [] }, error: null };
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return { data: null, error };
+            }
+            throw error;
+        }
+    }
+    /**
+     * Links an oauth identity to an existing user.
+     * This method supports the PKCE flow.
+     */
+    async linkIdentity(credentials) {
+        var _a;
+        try {
+            const { data, error } = await this._useSession(async (result) => {
+                var _a, _b, _c, _d, _e;
+                const { data, error } = result;
+                if (error)
+                    throw error;
+                const url = await this._getUrlForProvider(`${this.url}/user/identities/authorize`, credentials.provider, {
+                    redirectTo: (_a = credentials.options) === null || _a === void 0 ? void 0 : _a.redirectTo,
+                    scopes: (_b = credentials.options) === null || _b === void 0 ? void 0 : _b.scopes,
+                    queryParams: (_c = credentials.options) === null || _c === void 0 ? void 0 : _c.queryParams,
+                    skipBrowserRedirect: true,
+                });
+                return await _request(this.fetch, 'GET', url, {
+                    headers: this.headers,
+                    jwt: (_e = (_d = data.session) === null || _d === void 0 ? void 0 : _d.access_token) !== null && _e !== void 0 ? _e : undefined,
+                });
+            });
+            if (error)
+                throw error;
+            if (helpers_isBrowser() && !((_a = credentials.options) === null || _a === void 0 ? void 0 : _a.skipBrowserRedirect)) {
+                window.location.assign(data === null || data === void 0 ? void 0 : data.url);
+            }
+            return { data: { provider: credentials.provider, url: data === null || data === void 0 ? void 0 : data.url }, error: null };
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return { data: { provider: credentials.provider, url: null }, error };
+            }
+            throw error;
+        }
+    }
+    /**
+     * Unlinks an identity from a user by deleting it. The user will no longer be able to sign in with that identity once it's unlinked.
+     */
+    async unlinkIdentity(identity) {
+        try {
+            return await this._useSession(async (result) => {
+                var _a, _b;
+                const { data, error } = result;
+                if (error) {
+                    throw error;
+                }
+                return await _request(this.fetch, 'DELETE', `${this.url}/user/identities/${identity.identity_id}`, {
+                    headers: this.headers,
+                    jwt: (_b = (_a = data.session) === null || _a === void 0 ? void 0 : _a.access_token) !== null && _b !== void 0 ? _b : undefined,
+                });
+            });
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return { data: null, error };
+            }
+            throw error;
+        }
+    }
+    /**
+     * Generates a new JWT.
+     * @param refreshToken A valid refresh token that was returned on login.
+     */
+    async _refreshAccessToken(refreshToken) {
+        const debugName = `#_refreshAccessToken(${refreshToken.substring(0, 5)}...)`;
+        this._debug(debugName, 'begin');
+        try {
+            const startedAt = Date.now();
+            // will attempt to refresh the token with exponential backoff
+            return await retryable(async (attempt) => {
+                if (attempt > 0) {
+                    await sleep(200 * Math.pow(2, attempt - 1)); // 200, 400, 800, ...
+                }
+                this._debug(debugName, 'refreshing attempt', attempt);
+                return await _request(this.fetch, 'POST', `${this.url}/token?grant_type=refresh_token`, {
+                    body: { refresh_token: refreshToken },
+                    headers: this.headers,
+                    xform: _sessionResponse,
+                });
+            }, (attempt, error) => {
+                const nextBackOffInterval = 200 * Math.pow(2, attempt);
+                return (error &&
+                    isAuthRetryableFetchError(error) &&
+                    // retryable only if the request can be sent before the backoff overflows the tick duration
+                    Date.now() + nextBackOffInterval - startedAt < AUTO_REFRESH_TICK_DURATION_MS);
+            });
+        }
+        catch (error) {
+            this._debug(debugName, 'error', error);
+            if (isAuthError(error)) {
+                return { data: { session: null, user: null }, error };
+            }
+            throw error;
+        }
+        finally {
+            this._debug(debugName, 'end');
+        }
+    }
+    _isValidSession(maybeSession) {
+        const isValidSession = typeof maybeSession === 'object' &&
+            maybeSession !== null &&
+            'access_token' in maybeSession &&
+            'refresh_token' in maybeSession &&
+            'expires_at' in maybeSession;
+        return isValidSession;
+    }
+    async _handleProviderSignIn(provider, options) {
+        const url = await this._getUrlForProvider(`${this.url}/authorize`, provider, {
+            redirectTo: options.redirectTo,
+            scopes: options.scopes,
+            queryParams: options.queryParams,
+        });
+        this._debug('#_handleProviderSignIn()', 'provider', provider, 'options', options, 'url', url);
+        // try to open on the browser
+        if (helpers_isBrowser() && !options.skipBrowserRedirect) {
+            window.location.assign(url);
+        }
+        return { data: { provider, url }, error: null };
+    }
+    /**
+     * Recovers the session from LocalStorage and refreshes the token
+     * Note: this method is async to accommodate for AsyncStorage e.g. in React native.
+     */
+    async _recoverAndRefresh() {
+        var _a;
+        const debugName = '#_recoverAndRefresh()';
+        this._debug(debugName, 'begin');
+        try {
+            const currentSession = await getItemAsync(this.storage, this.storageKey);
+            this._debug(debugName, 'session from storage', currentSession);
+            if (!this._isValidSession(currentSession)) {
+                this._debug(debugName, 'session is not valid');
+                if (currentSession !== null) {
+                    await this._removeSession();
+                }
+                return;
+            }
+            const expiresWithMargin = ((_a = currentSession.expires_at) !== null && _a !== void 0 ? _a : Infinity) * 1000 - Date.now() < EXPIRY_MARGIN_MS;
+            this._debug(debugName, `session has${expiresWithMargin ? '' : ' not'} expired with margin of ${EXPIRY_MARGIN_MS}s`);
+            if (expiresWithMargin) {
+                if (this.autoRefreshToken && currentSession.refresh_token) {
+                    const { error } = await this._callRefreshToken(currentSession.refresh_token);
+                    if (error) {
+                        console.error(error);
+                        if (!isAuthRetryableFetchError(error)) {
+                            this._debug(debugName, 'refresh failed with a non-retryable error, removing the session', error);
+                            await this._removeSession();
+                        }
+                    }
+                }
+            }
+            else {
+                // no need to persist currentSession again, as we just loaded it from
+                // local storage; persisting it again may overwrite a value saved by
+                // another client with access to the same local storage
+                await this._notifyAllSubscribers('SIGNED_IN', currentSession);
+            }
+        }
+        catch (err) {
+            this._debug(debugName, 'error', err);
+            console.error(err);
+            return;
+        }
+        finally {
+            this._debug(debugName, 'end');
+        }
+    }
+    async _callRefreshToken(refreshToken) {
+        var _a, _b;
+        if (!refreshToken) {
+            throw new AuthSessionMissingError();
+        }
+        // refreshing is already in progress
+        if (this.refreshingDeferred) {
+            return this.refreshingDeferred.promise;
+        }
+        const debugName = `#_callRefreshToken(${refreshToken.substring(0, 5)}...)`;
+        this._debug(debugName, 'begin');
+        try {
+            this.refreshingDeferred = new Deferred();
+            const { data, error } = await this._refreshAccessToken(refreshToken);
+            if (error)
+                throw error;
+            if (!data.session)
+                throw new AuthSessionMissingError();
+            await this._saveSession(data.session);
+            await this._notifyAllSubscribers('TOKEN_REFRESHED', data.session);
+            const result = { session: data.session, error: null };
+            this.refreshingDeferred.resolve(result);
+            return result;
+        }
+        catch (error) {
+            this._debug(debugName, 'error', error);
+            if (isAuthError(error)) {
+                const result = { session: null, error };
+                if (!isAuthRetryableFetchError(error)) {
+                    await this._removeSession();
+                }
+                (_a = this.refreshingDeferred) === null || _a === void 0 ? void 0 : _a.resolve(result);
+                return result;
+            }
+            (_b = this.refreshingDeferred) === null || _b === void 0 ? void 0 : _b.reject(error);
+            throw error;
+        }
+        finally {
+            this.refreshingDeferred = null;
+            this._debug(debugName, 'end');
+        }
+    }
+    async _notifyAllSubscribers(event, session, broadcast = true) {
+        const debugName = `#_notifyAllSubscribers(${event})`;
+        this._debug(debugName, 'begin', session, `broadcast = ${broadcast}`);
+        try {
+            if (this.broadcastChannel && broadcast) {
+                this.broadcastChannel.postMessage({ event, session });
+            }
+            const errors = [];
+            const promises = Array.from(this.stateChangeEmitters.values()).map(async (x) => {
+                try {
+                    await x.callback(event, session);
+                }
+                catch (e) {
+                    errors.push(e);
+                }
+            });
+            await Promise.all(promises);
+            if (errors.length > 0) {
+                for (let i = 0; i < errors.length; i += 1) {
+                    console.error(errors[i]);
+                }
+                throw errors[0];
+            }
+        }
+        finally {
+            this._debug(debugName, 'end');
+        }
+    }
+    /**
+     * set currentSession and currentUser
+     * process to _startAutoRefreshToken if possible
+     */
+    async _saveSession(session) {
+        this._debug('#_saveSession()', session);
+        // _saveSession is always called whenever a new session has been acquired
+        // so we can safely suppress the warning returned by future getSession calls
+        this.suppressGetSessionWarning = true;
+        await setItemAsync(this.storage, this.storageKey, session);
+    }
+    async _removeSession() {
+        this._debug('#_removeSession()');
+        await removeItemAsync(this.storage, this.storageKey);
+        await this._notifyAllSubscribers('SIGNED_OUT', null);
+    }
+    /**
+     * Removes any registered visibilitychange callback.
+     *
+     * {@see #startAutoRefresh}
+     * {@see #stopAutoRefresh}
+     */
+    _removeVisibilityChangedCallback() {
+        this._debug('#_removeVisibilityChangedCallback()');
+        const callback = this.visibilityChangedCallback;
+        this.visibilityChangedCallback = null;
+        try {
+            if (callback && helpers_isBrowser() && (window === null || window === void 0 ? void 0 : window.removeEventListener)) {
+                window.removeEventListener('visibilitychange', callback);
+            }
+        }
+        catch (e) {
+            console.error('removing visibilitychange callback failed', e);
+        }
+    }
+    /**
+     * This is the private implementation of {@link #startAutoRefresh}. Use this
+     * within the library.
+     */
+    async _startAutoRefresh() {
+        await this._stopAutoRefresh();
+        this._debug('#_startAutoRefresh()');
+        const ticker = setInterval(() => this._autoRefreshTokenTick(), AUTO_REFRESH_TICK_DURATION_MS);
+        this.autoRefreshTicker = ticker;
+        if (ticker && typeof ticker === 'object' && typeof ticker.unref === 'function') {
+            // ticker is a NodeJS Timeout object that has an `unref` method
+            // https://nodejs.org/api/timers.html#timeoutunref
+            // When auto refresh is used in NodeJS (like for testing) the
+            // `setInterval` is preventing the process from being marked as
+            // finished and tests run endlessly. This can be prevented by calling
+            // `unref()` on the returned object.
+            ticker.unref();
+            // @ts-expect-error TS has no context of Deno
+        }
+        else if (typeof Deno !== 'undefined' && typeof Deno.unrefTimer === 'function') {
+            // similar like for NodeJS, but with the Deno API
+            // https://deno.land/api@latest?unstable&s=Deno.unrefTimer
+            // @ts-expect-error TS has no context of Deno
+            Deno.unrefTimer(ticker);
+        }
+        // run the tick immediately, but in the next pass of the event loop so that
+        // #_initialize can be allowed to complete without recursively waiting on
+        // itself
+        setTimeout(async () => {
+            await this.initializePromise;
+            await this._autoRefreshTokenTick();
+        }, 0);
+    }
+    /**
+     * This is the private implementation of {@link #stopAutoRefresh}. Use this
+     * within the library.
+     */
+    async _stopAutoRefresh() {
+        this._debug('#_stopAutoRefresh()');
+        const ticker = this.autoRefreshTicker;
+        this.autoRefreshTicker = null;
+        if (ticker) {
+            clearInterval(ticker);
+        }
+    }
+    /**
+     * Starts an auto-refresh process in the background. The session is checked
+     * every few seconds. Close to the time of expiration a process is started to
+     * refresh the session. If refreshing fails it will be retried for as long as
+     * necessary.
+     *
+     * If you set the {@link GoTrueClientOptions#autoRefreshToken} you don't need
+     * to call this function, it will be called for you.
+     *
+     * On browsers the refresh process works only when the tab/window is in the
+     * foreground to conserve resources as well as prevent race conditions and
+     * flooding auth with requests. If you call this method any managed
+     * visibility change callback will be removed and you must manage visibility
+     * changes on your own.
+     *
+     * On non-browser platforms the refresh process works *continuously* in the
+     * background, which may not be desirable. You should hook into your
+     * platform's foreground indication mechanism and call these methods
+     * appropriately to conserve resources.
+     *
+     * {@see #stopAutoRefresh}
+     */
+    async startAutoRefresh() {
+        this._removeVisibilityChangedCallback();
+        await this._startAutoRefresh();
+    }
+    /**
+     * Stops an active auto refresh process running in the background (if any).
+     *
+     * If you call this method any managed visibility change callback will be
+     * removed and you must manage visibility changes on your own.
+     *
+     * See {@link #startAutoRefresh} for more details.
+     */
+    async stopAutoRefresh() {
+        this._removeVisibilityChangedCallback();
+        await this._stopAutoRefresh();
+    }
+    /**
+     * Runs the auto refresh token tick.
+     */
+    async _autoRefreshTokenTick() {
+        this._debug('#_autoRefreshTokenTick()', 'begin');
+        try {
+            await this._acquireLock(0, async () => {
+                try {
+                    const now = Date.now();
+                    try {
+                        return await this._useSession(async (result) => {
+                            const { data: { session }, } = result;
+                            if (!session || !session.refresh_token || !session.expires_at) {
+                                this._debug('#_autoRefreshTokenTick()', 'no session');
+                                return;
+                            }
+                            // session will expire in this many ticks (or has already expired if <= 0)
+                            const expiresInTicks = Math.floor((session.expires_at * 1000 - now) / AUTO_REFRESH_TICK_DURATION_MS);
+                            this._debug('#_autoRefreshTokenTick()', `access token expires in ${expiresInTicks} ticks, a tick lasts ${AUTO_REFRESH_TICK_DURATION_MS}ms, refresh threshold is ${AUTO_REFRESH_TICK_THRESHOLD} ticks`);
+                            if (expiresInTicks <= AUTO_REFRESH_TICK_THRESHOLD) {
+                                await this._callRefreshToken(session.refresh_token);
+                            }
+                        });
+                    }
+                    catch (e) {
+                        console.error('Auto refresh tick failed with error. This is likely a transient error.', e);
+                    }
+                }
+                finally {
+                    this._debug('#_autoRefreshTokenTick()', 'end');
+                }
+            });
+        }
+        catch (e) {
+            if (e.isAcquireTimeout || e instanceof LockAcquireTimeoutError) {
+                this._debug('auto refresh token tick lock not available');
+            }
+            else {
+                throw e;
+            }
+        }
+    }
+    /**
+     * Registers callbacks on the browser / platform, which in-turn run
+     * algorithms when the browser window/tab are in foreground. On non-browser
+     * platforms it assumes always foreground.
+     */
+    async _handleVisibilityChange() {
+        this._debug('#_handleVisibilityChange()');
+        if (!helpers_isBrowser() || !(window === null || window === void 0 ? void 0 : window.addEventListener)) {
+            if (this.autoRefreshToken) {
+                // in non-browser environments the refresh token ticker runs always
+                this.startAutoRefresh();
+            }
+            return false;
+        }
+        try {
+            this.visibilityChangedCallback = async () => await this._onVisibilityChanged(false);
+            window === null || window === void 0 ? void 0 : window.addEventListener('visibilitychange', this.visibilityChangedCallback);
+            // now immediately call the visbility changed callback to setup with the
+            // current visbility state
+            await this._onVisibilityChanged(true); // initial call
+        }
+        catch (error) {
+            console.error('_handleVisibilityChange', error);
+        }
+    }
+    /**
+     * Callback registered with `window.addEventListener('visibilitychange')`.
+     */
+    async _onVisibilityChanged(calledFromInitialize) {
+        const methodName = `#_onVisibilityChanged(${calledFromInitialize})`;
+        this._debug(methodName, 'visibilityState', document.visibilityState);
+        if (document.visibilityState === 'visible') {
+            if (this.autoRefreshToken) {
+                // in browser environments the refresh token ticker runs only on focused tabs
+                // which prevents race conditions
+                this._startAutoRefresh();
+            }
+            if (!calledFromInitialize) {
+                // called when the visibility has changed, i.e. the browser
+                // transitioned from hidden -> visible so we need to see if the session
+                // should be recovered immediately... but to do that we need to acquire
+                // the lock first asynchronously
+                await this.initializePromise;
+                await this._acquireLock(-1, async () => {
+                    if (document.visibilityState !== 'visible') {
+                        this._debug(methodName, 'acquired the lock to recover the session, but the browser visibilityState is no longer visible, aborting');
+                        // visibility has changed while waiting for the lock, abort
+                        return;
+                    }
+                    // recover the session
+                    await this._recoverAndRefresh();
+                });
+            }
+        }
+        else if (document.visibilityState === 'hidden') {
+            if (this.autoRefreshToken) {
+                this._stopAutoRefresh();
+            }
+        }
+    }
+    /**
+     * Generates the relevant login URL for a third-party provider.
+     * @param options.redirectTo A URL or mobile address to send the user to after they are confirmed.
+     * @param options.scopes A space-separated list of scopes granted to the OAuth application.
+     * @param options.queryParams An object of key-value pairs containing query parameters granted to the OAuth application.
+     */
+    async _getUrlForProvider(url, provider, options) {
+        const urlParams = [`provider=${encodeURIComponent(provider)}`];
+        if (options === null || options === void 0 ? void 0 : options.redirectTo) {
+            urlParams.push(`redirect_to=${encodeURIComponent(options.redirectTo)}`);
+        }
+        if (options === null || options === void 0 ? void 0 : options.scopes) {
+            urlParams.push(`scopes=${encodeURIComponent(options.scopes)}`);
+        }
+        if (this.flowType === 'pkce') {
+            const [codeChallenge, codeChallengeMethod] = await getCodeChallengeAndMethod(this.storage, this.storageKey);
+            const flowParams = new URLSearchParams({
+                code_challenge: `${encodeURIComponent(codeChallenge)}`,
+                code_challenge_method: `${encodeURIComponent(codeChallengeMethod)}`,
+            });
+            urlParams.push(flowParams.toString());
+        }
+        if (options === null || options === void 0 ? void 0 : options.queryParams) {
+            const query = new URLSearchParams(options.queryParams);
+            urlParams.push(query.toString());
+        }
+        if (options === null || options === void 0 ? void 0 : options.skipBrowserRedirect) {
+            urlParams.push(`skip_http_redirect=${options.skipBrowserRedirect}`);
+        }
+        return `${url}?${urlParams.join('&')}`;
+    }
+    async _unenroll(params) {
+        try {
+            return await this._useSession(async (result) => {
+                var _a;
+                const { data: sessionData, error: sessionError } = result;
+                if (sessionError) {
+                    return { data: null, error: sessionError };
+                }
+                return await _request(this.fetch, 'DELETE', `${this.url}/factors/${params.factorId}`, {
+                    headers: this.headers,
+                    jwt: (_a = sessionData === null || sessionData === void 0 ? void 0 : sessionData.session) === null || _a === void 0 ? void 0 : _a.access_token,
+                });
+            });
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return { data: null, error };
+            }
+            throw error;
+        }
+    }
+    async _enroll(params) {
+        try {
+            return await this._useSession(async (result) => {
+                var _a, _b;
+                const { data: sessionData, error: sessionError } = result;
+                if (sessionError) {
+                    return { data: null, error: sessionError };
+                }
+                const body = Object.assign({ friendly_name: params.friendlyName, factor_type: params.factorType }, (params.factorType === 'phone' ? { phone: params.phone } : { issuer: params.issuer }));
+                const { data, error } = await _request(this.fetch, 'POST', `${this.url}/factors`, {
+                    body,
+                    headers: this.headers,
+                    jwt: (_a = sessionData === null || sessionData === void 0 ? void 0 : sessionData.session) === null || _a === void 0 ? void 0 : _a.access_token,
+                });
+                if (error) {
+                    return { data: null, error };
+                }
+                if (params.factorType === 'totp' && ((_b = data === null || data === void 0 ? void 0 : data.totp) === null || _b === void 0 ? void 0 : _b.qr_code)) {
+                    data.totp.qr_code = `data:image/svg+xml;utf-8,${data.totp.qr_code}`;
+                }
+                return { data, error: null };
+            });
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return { data: null, error };
+            }
+            throw error;
+        }
+    }
+    /**
+     * {@see GoTrueMFAApi#verify}
+     */
+    async _verify(params) {
+        return this._acquireLock(-1, async () => {
+            try {
+                return await this._useSession(async (result) => {
+                    var _a;
+                    const { data: sessionData, error: sessionError } = result;
+                    if (sessionError) {
+                        return { data: null, error: sessionError };
+                    }
+                    const { data, error } = await _request(this.fetch, 'POST', `${this.url}/factors/${params.factorId}/verify`, {
+                        body: { code: params.code, challenge_id: params.challengeId },
+                        headers: this.headers,
+                        jwt: (_a = sessionData === null || sessionData === void 0 ? void 0 : sessionData.session) === null || _a === void 0 ? void 0 : _a.access_token,
+                    });
+                    if (error) {
+                        return { data: null, error };
+                    }
+                    await this._saveSession(Object.assign({ expires_at: Math.round(Date.now() / 1000) + data.expires_in }, data));
+                    await this._notifyAllSubscribers('MFA_CHALLENGE_VERIFIED', data);
+                    return { data, error };
+                });
+            }
+            catch (error) {
+                if (isAuthError(error)) {
+                    return { data: null, error };
+                }
+                throw error;
+            }
+        });
+    }
+    /**
+     * {@see GoTrueMFAApi#challenge}
+     */
+    async _challenge(params) {
+        return this._acquireLock(-1, async () => {
+            try {
+                return await this._useSession(async (result) => {
+                    var _a;
+                    const { data: sessionData, error: sessionError } = result;
+                    if (sessionError) {
+                        return { data: null, error: sessionError };
+                    }
+                    return await _request(this.fetch, 'POST', `${this.url}/factors/${params.factorId}/challenge`, {
+                        body: { channel: params.channel },
+                        headers: this.headers,
+                        jwt: (_a = sessionData === null || sessionData === void 0 ? void 0 : sessionData.session) === null || _a === void 0 ? void 0 : _a.access_token,
+                    });
+                });
+            }
+            catch (error) {
+                if (isAuthError(error)) {
+                    return { data: null, error };
+                }
+                throw error;
+            }
+        });
+    }
+    /**
+     * {@see GoTrueMFAApi#challengeAndVerify}
+     */
+    async _challengeAndVerify(params) {
+        // both _challenge and _verify independently acquire the lock, so no need
+        // to acquire it here
+        const { data: challengeData, error: challengeError } = await this._challenge({
+            factorId: params.factorId,
+        });
+        if (challengeError) {
+            return { data: null, error: challengeError };
+        }
+        return await this._verify({
+            factorId: params.factorId,
+            challengeId: challengeData.id,
+            code: params.code,
+        });
+    }
+    /**
+     * {@see GoTrueMFAApi#listFactors}
+     */
+    async _listFactors() {
+        // use #getUser instead of #_getUser as the former acquires a lock
+        const { data: { user }, error: userError, } = await this.getUser();
+        if (userError) {
+            return { data: null, error: userError };
+        }
+        const factors = (user === null || user === void 0 ? void 0 : user.factors) || [];
+        const totp = factors.filter((factor) => factor.factor_type === 'totp' && factor.status === 'verified');
+        const phone = factors.filter((factor) => factor.factor_type === 'phone' && factor.status === 'verified');
+        return {
+            data: {
+                all: factors,
+                totp,
+                phone,
+            },
+            error: null,
+        };
+    }
+    /**
+     * {@see GoTrueMFAApi#getAuthenticatorAssuranceLevel}
+     */
+    async _getAuthenticatorAssuranceLevel() {
+        return this._acquireLock(-1, async () => {
+            return await this._useSession(async (result) => {
+                var _a, _b;
+                const { data: { session }, error: sessionError, } = result;
+                if (sessionError) {
+                    return { data: null, error: sessionError };
+                }
+                if (!session) {
+                    return {
+                        data: { currentLevel: null, nextLevel: null, currentAuthenticationMethods: [] },
+                        error: null,
+                    };
+                }
+                const { payload } = decodeJWT(session.access_token);
+                let currentLevel = null;
+                if (payload.aal) {
+                    currentLevel = payload.aal;
+                }
+                let nextLevel = currentLevel;
+                const verifiedFactors = (_b = (_a = session.user.factors) === null || _a === void 0 ? void 0 : _a.filter((factor) => factor.status === 'verified')) !== null && _b !== void 0 ? _b : [];
+                if (verifiedFactors.length > 0) {
+                    nextLevel = 'aal2';
+                }
+                const currentAuthenticationMethods = payload.amr || [];
+                return { data: { currentLevel, nextLevel, currentAuthenticationMethods }, error: null };
+            });
+        });
+    }
+    async fetchJwk(kid, jwks = { keys: [] }) {
+        // try fetching from the supplied jwks
+        let jwk = jwks.keys.find((key) => key.kid === kid);
+        if (jwk) {
+            return jwk;
+        }
+        // try fetching from cache
+        jwk = this.jwks.keys.find((key) => key.kid === kid);
+        // jwk exists and jwks isn't stale
+        if (jwk && this.jwks_cached_at + JWKS_TTL > Date.now()) {
+            return jwk;
+        }
+        // jwk isn't cached in memory so we need to fetch it from the well-known endpoint
+        const { data, error } = await _request(this.fetch, 'GET', `${this.url}/.well-known/jwks.json`, {
+            headers: this.headers,
+        });
+        if (error) {
+            throw error;
+        }
+        if (!data.keys || data.keys.length === 0) {
+            throw new AuthInvalidJwtError('JWKS is empty');
+        }
+        this.jwks = data;
+        this.jwks_cached_at = Date.now();
+        // Find the signing key
+        jwk = data.keys.find((key) => key.kid === kid);
+        if (!jwk) {
+            throw new AuthInvalidJwtError('No matching signing key found in JWKS');
+        }
+        return jwk;
+    }
+    /**
+     * @experimental This method may change in future versions.
+     * @description Gets the claims from a JWT. If the JWT is symmetric JWTs, it will call getUser() to verify against the server. If the JWT is asymmetric, it will be verified against the JWKS using the WebCrypto API.
+     */
+    async getClaims(jwt, jwks = { keys: [] }) {
+        try {
+            let token = jwt;
+            if (!token) {
+                const { data, error } = await this.getSession();
+                if (error || !data.session) {
+                    return { data: null, error };
+                }
+                token = data.session.access_token;
+            }
+            const { header, payload, signature, raw: { header: rawHeader, payload: rawPayload }, } = decodeJWT(token);
+            // Reject expired JWTs
+            validateExp(payload.exp);
+            // If symmetric algorithm or WebCrypto API is unavailable, fallback to getUser()
+            if (!header.kid ||
+                header.alg === 'HS256' ||
+                !('crypto' in globalThis && 'subtle' in globalThis.crypto)) {
+                const { error } = await this.getUser(token);
+                if (error) {
+                    throw error;
+                }
+                // getUser succeeds so the claims in the JWT can be trusted
+                return {
+                    data: {
+                        claims: payload,
+                        header,
+                        signature,
+                    },
+                    error: null,
+                };
+            }
+            const algorithm = getAlgorithm(header.alg);
+            const signingKey = await this.fetchJwk(header.kid, jwks);
+            // Convert JWK to CryptoKey
+            const publicKey = await crypto.subtle.importKey('jwk', signingKey, algorithm, true, [
+                'verify',
+            ]);
+            // Verify the signature
+            const isValid = await crypto.subtle.verify(algorithm, publicKey, signature, stringToUint8Array(`${rawHeader}.${rawPayload}`));
+            if (!isValid) {
+                throw new AuthInvalidJwtError('Invalid JWT signature');
+            }
+            // If verification succeeds, decode and return claims
+            return {
+                data: {
+                    claims: payload,
+                    header,
+                    signature,
+                },
+                error: null,
+            };
+        }
+        catch (error) {
+            if (isAuthError(error)) {
+                return { data: null, error };
+            }
+            throw error;
+        }
+    }
+}
+GoTrueClient.nextInstanceID = 0;
+//# sourceMappingURL=GoTrueClient.js.map
+;// ./node_modules/@supabase/auth-js/dist/module/AuthAdminApi.js
+
+const AuthAdminApi = (/* unused pure expression or super */ null && (GoTrueAdminApi));
+/* harmony default export */ const module_AuthAdminApi = ((/* unused pure expression or super */ null && (AuthAdminApi)));
+//# sourceMappingURL=AuthAdminApi.js.map
+;// ./node_modules/@supabase/auth-js/dist/module/AuthClient.js
+
+const AuthClient = GoTrueClient;
+/* harmony default export */ const module_AuthClient = (AuthClient);
+//# sourceMappingURL=AuthClient.js.map
+;// ./node_modules/@supabase/auth-js/dist/module/index.js
+
+
+
+
+
+
+
+
+//# sourceMappingURL=index.js.map
+;// ./node_modules/@supabase/supabase-js/dist/module/lib/SupabaseAuthClient.js
+
+class SupabaseAuthClient extends module_AuthClient {
+    constructor(options) {
+        super(options);
+    }
+}
+//# sourceMappingURL=SupabaseAuthClient.js.map
+;// ./node_modules/@supabase/supabase-js/dist/module/SupabaseClient.js
+var SupabaseClient_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+
+
+
+
+/**
+ * Supabase Client.
+ *
+ * An isomorphic Javascript client for interacting with Postgres.
+ */
+class SupabaseClient {
+    /**
+     * Create a new client for use in the browser.
+     * @param supabaseUrl The unique Supabase URL which is supplied when you create a new project in your project dashboard.
+     * @param supabaseKey The unique Supabase Key which is supplied when you create a new project in your project dashboard.
+     * @param options.db.schema You can switch in between schemas. The schema needs to be on the list of exposed schemas inside Supabase.
+     * @param options.auth.autoRefreshToken Set to "true" if you want to automatically refresh the token before expiring.
+     * @param options.auth.persistSession Set to "true" if you want to automatically save the user session into local storage.
+     * @param options.auth.detectSessionInUrl Set to "true" if you want to automatically detects OAuth grants in the URL and signs in the user.
+     * @param options.realtime Options passed along to realtime-js constructor.
+     * @param options.global.fetch A custom fetch implementation.
+     * @param options.global.headers Any additional headers to send with each network request.
+     */
+    constructor(supabaseUrl, supabaseKey, options) {
+        var _a, _b, _c;
+        this.supabaseUrl = supabaseUrl;
+        this.supabaseKey = supabaseKey;
+        if (!supabaseUrl)
+            throw new Error('supabaseUrl is required.');
+        if (!supabaseKey)
+            throw new Error('supabaseKey is required.');
+        const _supabaseUrl = ensureTrailingSlash(supabaseUrl);
+        const baseUrl = new URL(_supabaseUrl);
+        this.realtimeUrl = new URL('realtime/v1', baseUrl);
+        this.realtimeUrl.protocol = this.realtimeUrl.protocol.replace('http', 'ws');
+        this.authUrl = new URL('auth/v1', baseUrl);
+        this.storageUrl = new URL('storage/v1', baseUrl);
+        this.functionsUrl = new URL('functions/v1', baseUrl);
+        // default storage key uses the supabase project ref as a namespace
+        const defaultStorageKey = `sb-${baseUrl.hostname.split('.')[0]}-auth-token`;
+        const DEFAULTS = {
+            db: DEFAULT_DB_OPTIONS,
+            realtime: DEFAULT_REALTIME_OPTIONS,
+            auth: Object.assign(Object.assign({}, DEFAULT_AUTH_OPTIONS), { storageKey: defaultStorageKey }),
+            global: DEFAULT_GLOBAL_OPTIONS,
+        };
+        const settings = applySettingDefaults(options !== null && options !== void 0 ? options : {}, DEFAULTS);
+        this.storageKey = (_a = settings.auth.storageKey) !== null && _a !== void 0 ? _a : '';
+        this.headers = (_b = settings.global.headers) !== null && _b !== void 0 ? _b : {};
+        if (!settings.accessToken) {
+            this.auth = this._initSupabaseAuthClient((_c = settings.auth) !== null && _c !== void 0 ? _c : {}, this.headers, settings.global.fetch);
+        }
+        else {
+            this.accessToken = settings.accessToken;
+            this.auth = new Proxy({}, {
+                get: (_, prop) => {
+                    throw new Error(`@supabase/supabase-js: Supabase Client is configured with the accessToken option, accessing supabase.auth.${String(prop)} is not possible`);
+                },
+            });
+        }
+        this.fetch = fetchWithAuth(supabaseKey, this._getAccessToken.bind(this), settings.global.fetch);
+        this.realtime = this._initRealtimeClient(Object.assign({ headers: this.headers, accessToken: this._getAccessToken.bind(this) }, settings.realtime));
+        this.rest = new PostgrestClient(new URL('rest/v1', baseUrl).href, {
+            headers: this.headers,
+            schema: settings.db.schema,
+            fetch: this.fetch,
+        });
+        if (!settings.accessToken) {
+            this._listenForAuthEvents();
+        }
+    }
+    /**
+     * Supabase Functions allows you to deploy and invoke edge functions.
+     */
+    get functions() {
+        return new FunctionsClient(this.functionsUrl.href, {
+            headers: this.headers,
+            customFetch: this.fetch,
+        });
+    }
+    /**
+     * Supabase Storage allows you to manage user-generated content, such as photos or videos.
+     */
+    get storage() {
+        return new StorageClient(this.storageUrl.href, this.headers, this.fetch);
+    }
+    /**
+     * Perform a query on a table or a view.
+     *
+     * @param relation - The table or view name to query
+     */
+    from(relation) {
+        return this.rest.from(relation);
+    }
+    // NOTE: signatures must be kept in sync with PostgrestClient.schema
+    /**
+     * Select a schema to query or perform an function (rpc) call.
+     *
+     * The schema needs to be on the list of exposed schemas inside Supabase.
+     *
+     * @param schema - The schema to query
+     */
+    schema(schema) {
+        return this.rest.schema(schema);
+    }
+    // NOTE: signatures must be kept in sync with PostgrestClient.rpc
+    /**
+     * Perform a function call.
+     *
+     * @param fn - The function name to call
+     * @param args - The arguments to pass to the function call
+     * @param options - Named parameters
+     * @param options.head - When set to `true`, `data` will not be returned.
+     * Useful if you only need the count.
+     * @param options.get - When set to `true`, the function will be called with
+     * read-only access mode.
+     * @param options.count - Count algorithm to use to count rows returned by the
+     * function. Only applicable for [set-returning
+     * functions](https://www.postgresql.org/docs/current/functions-srf.html).
+     *
+     * `"exact"`: Exact but slow count algorithm. Performs a `COUNT(*)` under the
+     * hood.
+     *
+     * `"planned"`: Approximated but fast count algorithm. Uses the Postgres
+     * statistics under the hood.
+     *
+     * `"estimated"`: Uses exact count for low numbers and planned count for high
+     * numbers.
+     */
+    rpc(fn, args = {}, options = {}) {
+        return this.rest.rpc(fn, args, options);
+    }
+    /**
+     * Creates a Realtime channel with Broadcast, Presence, and Postgres Changes.
+     *
+     * @param {string} name - The name of the Realtime channel.
+     * @param {Object} opts - The options to pass to the Realtime channel.
+     *
+     */
+    channel(name, opts = { config: {} }) {
+        return this.realtime.channel(name, opts);
+    }
+    /**
+     * Returns all Realtime channels.
+     */
+    getChannels() {
+        return this.realtime.getChannels();
+    }
+    /**
+     * Unsubscribes and removes Realtime channel from Realtime client.
+     *
+     * @param {RealtimeChannel} channel - The name of the Realtime channel.
+     *
+     */
+    removeChannel(channel) {
+        return this.realtime.removeChannel(channel);
+    }
+    /**
+     * Unsubscribes and removes all Realtime channels from Realtime client.
+     */
+    removeAllChannels() {
+        return this.realtime.removeAllChannels();
+    }
+    _getAccessToken() {
+        var _a, _b;
+        return SupabaseClient_awaiter(this, void 0, void 0, function* () {
+            if (this.accessToken) {
+                return yield this.accessToken();
+            }
+            const { data } = yield this.auth.getSession();
+            return (_b = (_a = data.session) === null || _a === void 0 ? void 0 : _a.access_token) !== null && _b !== void 0 ? _b : null;
+        });
+    }
+    _initSupabaseAuthClient({ autoRefreshToken, persistSession, detectSessionInUrl, storage, storageKey, flowType, lock, debug, }, headers, fetch) {
+        const authHeaders = {
+            Authorization: `Bearer ${this.supabaseKey}`,
+            apikey: `${this.supabaseKey}`,
+        };
+        return new SupabaseAuthClient({
+            url: this.authUrl.href,
+            headers: Object.assign(Object.assign({}, authHeaders), headers),
+            storageKey: storageKey,
+            autoRefreshToken,
+            persistSession,
+            detectSessionInUrl,
+            storage,
+            flowType,
+            lock,
+            debug,
+            fetch,
+            // auth checks if there is a custom authorizaiton header using this flag
+            // so it knows whether to return an error when getUser is called with no session
+            hasCustomAuthorizationHeader: 'Authorization' in this.headers,
+        });
+    }
+    _initRealtimeClient(options) {
+        return new RealtimeClient(this.realtimeUrl.href, Object.assign(Object.assign({}, options), { params: Object.assign({ apikey: this.supabaseKey }, options === null || options === void 0 ? void 0 : options.params) }));
+    }
+    _listenForAuthEvents() {
+        let data = this.auth.onAuthStateChange((event, session) => {
+            this._handleTokenChanged(event, 'CLIENT', session === null || session === void 0 ? void 0 : session.access_token);
+        });
+        return data;
+    }
+    _handleTokenChanged(event, source, token) {
+        if ((event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN') &&
+            this.changedAccessToken !== token) {
+            this.changedAccessToken = token;
+        }
+        else if (event === 'SIGNED_OUT') {
+            this.realtime.setAuth();
+            if (source == 'STORAGE')
+                this.auth.signOut();
+            this.changedAccessToken = undefined;
+        }
+    }
+}
+//# sourceMappingURL=SupabaseClient.js.map
+;// ./node_modules/@supabase/supabase-js/dist/module/index.js
+
+
+
+
+
+
+/**
+ * Creates a new Supabase Client.
+ */
+const createClient = (supabaseUrl, supabaseKey, options) => {
+    return new SupabaseClient(supabaseUrl, supabaseKey, options);
+};
+//# sourceMappingURL=index.js.map
+;// ./config.js
+// Получите эти значения из настроек вашего проекта в Supabase
+// Project Settings -> API -> Project URL и anon/public key
+const SUPABASE_URL = undefined;
+const SUPABASE_ANON_KEY = undefined;
+
+// Имена таблиц в базе данных
+const TABLES = {
+  EVENTS: 'events',
+  POMODORO_SESSIONS: 'pomodoro_sessions',
+  PROJECTS: 'projects'
+};
+;// ./supabase.js
+
+
+
+// Initialize Supabase client
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Database operations
+const db = {
+  // Events
+  async getEvents(date) {
+    const {
+      data,
+      error
+    } = await supabase.from('events').select('*').eq('date', date);
+    if (error) throw error;
+    return data;
+  },
+  async createEvent(event) {
+    const {
+      data,
+      error
+    } = await supabase.from('events').insert([event]).select();
+    if (error) throw error;
+    return data[0];
+  },
+  async updateEvent(id, updates) {
+    const {
+      data,
+      error
+    } = await supabase.from('events').update(updates).eq('id', id).select();
+    if (error) throw error;
+    return data[0];
+  },
+  async deleteEvent(id) {
+    const {
+      error
+    } = await supabase.from('events').delete().eq('id', id);
+    if (error) throw error;
+  },
+  // Pomodoro sessions
+  async getPomodoroSessions(date) {
+    const {
+      data,
+      error
+    } = await supabase.from('pomodoro_sessions').select('*').eq('date', date);
+    if (error) throw error;
+    return data;
+  },
+  async createPomodoroSession(session) {
+    const {
+      data,
+      error
+    } = await supabase.from('pomodoro_sessions').insert([session]).select();
+    if (error) throw error;
+    return data[0];
+  },
+  // Projects
+  async getProjects() {
+    const {
+      data,
+      error
+    } = await supabase.from('projects').select('*');
+    if (error) throw error;
+    return data;
+  },
+  async createProject(project) {
+    const {
+      data,
+      error
+    } = await supabase.from('projects').insert([project]).select();
+    if (error) throw error;
+    return data[0];
+  },
+  async deleteProject(projectId) {
+    const {
+      error
+    } = await supabase.from('projects').delete().eq('id', projectId);
+    if (error) throw error;
+    return true;
+  },
+  // Calendar events
+  async getCalendarEvents(startDate, endDate) {
+    const {
+      data,
+      error
+    } = await supabase.from('calendar_events').select('*').gte('date', startDate).lte('date', endDate).order('date').order('start_time');
+    if (error) throw error;
+    return data || [];
+  },
+  async createCalendarEvent(eventData) {
+    const {
+      data,
+      error
+    } = await supabase.from('calendar_events').insert([eventData]).select().single();
+    if (error) throw error;
+    return data;
+  },
+  async updateCalendarEvent(eventId, eventData) {
+    const {
+      data,
+      error
+    } = await supabase.from('calendar_events').update(eventData).eq('id', eventId).select().single();
+    if (error) throw error;
+    return data;
+  },
+  async deleteCalendarEvent(eventId) {
+    const {
+      error
+    } = await supabase.from('calendar_events').delete().eq('id', eventId);
+    if (error) throw error;
+    return true;
+  },
+  // Day details
+  async getDayDetails(date) {
+    const {
+      data,
+      error
+    } = await supabase.from('day_details').select('*').eq('date', date).single();
+    if (error && error.code !== 'PGRST116') throw error;
+    return data || null;
+  },
+  async upsertDayDetails(dayData) {
+    const {
+      data,
+      error
+    } = await supabase.from('day_details').upsert([dayData], {
+      onConflict: 'date'
+    }).select().single();
+    if (error) throw error;
+    return data;
+  },
+  // Sync
+  async syncCalendarData() {
+    const {
+      data: syncData
+    } = await supabase.from('sync_status').select('last_sync').single();
+    const lastSync = syncData?.last_sync || new Date(0).toISOString();
+    const {
+      data: events,
+      error: eventsError
+    } = await supabase.from('calendar_events').select('*').gt('updated_at', lastSync);
+    if (eventsError) throw eventsError;
+    await supabase.from('sync_status').upsert([{
+      last_sync: new Date().toISOString()
+    }]);
+    return events || [];
+  },
+  // Export/Import
+  async exportCalendarData(startDate, endDate) {
+    const [events, dayDetails] = await Promise.all([this.getCalendarEvents(startDate, endDate), supabase.from('day_details').select('*').gte('date', startDate).lte('date', endDate).then(({
+      data
+    }) => data || [])]);
+    return {
+      events,
+      dayDetails
+    };
+  },
+  async importCalendarData(data) {
+    const {
+      events,
+      dayDetails
+    } = data;
+    if (events && events.length > 0) {
+      const {
+        error: eventsError
+      } = await supabase.from('calendar_events').upsert(events, {
+        onConflict: 'id'
+      });
+      if (eventsError) throw eventsError;
+    }
+    if (dayDetails && dayDetails.length > 0) {
+      const {
+        error: detailsError
+      } = await supabase.from('day_details').upsert(dayDetails, {
+        onConflict: 'date'
+      });
+      if (detailsError) throw detailsError;
+    }
+    return true;
+  }
+};
+;// ./storage.js
+// Определяем, находимся ли мы в контексте расширения Chrome
+const isChromeExtension = typeof chrome !== 'undefined' && chrome.storage;
+
+// Абстракция для работы с хранилищем
+const storage_storage = {
+  async get(keys) {
+    if (isChromeExtension) {
+      return new Promise(resolve => {
+        chrome.storage.local.get(keys, resolve);
+      });
+    } else {
+      // Для веб-версии используем localStorage
+      const result = {};
+      if (Array.isArray(keys)) {
+        keys.forEach(key => {
+          const value = localStorage.getItem(key);
+          if (value !== null) {
+            try {
+              result[key] = JSON.parse(value);
+            } catch (e) {
+              result[key] = value;
+            }
+          }
+        });
+      } else {
+        const value = localStorage.getItem(keys);
+        if (value !== null) {
+          try {
+            result[keys] = JSON.parse(value);
+          } catch (e) {
+            result[keys] = value;
+          }
+        }
+      }
+      return result;
+    }
+  },
+  async set(items) {
+    if (isChromeExtension) {
+      return new Promise(resolve => {
+        chrome.storage.local.set(items, resolve);
+      });
+    } else {
+      // Для веб-версии используем localStorage
+      Object.entries(items).forEach(([key, value]) => {
+        localStorage.setItem(key, JSON.stringify(value));
+      });
+    }
+  },
+  async remove(keys) {
+    if (isChromeExtension) {
+      return new Promise(resolve => {
+        chrome.storage.local.remove(keys, resolve);
+      });
+    } else {
+      // Для веб-версии используем localStorage
+      if (Array.isArray(keys)) {
+        keys.forEach(key => localStorage.removeItem(key));
+      } else {
+        localStorage.removeItem(keys);
+      }
+    }
+  }
+};
+;// ./main_page.js
+
+
+
+// === Globals ===
+let calendarEvents = [];
+let projects = [];
+console.log('Global projects initialized:', projects);
+let selectedProjectId = null;
+let regularEventsConfig = []; // Хранит конфигурации регулярных событий
+// stopwatch.startTimestamp будет хранить время начала в виде timestamp (Date.now())
+// stopwatch.elapsed не используется активно, если startTimeStamp есть, его можно вычислять
+let stopwatch = {
+  isRunning: false,
+  startTimestamp: null,
+  elapsed: 0,
+  liveEventId: null,
+  projectId: null
+};
+let stopwatchInterval = null;
+let currentDate = new Date();
+let currentWeekStart = getStartOfWeek(currentDate);
+let editingEventId = null;
+let allDayDetailsData = {}; // Кеш для данных о калориях и комментариях
+const ALL_DAY_DETAILS_KEY = 'allDayDetails';
+let dayDetailsManager = null; // Экземпляр класса DayDetails
+
+// ==== UTILS ====
+function formatDate(date) {
+  const d = new Date(date);
+  let month = '' + (d.getMonth() + 1);
+  let day = '' + d.getDate();
+  const year = d.getFullYear();
+  if (month.length < 2) month = '0' + month;
+  if (day.length < 2) day = '0' + day;
+  return [year, month, day].join('-');
+}
+function pad(x) {
+  return x.toString().padStart(2, '0');
+}
+function getStartOfWeek(date) {
+  let d = new Date(date);
+  let day = d.getDay();
+  let diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  d.setDate(diff);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+function getWeekDates(startDate) {
+  let week = [];
+  for (let i = 0; i < 7; i++) {
+    let d = new Date(startDate);
+    d.setDate(d.getDate() + i);
+    week.push(new Date(d));
+  }
+  return week;
+}
+function minutesSinceMidnight(dateObj) {
+  return dateObj.getHours() * 60 + dateObj.getMinutes();
+}
+function localIso(dt) {
+  return dt.getFullYear() + '-' + pad(dt.getMonth() + 1) + '-' + pad(dt.getDate()) + 'T' + pad(dt.getHours()) + ':' + pad(dt.getMinutes());
+}
+function localToDate(str) {
+  const [y, m, d] = [str.slice(0, 4), str.slice(5, 7), str.slice(8, 10)];
+  const [hh, mm] = [str.slice(11, 13), str.slice(14, 16)];
+  return new Date(+y, +m - 1, +d, +hh, +mm);
+}
+function getLocalDateString(dt) {
+  return `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}`;
+}
+
+// Функция для правильной обработки строк CSV
+function parseCSVRow(text) {
+  if (!text) return [];
+  const result = [];
+  let cell = '';
+  let inQuotes = false;
+  let i = 0;
+  while (i < text.length) {
+    const char = text[i];
+    if (char === '"') {
+      // Проверка на экранированную кавычку
+      if (inQuotes && i + 1 < text.length && text[i + 1] === '"') {
+        cell += '"';
+        i += 2; // Пропускаем следующую кавычку
+        continue;
+      }
+      inQuotes = !inQuotes;
+      i++;
+      continue;
+    }
+    if (char === ';' && !inQuotes) {
+      result.push(cell);
+      cell = '';
+      i++;
+      continue;
+    }
+    cell += char;
+    i++;
+  }
+  result.push(cell); // Добавляем последнюю ячейку
+  return result.map(c => c.trim());
+}
+async function exportToCSV() {
+  console.log("Export process started");
+  const result = await storage_storage.get(['calendarEvents', 'projects', ALL_DAY_DETAILS_KEY]);
+  console.log("Data fetched from storage for export");
+  const localCalendarEvents = result.calendarEvents || [];
+  const localProjects = result.projects || [];
+  const localAllDayDetails = result[ALL_DAY_DETAILS_KEY] || {};
+  const projectMap = {};
+  localProjects.forEach(project => {
+    projectMap[project.id] = project.name;
+  });
+  let allDatesSet = new Set(localCalendarEvents.map(ev => ev.date));
+  Object.keys(localAllDayDetails).forEach(dateStr => allDatesSet.add(dateStr));
+  let uniqueDates = Array.from(allDatesSet).sort();
+  let header = ["Дата", "День недели", "Калории утром", "Калории днем", "Калории вечером", "Комментарий дня", "События", "Проекты"];
+  let csvContent = '\uFEFF' + header.join(';') + '\n';
+  uniqueDates.forEach(dateStr => {
+    let dateObj = new Date(dateStr + "T00:00:00");
+    let dayOfWeek = dateObj.toLocaleDateString('ru-RU', {
+      weekday: "short"
+    });
+    const details = localAllDayDetails[dateStr] || {};
+    const cals = details.calories || {};
+    const events = localCalendarEvents.filter(ev => ev.date === dateStr && ev.type === 'event').map(ev => {
+      const start = new Date(ev.startTime);
+      const end = new Date(ev.endTime);
+      const durationMinutes = Math.round((end - start) / 60000);
+      return {
+        title: ev.title,
+        description: ev.description || '',
+        startTime: ev.startTime,
+        endTime: ev.endTime,
+        duration: durationMinutes,
+        projectName: ev.projectId ? projectMap[ev.projectId] || 'Unknown Project' : null,
+        type: ev.type
+      };
+    });
+    const projectsData = localCalendarEvents // Renamed to avoid conflict with global `projects`
+    .filter(ev => ev.date === dateStr && ev.type === 'project').map(ev => {
+      const start = new Date(ev.startTime);
+      const end = new Date(ev.endTime);
+      const durationMinutes = Math.round((end - start) / 60000);
+      return {
+        title: ev.title,
+        description: ev.description || '',
+        startTime: ev.startTime,
+        endTime: ev.endTime,
+        duration: durationMinutes,
+        projectName: ev.projectId ? projectMap[ev.projectId] || 'Unknown Project' : null,
+        type: ev.type
+      };
+    });
+    const eventsJsonString = events.length > 0 ? JSON.stringify(events).replace(/"/g, '""') : '[]';
+    const projectsJsonString = projectsData.length > 0 ?
+    // Use projectsData
+    JSON.stringify(projectsData).replace(/"/g, '""') : '[]';
+    let row = [`"${dateStr}"`, `"${dayOfWeek}"`, `"${cals.morning || 0}"`, `"${cals.afternoon || 0}"`, `"${cals.evening || 0}"`, `"${(details.comment || '').replace(/"/g, '""')}"`, `"${eventsJsonString}"`, `"${projectsJsonString}"`];
+    csvContent += row.join(';') + '\n';
+  });
+  const blob = new Blob([csvContent], {
+    type: 'text/csv;charset=utf-8;'
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `calendar_data_${formatDate(new Date()).replace(/-/g, '')}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+  console.log("Export completed");
+}
+function updateCurrentTimeIndicator() {
+  const now = new Date();
+  const currentDay = now.getDay(); // 0 for Sunday, 1 for Monday, etc.
+  const dayIndex = currentDay === 0 ? 6 : currentDay - 1; // Adjust to 0 for Monday, 6 for Sunday if week starts Monday
+
+  const existingIndicator = document.querySelector('.current-time-indicator');
+  if (existingIndicator) {
+    existingIndicator.remove();
+  }
+
+  // Ищем колонку для текущего дня
+  const dayColumn = document.querySelector(`.day-column:nth-child(${dayIndex + 1})`);
+  if (!dayColumn) return; // Если колонка не найдена, просто выходим из функции
+
+  const indicator = document.createElement('div');
+  indicator.className = 'current-time-indicator';
+  const totalMinutesInDay = now.getHours() * 60 + now.getMinutes();
+  const columnHeight = dayColumn.offsetHeight;
+  const position = totalMinutesInDay / (24 * 60) * columnHeight;
+  indicator.style.top = `${position}px`;
+  dayColumn.appendChild(indicator);
+}
+
+// --- ИСПРАВЛЕННАЯ ФУНКЦИЯ ---
+
+function updateStopwatchUI() {
+  // ИЗМЕНЕНО: ID 'stopwatch-display' заменен на 'sidebar-timer-display'
+  const stopwatchDisplay = document.getElementById('sidebar-timer-display');
+  if (!stopwatchDisplay) {
+    // Добавим лог ошибки, чтобы в будущем было легче отлаживать
+    console.error("Элемент для отображения таймера ('sidebar-timer-display') не найден!");
+    return;
+  }
+  let displayTime = '00:00:00';
+  if (stopwatch.isRunning && stopwatch.startTimestamp) {
+    const now = Date.now();
+    const elapsed = now - stopwatch.startTimestamp;
+    const totalSeconds = Math.floor(elapsed / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor(totalSeconds % 3600 / 60);
+    const seconds = totalSeconds % 60;
+    displayTime = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+  }
+  stopwatchDisplay.textContent = displayTime;
+
+  // Этот блок кода ищет элемент для отображения имени проекта.
+  // В вашем HTML его нет, но если добавите, он будет работать.
+  const stopwatchProjectDisplay = document.getElementById('stopwatch-project-name');
+  if (stopwatchProjectDisplay) {
+    if (stopwatch.isRunning && stopwatch.projectId) {
+      const project = projects.find(p => p.id === stopwatch.projectId);
+      stopwatchProjectDisplay.textContent = project ? `Проект: ${project.name}` : "Проект не выбран";
+    } else {
+      stopwatchProjectDisplay.textContent = "";
+    }
+  }
+}
+function persistStopwatchState() {
+  storage_storage.set({
+    stopwatch: {
+      isRunning: stopwatch.isRunning,
+      startTimestamp: stopwatch.startTimestamp,
+      projectId: stopwatch.projectId,
+      liveEventId: stopwatch.liveEventId,
+      // ДОБАВЛЕНО: сохраняем флаги синхронизации
+      isSyncedWithSupabase: stopwatch.isSyncedWithSupabase,
+      lastSupabaseSync: stopwatch.lastSupabaseSync
+    }
+  });
+}
+// ==== Функции для работы со секундомером ====
+
+async function syncLiveCalendarEvent() {
+  if (!stopwatch.isRunning || !stopwatch.startTimestamp) return;
+  const now = new Date();
+  const startTimeObj = new Date(stopwatch.startTimestamp);
+
+  // Локальные данные для обновления UI и массива calendarEvents
+  const localEventData = {
+    id: stopwatch.liveEventId,
+    // На старте это временный ID, потом будет заменен на ID из Supabase
+    title: (projects.find(p => p.id === stopwatch.projectId)?.name || 'Работа') + ` (${formatDuration(now - startTimeObj)})`,
+    date: getLocalDateString(startTimeObj),
+    startTime: localIso(startTimeObj),
+    endTime: localIso(now),
+    projectId: stopwatch.projectId,
+    type: stopwatch.projectId ? 'project' : 'event',
+    is_live: true
+  };
+
+  // --- Локальное обновление и ререндер ---
+  // Это происходит каждую секунду, обеспечивая плавный UI
+  const existingEventIndex = calendarEvents.findIndex(ev => ev.id === stopwatch.liveEventId);
+  if (existingEventIndex > -1) {
+    calendarEvents[existingEventIndex] = {
+      ...calendarEvents[existingEventIndex],
+      ...localEventData
+    };
+  } else {
+    // Если локального события нет, добавляем его
+    calendarEvents.push(localEventData);
+  }
+  renderEvents(); // Перерисовываем UI мгновенно
+
+  // --- Синхронизация с Supabase ---
+  try {
+    if (!stopwatch.isSyncedWithSupabase) {
+      // Если событие еще не создано в БД
+      console.log("[SYNC LIVE EVENT] Создание нового live-события в Supabase...");
+      const createdEvent = await db.createCalendarEvent({
+        title: localEventData.title,
+        date: localEventData.date,
+        start_time: localEventData.startTime.split('T')[1],
+        end_time: localEventData.endTime.split('T')[1],
+        project_id: localEventData.projectId,
+        type: localEventData.type,
+        is_live: true
+      });
+      if (createdEvent && createdEvent.id) {
+        // Успешно создали! Обновляем ID в локальном состоянии.
+        const oldId = stopwatch.liveEventId;
+        stopwatch.liveEventId = createdEvent.id; // Заменяем временный ID на настоящий
+        stopwatch.isSyncedWithSupabase = true; // Флаг, что событие создано в БД
+        stopwatch.lastSupabaseSync = Date.now(); // Время последней синхронизации с БД
+
+        // Заменяем ID и в локальном массиве событий
+        const eventToUpdate = calendarEvents.find(ev => ev.id === oldId);
+        if (eventToUpdate) eventToUpdate.id = stopwatch.liveEventId;
+        persistStopwatchState(); // Сохраняем новое состояние секундомера с настоящим ID
+        console.log(`[SYNC LIVE EVENT] Событие создано с ID: ${stopwatch.liveEventId}`);
+      } else {
+        console.error("[SYNC LIVE EVENT] Не удалось создать live-событие в Supabase.");
+        return; // Прерываем, попробуем на следующей итерации
+      }
+    } else if (Date.now() - stopwatch.lastSupabaseSync > 15000) {
+      // Обновляем БД не чаще чем раз в 15 секунд
+      console.log(`[SYNC LIVE EVENT] Периодическое обновление live-события ${stopwatch.liveEventId} в Supabase...`);
+      await db.updateCalendarEvent(stopwatch.liveEventId, {
+        end_time: localEventData.endTime.split('T')[1]
+        // Можно обновлять и title, если нужно
+      });
+      stopwatch.lastSupabaseSync = Date.now(); // Обновляем время синхронизации
+      persistStopwatchState();
+      console.log("[SYNC LIVE EVENT] Live-событие обновлено в Supabase.");
+    }
+  } catch (error) {
+    console.error("[SYNC LIVE EVENT] Ошибка при синхронизации с Supabase:", error);
+    // В случае ошибки, isSyncedWithSupabase останется false, и мы попробуем создать снова
+    stopwatch.isSyncedWithSupabase = false;
+  }
+}
+
+// Вспомогательная функция для форматирования длительности
+function formatDuration(ms) {
+  const totalSeconds = Math.floor(ms / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor(totalSeconds % 3600 / 60);
+  const seconds = totalSeconds % 60;
+  if (hours > 0) return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+  return `${pad(minutes)}:${pad(seconds)}`;
+}
+function handleLiveEventExpansion() {
+  const liveEventElement = document.querySelector('.calendar-event.live');
+  if (liveEventElement) {
+    liveEventElement.classList.add('expanded'); // Or some other visual cue
+    // Potentially scroll to it if it's off-screen
+    // liveEventElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+// ДОБАВЛЕНО: Общая функция для тика таймера
+function tick() {
+  updateStopwatchUI(); // Обновляет текстовое поле таймера
+  syncLiveCalendarEvent(); // Обновляет визуальное событие в календаре
+}
+function startStopwatch() {
+  if (!stopwatch.isRunning) {
+    stopwatch.isRunning = true;
+    stopwatch.startTimestamp = Date.now();
+    stopwatch.projectId = selectedProjectId;
+    stopwatch.liveEventId = `local-live-${stopwatch.startTimestamp}`;
+    stopwatch.isSyncedWithSupabase = false;
+    stopwatch.lastSupabaseSync = 0;
+    persistStopwatchState();
+
+    // ИЗМЕНЕНО: Вызываем tick() сразу и ставим его в интервал
+    tick();
+    stopwatchInterval = setInterval(tick, 1000);
+
+    // Visually update stopwatch controls
+    const startBtn = document.getElementById('start-pomodoro');
+    const pauseBtn = document.getElementById('pause-pomodoro');
+    if (startBtn) startBtn.disabled = true;
+    if (pauseBtn) pauseBtn.disabled = false;
+  }
+}
+async function stopOrPauseStopwatch(isStoppingCompletely = true) {
+  if (!stopwatch.isRunning) return;
+
+  // Сначала останавливаем интервал, чтобы избежать гонки состояний
+  clearInterval(stopwatchInterval);
+  stopwatchInterval = null;
+  stopwatch.isRunning = false;
+  const finalEndTime = new Date();
+  const finalEventTitle = (projects.find(p => p.id === stopwatch.projectId)?.name || 'Работа') + ` (${formatDuration(finalEndTime - stopwatch.startTimestamp)})`;
+
+  // Финализация события в БД
+  if (stopwatch.isSyncedWithSupabase && stopwatch.liveEventId) {
+    console.log(`[FINALIZE EVENT] Финализация события ${stopwatch.liveEventId} в Supabase...`);
+    try {
+      await db.updateCalendarEvent(stopwatch.liveEventId, {
+        title: finalEventTitle,
+        end_time: localIso(finalEndTime).split('T')[1],
+        is_live: false // <-- Самое важное!
+      });
+      console.log(`[FINALIZE EVENT] Событие успешно финализировано.`);
+    } catch (error) {
+      console.error(`[FINALIZE EVENT] Ошибка при финализации события:`, error);
+    }
+  } else if (stopwatch.liveEventId.startsWith('local-live-')) {
+    console.log("[FINALIZE EVENT] Создание финализированного события, которое не успело синхронизироваться...");
+    try {
+      await db.createCalendarEvent({
+        title: finalEventTitle,
+        date: getLocalDateString(new Date(stopwatch.startTimestamp)),
+        start_time: localIso(new Date(stopwatch.startTimestamp)).split('T')[1],
+        end_time: localIso(finalEndTime).split('T')[1],
+        project_id: stopwatch.projectId,
+        type: stopwatch.projectId ? 'project' : 'event',
+        is_live: false
+      });
+      console.log(`[FINALIZE EVENT] Несинхронизированное событие создано как финализированное.`);
+    } catch (error) {
+      console.error(`[FINALIZE EVENT] Ошибка при создании финализированного события:`, error);
+    }
+  }
+
+  // Обновляем локальные данные. Загрузка всех событий надежнее.
+  // await loadEvents(currentWeekStart);
+  // Обновляем локальные данные
+  const event = calendarEvents.find(ev => ev.id === stopwatch.liveEventId);
+  if (event) {
+    event.endTime = localIso(finalEndTime);
+    event.is_live = false;
+    event.isLive = false; // Добавленная строка
+    renderEvents();
+  }
+
+  // Сбрасываем состояние секундомера, если это полный стоп
+  if (isStoppingCompletely) {
+    stopwatch.startTimestamp = null;
+    stopwatch.projectId = null;
+    stopwatch.liveEventId = null;
+    stopwatch.isSyncedWithSupabase = false;
+    stopwatch.lastSupabaseSync = 0;
+  }
+
+  // ИЗМЕНЕНО: Обновляем UI после всех операций
+  updateStopwatchUI();
+  persistStopwatchState();
+
+  // Обновляем кнопки
+  const startBtn = document.getElementById('start-pomodoro');
+  const pauseBtn = document.getElementById('pause-pomodoro');
+  if (startBtn) startBtn.disabled = stopwatch.isRunning;
+  if (pauseBtn) pauseBtn.disabled = !stopwatch.isRunning;
+}
+
+// Старые функции теперь просто вызывают новую общую функцию
+function pauseStopwatch() {
+  stopOrPauseStopwatch(false); // Пауза - это не полный стоп
+}
+function stopStopwatch() {
+  stopOrPauseStopwatch(true); // Стоп - это полный сброс
+}
+async function loadStopwatchState() {
+  const result = await storage.get('stopwatch');
+  if (result.stopwatch) {
+    stopwatch = result.stopwatch;
+    if (stopwatch.isRunning) {
+      startStopwatch();
+    } else {
+      updateStopwatchUI();
+    }
+  }
+}
+async function loadProjects() {
+  const result = await storage_storage.get('projects');
+  projects = result.projects || [];
+  console.log('Projects loaded:', projects);
+  renderProjectSelectAndList();
+}
+async function loadEvents(forWeekStart) {
+  const weekStart = forWeekStart || currentWeekStart;
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekEnd.getDate() + 6);
+  const result = await storage_storage.get('calendarEvents');
+  const allEvents = result.calendarEvents || [];
+  calendarEvents = allEvents.filter(event => {
+    const eventDate = new Date(event.date);
+    return eventDate >= weekStart && eventDate <= weekEnd;
+  });
+  renderEvents();
+}
+
+// ==== Day Detail Modal Functions ====
+
+// Эта функция будет вызываться при клике на заголовок дня
+async function openDayDetailModal(dateStr) {
+  if (!dayDetailModal || !dayDetailModalDateDisplay || !caloriesMorningInput || !caloriesAfternoonInput || !caloriesEveningInput || !commentInput) return;
+
+  // 1. Устанавливаем дату в заголовок (или скрытый элемент) модального окна,
+  // чтобы потом знать, какой день сохранять.
+  dayDetailModalDateDisplay.textContent = dateStr;
+
+  // 2. Получаем данные для этого дня. Сначала смотрим в локальный кэш `allDayDetailsData`.
+  // Это ускоряет открытие и использует уже загруженные данные.
+  const detailsFromCache = allDayDetailsData[dateStr] || {};
+  const caloriesFromCache = detailsFromCache.calories || {};
+  console.log(`[openDayDetailModal] Opening for ${dateStr}. Details from cache:`, detailsFromCache);
+
+  // 3. Заполняем поля модального окна данными из кэша (или пустыми значениями, если в кэше ничего нет).
+  caloriesMorningInput.value = caloriesFromCache.morning || '';
+  caloriesAfternoonInput.value = caloriesFromCache.afternoon || '';
+  caloriesEveningInput.value = caloriesFromCache.evening || '';
+  commentInput.value = detailsFromCache.comment || '';
+
+  // 4. Обновляем счетчик калорий
+  updateTotalCaloriesDisplay();
+
+  // 5. Показываем модальное окно
+  dayDetailModal.style.display = 'block';
+
+  // 6. Опционально (для 100% гарантии актуальности): Асинхронно запросить свежие данные
+  // и обновить поля, если они отличаются от кэша.
+  // Это полезно, если данные могли быть изменены в другом окне/устройстве.
+  try {
+    const freshDetails = await db.getDayDetails(dateStr);
+    if (freshDetails) {
+      allDayDetailsData[dateStr] = freshDetails; // Обновляем кэш
+      const freshCalories = freshDetails.calories || {};
+      // Если модальное окно все еще открыто для той же даты, обновляем поля
+      if (dayDetailModal.style.display === 'block' && dayDetailModalDateDisplay.textContent === dateStr) {
+        console.log(`[openDayDetailModal] Fresh details loaded and applied for ${dateStr}`);
+        caloriesMorningInput.value = freshCalories.morning || '';
+        caloriesAfternoonInput.value = freshCalories.afternoon || '';
+        caloriesEveningInput.value = freshCalories.evening || '';
+        commentInput.value = freshDetails.comment || '';
+        updateTotalCaloriesDisplay();
+      }
+    }
+  } catch (error) {
+    console.error(`[openDayDetailModal] Failed to fetch fresh details for ${dateStr}:`, error);
+  }
+}
+function closeDayDetailModal() {
+  if (dayDetailModal) {
+    dayDetailModal.style.display = 'none';
+  }
+  // Не нужно очищать поля, openDayDetailModal будет их заполнять заново при следующем открытии.
+}
+
+// Эта функция должна вызываться при сохранении
+async function saveDayDetails(date, detailsToSave) {
+  const result = await storage_storage.get(ALL_DAY_DETAILS_KEY);
+  const allDayDetails = result[ALL_DAY_DETAILS_KEY] || {};
+  allDayDetails[date] = detailsToSave;
+  await storage_storage.set({
+    [ALL_DAY_DETAILS_KEY]: allDayDetails
+  });
+  allDayDetailsData = allDayDetails;
+  updateTotalCaloriesDisplay();
+}
+
+// Функция для динамического подсчета калорий в модальном окне
+function updateTotalCaloriesDisplay() {
+  if (!totalCaloriesValueSpan || !caloriesMorningInput || !caloriesAfternoonInput || !caloriesEveningInput) return;
+  const morning = parseInt(caloriesMorningInput.value) || 0;
+  const afternoon = parseInt(caloriesAfternoonInput.value) || 0;
+  const evening = parseInt(caloriesEveningInput.value) || 0;
+  totalCaloriesValueSpan.textContent = (morning + afternoon + evening).toString();
+}
+
+// Слушатели событий
+[caloriesMorningInput, caloriesAfternoonInput, caloriesEveningInput].forEach(input => {
+  if (input) input.addEventListener('input', updateTotalCaloriesDisplay);
+});
+if (saveDayDetailsBtn) {
+  saveDayDetailsBtn.addEventListener('click', async () => {
+    const dateStr = dayDetailModalDateDisplay.textContent;
+    if (!dateStr) {
+      alert("Ошибка: не удалось определить дату для сохранения.");
+      return;
+    }
+    const detailsPayload = {
+      calories: {
+        morning: parseInt(caloriesMorningInput.value, 10) || 0,
+        afternoon: parseInt(caloriesAfternoonInput.value, 10) || 0,
+        evening: parseInt(caloriesEveningInput.value, 10) || 0
+      },
+      comment: commentInput.value.trim()
+    };
+    await saveDayDetails(dateStr, detailsPayload);
+    closeDayDetailModal();
+  });
+}
+if (cancelDayDetailsBtn) {
+  cancelDayDetailsBtn.addEventListener('click', closeDayDetailModal);
+}
+async function loadDayDetails() {
+  const result = await storage_storage.get(ALL_DAY_DETAILS_KEY);
+  allDayDetailsData = result[ALL_DAY_DETAILS_KEY] || {};
+  updateTotalCaloriesDisplay();
+}
+/* ============================================= */
+/* ===       ОТРИСОВКА СОБЫТИЙ (ВАЖНО!)       === */
+/* ============================================= */
+function renderEvents() {
+  const weekGridContainer = document.getElementById('week-grid');
+  if (!weekGridContainer) return;
+
+  // Очищаем старые события
+  weekGridContainer.querySelectorAll('.calendar-event').forEach(el => el.remove());
+  const weekDates = getWeekDates(currentWeekStart);
+
+  // --- 1. Отрисовка ОБЫЧНЫХ и ПРОЕКТНЫХ событий ---
+  calendarEvents.filter(event => event.type !== 'regular' && weekDates.some(d => formatDate(d) === event.date)).forEach(event => {
+    const dayColumn = weekGridContainer.querySelector(`.day-column[data-date="${event.date}"]`);
+    if (!dayColumn) return;
+    let startTime, endTime;
+    try {
+      startTime = localToDate(event.startTime);
+      endTime = localToDate(event.endTime);
+    } catch (e) {
+      return;
+    }
+    if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) return;
+    const hourCell = dayColumn.querySelector('.hour-cell');
+    if (!hourCell) return;
+    const HOUR_CELL_HEIGHT = hourCell.offsetHeight;
+    const PIXELS_PER_MINUTE = HOUR_CELL_HEIGHT / 60;
+    const startMinutes = startTime.getHours() * 60 + startTime.getMinutes();
+    let durationMinutes = Math.round((endTime - startTime) / 60000);
+    if (durationMinutes < 1) durationMinutes = 1;
+    const topPosition = startMinutes * PIXELS_PER_MINUTE;
+    const height = durationMinutes * PIXELS_PER_MINUTE;
+    const eventElement = document.createElement('div');
+    let classList = ['calendar-event'];
+    if (event.type === 'project') classList.push('project-event');
+    if (event.is_live) classList.push('live');
+    eventElement.className = classList.join(' ');
+    if (event.projectId) {
+      const project = projects.find(p => p.id === event.projectId);
+      if (project && project.color) {
+        eventElement.style.backgroundColor = project.color;
+      }
+    }
+    eventElement.dataset.eventId = event.id;
+    eventElement.style.position = 'absolute';
+    eventElement.style.top = `${topPosition}px`;
+    eventElement.style.height = `${Math.max(height, 15)}px`;
+    eventElement.style.left = '2px';
+    eventElement.style.right = '2px';
+    eventElement.innerHTML = `<div class="event-title">${event.title}</div>`;
+    eventElement.addEventListener('click', () => openEventModal(event.id));
+    dayColumn.appendChild(eventElement);
+  });
+
+  // --- 2. Генерация и отрисовка РЕГУЛЯРНЫХ событий ---
+  weekDates.forEach(date => {
+    const dayOfWeek = date.getDay();
+    const dateStr = formatDate(date);
+    regularEventsConfig.forEach(config => {
+      if (!config || !config.days || !config.startTime || !config.endTime) {
+        console.warn('Пропущено регулярное событие: некорректная конфигурация', config);
+        return;
+      }
+      if (config.days.includes(dayOfWeek)) {
+        const [startHour, startMinute] = config.startTime.split(':').map(Number);
+        const [endHour, endMinute] = config.endTime.split(':').map(Number);
+        const eventStartTime = new Date(dateStr + 'T' + config.startTime);
+        const eventEndTime = new Date(dateStr + 'T' + config.endTime);
+        const instanceId = `reg-${config.id}-${dateStr}`;
+        const existingEvent = calendarEvents.find(ev => ev.id === instanceId);
+        const isCompleted = existingEvent ? existingEvent.completed : false;
+        const dayColumn = weekGridContainer.querySelector(`.day-column[data-date="${dateStr}"]`);
+        if (!dayColumn) return;
+        const hourCell = dayColumn.querySelector('.hour-cell');
+        if (!hourCell) return;
+        const HOUR_CELL_HEIGHT = hourCell.offsetHeight;
+        const PIXELS_PER_MINUTE = HOUR_CELL_HEIGHT / 60;
+        const startMinutes = startHour * 60 + startMinute;
+        const endMinutes = endHour * 60 + endMinute;
+        const durationMinutes = endMinutes - startMinutes;
+        const topPosition = startMinutes * PIXELS_PER_MINUTE;
+        const height = durationMinutes * PIXELS_PER_MINUTE;
+        const eventElement = document.createElement('div');
+        eventElement.className = 'calendar-event regular';
+        const now = new Date();
+
+        // Новая логика окрашивания
+        if (isCompleted) {
+          // Если выполнено - всегда добавляем класс 'completed' (сделает зеленым)
+          eventElement.classList.add('completed');
+        } else if (now > eventStartTime) {
+          // Если не выполнено И время прошло - добавляем класс 'not-completed' (сделает красным)
+          eventElement.classList.add('not-completed');
+        } else {
+          // Если не выполнено И время еще не наступило - оставляем серым (базовый класс regular)
+          eventElement.classList.remove('completed', 'not-completed');
+        }
+        eventElement.style.position = 'absolute';
+        eventElement.style.top = `${topPosition}px`;
+        eventElement.style.height = `${Math.max(height, 15)}px`;
+        eventElement.style.left = '2px';
+        eventElement.style.right = '2px';
+        eventElement.style.display = 'flex';
+        eventElement.style.alignItems = 'center';
+        eventElement.innerHTML = `
+                    <div class="event-title regular-title">${config.name}</div>
+                    <div class="event-time">${config.startTime} - ${config.endTime}</div>
+                `;
+
+        // При клике на само событие будем открывать модальное окно
+        eventElement.addEventListener('click', () => {
+          openEventModal(instanceId);
+        });
+        dayColumn.appendChild(eventElement);
+      }
+    });
+  });
+}
+
+/* ============================================= */
+/* === ФУНКЦИЯ НАЧАЛЬНОЙ ЗАГРУЗКИ (ВАЖНО!)    === */
+/* ============================================= */
+async function initialLoad() {
+  console.log('[INITIAL LOAD] Начало initialLoad...');
+
+  // Проверка DOM до загрузки данных
+  console.log('=== Проверка DOM до загрузки данных ===');
+  console.log('regular-event-time:', document.getElementById('regular-event-time'));
+  try {
+    const storageData = await storage_storage.get(['selectedProjectId', 'regularEventsConfig']);
+    selectedProjectId = storageData.selectedProjectId || null;
+    regularEventsConfig = storageData.regularEventsConfig || [];
+    console.log('[INITIAL LOAD] Загружены конфигурации регулярных событий:', regularEventsConfig.length);
+
+    // Проверка DOM после загрузки из storage
+    console.log('=== Проверка DOM после загрузки из storage ===');
+    console.log('regular-event-time:', document.getElementById('regular-event-time'));
+    await loadProjects();
+    await loadEvents(currentWeekStart);
+    await loadDayDetails();
+
+    // Проверка DOM после загрузки всех данных
+    console.log('=== Проверка DOM после загрузки всех данных ===');
+    console.log('regular-event-time:', document.getElementById('regular-event-time'));
+    renderWeekGrid(currentWeekStart);
+    renderTimeSlots();
+    renderDaysHeader(currentWeekStart);
+    renderProjectSelectAndList();
+    renderProjectsList();
+    renderProjectStats(selectedProjectId);
+
+    // Проверка DOM после рендеринга
+    console.log('=== Проверка DOM после рендеринга ===');
+    console.log('regular-event-time:', document.getElementById('regular-event-time'));
+    scrollToWorkingHours();
+    updateCurrentTimeIndicator();
+    console.log('[INITIAL LOAD] initialLoad завершен.');
+  } catch (error) {
+    console.error('[INITIAL LOAD] Ошибка при загрузке:', error);
+  }
+}
+function renderWeekGrid(weekStart) {
+  const weekGrid = document.getElementById('week-grid');
+  if (!weekGrid) {
+    console.error("Не найден элемент #week-grid");
+    return;
+  }
+  weekGrid.innerHTML = '';
+  const weekDates = getWeekDates(weekStart);
+
+  // Создаем колонки для каждого дня недели
+  weekDates.forEach(date => {
+    const dayColumn = document.createElement('div');
+    dayColumn.className = 'day-column';
+    dayColumn.setAttribute('data-date', formatDate(date));
+
+    // Создаем ячейки для каждого часа
+    for (let hour = 0; hour <= 23; hour++) {
+      const hourCell = document.createElement('div');
+      hourCell.className = 'hour-cell';
+      hourCell.setAttribute('data-hour', hour.toString());
+
+      // ДОБАВЛЕНО: Обработчик клика для создания нового события
+      hourCell.addEventListener('click', e => {
+        // Проверяем, не было ли клика по существующему событию
+        if (e.target.closest('.calendar-event')) {
+          return; // Если клик был по событию, не создаем новое
+        }
+        const dateStr = dayColumn.getAttribute('data-date');
+        openEventModal(null, dateStr, hour);
+      });
+      dayColumn.appendChild(hourCell);
+    }
+    weekGrid.appendChild(dayColumn);
+  });
+
+  // Теперь нужно создать временные метки
+  const timeSlotsContainer = document.querySelector('.time-slots-container');
+  if (timeSlotsContainer) {
+    timeSlotsContainer.innerHTML = '';
+    for (let hour = 0; hour <= 23; hour++) {
+      const timeSlot = document.createElement('div');
+      timeSlot.className = 'time-slot';
+      timeSlot.textContent = `${pad(hour)}:00`;
+      timeSlotsContainer.appendChild(timeSlot);
+    }
+  }
+  renderEvents();
+  setTimeout(scrollToWorkingHours, 5);
+  updateCurrentTimeIndicator();
+}
+function renderTimeSlots() {
+  const timeSlotsContainer = document.querySelector('.time-slots-container');
+  if (!timeSlotsContainer) {
+    console.error("Не найден контейнер time-slots-container!");
+    return;
+  }
+  timeSlotsContainer.innerHTML = '';
+
+  // Генерируем слоты для всех 24 часов
+  for (let h = 0; h <= 23; h++) {
+    const div = document.createElement('div');
+    div.className = 'time-slot';
+    div.setAttribute('data-hour', h.toString());
+    div.textContent = `${pad(h)}:00`;
+    timeSlotsContainer.appendChild(div);
+  }
+}
+function scrollToWorkingHours() {
+  const scrollContainer = document.getElementById('week-grid-scroll-container');
+  if (!scrollContainer) return;
+
+  // Найти 8-часовую ячейку (отсчет с 0)
+  const hourCells = document.querySelectorAll('.hour-cell[data-hour="8"]');
+  if (hourCells.length > 0) {
+    // Берем первую ячейку 8-го часа, если их несколько
+    scrollContainer.scrollTop = hourCells[0].offsetTop;
+  }
+}
+
+// ==== Инициализация ====
+document.addEventListener('DOMContentLoaded', async () => {
+  console.log("DOM полностью загружен, начинаем инициализацию...");
+  await initialLoad();
+
+  // Слушатель изменений в storage
+  storage_storage.onChanged.addListener(async (changes, area) => {
+    // Make listener async
+    if (area === "local") {
+      let eventsRefreshNeeded = false;
+      let projectsRefreshNeeded = false;
+      let dayHeadersRefreshNeeded = false;
+      let projectStatsRefreshNeeded = false;
+
+      // Этот блок удален, чтобы предотвратить запуск второго таймера.
+      // Глобальный объект `stopwatch` уже содержит актуальное состояние.
+      /*
+      if ('stopwatch' in changes) {
+          // Этот вызов приводил к запуску второго таймера и дублированию событий.
+          await loadStopwatchState(); 
+      }
+      */
+
+      if ('calendarEvents' in changes) {
+        // Обновляем глобальную переменную из storage, т.к. изменение могло прийти извне
+        calendarEvents = changes.calendarEvents.newValue || [];
+        console.log("[ON CHANGED] calendarEvents changed, new count:", calendarEvents.length);
+        eventsRefreshNeeded = true;
+        projectStatsRefreshNeeded = true;
+      }
+      if ('projects' in changes) {
+        // Используем данные из storage для обновления, так как это источник правды
+        projects = changes.projects.newValue || [];
+        projectsRefreshNeeded = true;
+        projectStatsRefreshNeeded = true;
+      }
+      if ('selectedProjectId' in changes) {
+        selectedProjectId = changes.selectedProjectId.newValue || null;
+        projectStatsRefreshNeeded = true;
+        if (selectProjectSel) selectProjectSel.value = selectedProjectId || "";
+      }
+      if (ALL_DAY_DETAILS_KEY in changes) {
+        allDayDetailsData = changes[ALL_DAY_DETAILS_KEY].newValue || {};
+        dayHeadersRefreshNeeded = true;
+      }
+
+      // Apply refreshes
+      if (projectsRefreshNeeded) {
+        renderProjectSelectAndList();
+        renderProjectsList();
+      }
+      if (eventsRefreshNeeded) {
+        renderEvents(); // Просто перерисовываем события, а не всю сетку
+      }
+      if (dayHeadersRefreshNeeded) {
+        renderDaysHeader(currentWeekStart);
+      }
+      if (projectStatsRefreshNeeded) {
+        renderProjectStats(selectedProjectId);
+      }
+    }
+  });
+}); // Закрываем DOMContentLoaded
+
+// UI / DOM
+const timerDisplay = document.getElementById('sidebar-timer-display');
+const startBtn = document.getElementById('start-pomodoro');
+const pauseBtn = document.getElementById('pause-pomodoro');
+const stopBtn = document.getElementById('stop-pomodoro'); // Assuming this is the general stop button
+const selectProjectSel = document.getElementById('select-project');
+const addProjectBtn = document.getElementById('add-project');
+const newProjectNameInput = document.getElementById('project-name');
+const projectsListContainer = document.getElementById('projects-list');
+const projectStats = document.getElementById('project-stats');
+const exportCsvBtn = document.getElementById('export-csv');
+const importCsvBtn = document.getElementById('import-csv');
+const prevWeekBtn = document.getElementById('prev-week');
+const nextWeekBtn = document.getElementById('next-week');
+const currentWeekBtn = document.getElementById('current-week');
+const openDatePickerBtn = document.getElementById('open-date-picker');
+const daysHeaderContainer = document.querySelector('.days-header');
+const weekGridContainer = document.querySelector('.week-grid'); // Corrected selector
+const timeSlotsContainer = document.querySelector('.time-slots');
+const eventModal = document.getElementById('event-modal');
+const eventForm = document.getElementById('event-form');
+const eventTitleInput = document.getElementById('event-title');
+const eventDateInput = document.getElementById('event-date');
+const eventStartInput = document.getElementById('event-start');
+const eventEndInput = document.getElementById('event-end');
+const eventDescriptionInput = document.getElementById('event-description');
+const saveEventBtn = document.getElementById('save-event');
+const deleteEventBtn = document.getElementById('delete-event');
+const cancelEventBtn = document.getElementById('cancel-event');
+const datePickerModal = document.getElementById('date-picker-modal');
+const calendarGridDom = document.getElementById('calendar-grid');
+const monthTitle = document.getElementById('month-title');
+const prevMonthBtn = document.getElementById('prev-month');
+const nextMonthBtn = document.getElementById('next-month');
+const datePickerSelectBtn = document.getElementById('date-picker-select');
+const datePickerTodayBtn = document.getElementById('date-picker-today');
+const datePickerCancelBtn = document.getElementById('date-picker-cancel');
+const weekdayHeader = document.getElementById('weekday-header');
+const dayDetailModal = document.getElementById('day-detail-modal');
+const dayDetailModalDateDisplay = document.getElementById('day-detail-modal-date-display');
+const caloriesMorningInput = document.getElementById('calories-morning');
+const caloriesAfternoonInput = document.getElementById('calories-afternoon');
+const caloriesEveningInput = document.getElementById('calories-evening');
+const commentInput = document.getElementById('day-comment');
+const saveDayDetailsBtn = document.getElementById('day-detail-save');
+const cancelDayDetailsBtn = document.getElementById('day-detail-cancel');
+const totalCaloriesValueSpan = document.getElementById('total-calories-value');
+const regularEventDetails = document.getElementById('regular-event-details');
+const regularEventModalTitle = document.getElementById('regular-event-modal-title');
+const regularEventModalStatus = document.getElementById('regular-event-modal-status');
+const toggleCompletionBtn = document.getElementById('toggle-completion-btn');
+const regularEventCancelBtn = document.getElementById('regular-event-cancel-btn'); // Добавили кнопку отмены
+
+if (regularEventCancelBtn) {
+  regularEventCancelBtn.addEventListener('click', closeEventModal);
+}
+
+// Event listeners for stopwatch buttons (example)
+if (startBtn) {
+  startBtn.addEventListener('click', () => {
+    // If stopwatch was paused, this might be "Resume"
+    // For simplicity, just calling startStopwatch which handles "is not running"
+    startStopwatch();
+  });
+}
+if (pauseBtn) {
+  pauseBtn.addEventListener('click', pauseStopwatch);
+}
+if (stopBtn) {
+  // General stop button for the feature / or a dedicated one
+  stopBtn.addEventListener('click', () => {
+    // Ask user if they want to save the timed event
+    if (stopwatch.isRunning || stopwatch.startTimestamp) {
+      // If there's something to stop
+      if (confirm("Остановить таймер? Затраченное время будет сохранено как событие. Отмена - продолжить отсчет.")) {
+        stopStopwatch(true); // Stop and save
+      }
+      // else: do nothing, timer continues or remains paused
+    }
+  });
+}
+
+// УНИВЕРСАЛЬНЫЕ ОБРАБОТЧИКИ ЗАКРЫТИЯ МОДАЛЬНЫХ ОКОН
+document.querySelectorAll('.modal .close-modal, .date-picker-modal .close-modal, .day-detail-modal .close-modal').forEach(btn => {
+  btn.addEventListener('click', function () {
+    const modalToClose = this.closest('.modal, .date-picker-modal, .day-detail-modal');
+    if (modalToClose) {
+      modalToClose.style.display = "none";
+      if (modalToClose.id === 'event-modal') {
+        closeEventModal();
+      }
+      if (modalToClose.id === 'day-detail-modal' && dayDetailsManager) {
+        dayDetailsManager.closeDayDetailModal();
+      }
+    }
+  });
+});
+window.addEventListener('click', function (event) {
+  [eventModal, datePickerModal, dayDetailModal].forEach(modal => {
+    if (modal && event.target === modal) {
+      modal.style.display = "none";
+      if (modal.id === 'event-modal') closeEventModal();
+      if (modal.id === 'day-detail-modal') closeDayDetailModal(); // Используем новую функцию закрытия
+    }
+  });
+});
+if (openDatePickerBtn) {
+  openDatePickerBtn.addEventListener('click', () => {
+    openDatePicker();
+  });
+}
+
+// ---- Секция с РАНЕЕ УДАЛЕННЫМИ УТИЛИТАМИ ----
+// Функции formatDate, pad, getStartOfWeek и т.д. УЖЕ БЫЛИ ОБЪЯВЛЕНЫ В НАЧАЛЕ ФАЙЛА.
+// Повторное объявление здесь было бы ошибкой. Я УДАЛИЛ ЭТОТ ДУБЛИРУЮЩИЙ БЛОК.
+// function formatDate(date) { ... } // УДАЛЕНО
+// function pad(x) { ... } // УДАЛЕНО
+// и так далее...
+// ---------------------------------------------
+
+// ==== ПРОЕКТЫ ====
+function renderProjectSelectAndList() {
+  if (selectProjectSel) {
+    const currentSelectedVal = selectProjectSel.value;
+    selectProjectSel.innerHTML = `<option value="">-- Проект --</option>`;
+    projects.forEach(prj => {
+      const opt = document.createElement('option');
+      opt.value = prj.id;
+      opt.textContent = prj.name;
+      // if (prj.color) opt.style.backgroundColor = prj.color; // Optional: color code options
+      selectProjectSel.appendChild(opt);
+    });
+
+    // Restore selection
+    if (projects.find(p => p.id === currentSelectedVal)) {
+      selectProjectSel.value = currentSelectedVal;
+    } else if (selectedProjectId && projects.find(p => p.id === selectedProjectId)) {
+      selectProjectSel.value = selectedProjectId;
+    } else {
+      selectProjectSel.value = ""; // Default if no valid selection
+    }
+  }
+  renderProjectsList(); // Call to render the separate list of projects
+}
+function renderProjectsList() {
+  if (projectsListContainer) {
+    projectsListContainer.innerHTML = '';
+    if (projects.length === 0) {
+      projectsListContainer.innerHTML = '<div>Нет проектов. Добавьте новый.</div>';
+      return;
+    }
+    projects.forEach(project => {
+      const div = document.createElement('div');
+      div.className = 'project-item';
+      // div.style.borderLeft = `5px solid ${project.color || '#ccc'}`; // Example with project color
+      div.innerHTML = `
+                <span class="project-name-display">${project.name}</span>
+                <button class="delete-project delete-project-btn" data-id="${project.id}" title="Удалить проект">🗑️</button>
+            `;
+      // Add click listener to project item to select it (optional UX)
+      div.querySelector('.project-name-display').addEventListener('click', () => {
+        if (selectProjectSel) selectProjectSel.value = project.id;
+        selectedProjectId = project.id;
+        storage_storage.set({
+          selectedProjectId
+        });
+        renderProjectStats(project.id);
+        // Highlight selected project in the list (add a class)
+      });
+      projectsListContainer.appendChild(div);
+    });
+  }
+}
+if (selectProjectSel) {
+  selectProjectSel.addEventListener('change', e => {
+    const newProjectId = selectProjectSel.value || null; // Handle empty selection
+
+    if (stopwatch.isRunning && stopwatch.projectId && stopwatch.projectId !== newProjectId) {
+      if (confirm("Секундомер активен для другого проекта. Остановить текущий отсчет и переключить проект? (ОК для остановки и смены, Отмена для сохранения текущей работы)")) {
+        stopStopwatch(true); // Stop and save current tracked time
+        selectedProjectId = newProjectId;
+        storage_storage.set({
+          selectedProjectId
+        });
+        // Update stopwatch's project context IF user decides to immediately start for new project
+        // stopwatch.projectId = newProjectId; // This would happen on next startStopwatch()
+      } else {
+        selectProjectSel.value = stopwatch.projectId; // Revert dropdown to active project
+        return; // Don't change selectedProjectId
+      }
+    } else {
+      selectedProjectId = newProjectId;
+      storage_storage.set({
+        selectedProjectId
+      });
+    }
+    renderProjectStats(selectedProjectId);
+    updateStopwatchUI(); // To update project name in stopwatch display if any
+  });
+}
+if (projectsListContainer) {
+  projectsListContainer.addEventListener('click', async e => {
+    // Make async for storage operations
+    if (e.target.classList.contains('delete-project-btn')) {
+      const id = e.target.getAttribute("data-id");
+      const projectToDelete = projects.find(p => p.id === id);
+      if (projectToDelete && confirm(`Вы уверены, что хотите удалить проект "${projectToDelete.name}"? Связанные события останутся, но потеряют привязку к проекту.`)) {
+        // Update projects array
+        projects = projects.filter(p => p.id !== id);
+
+        // Update calendarEvents: remove projectId from associated events
+        calendarEvents.forEach(ev => {
+          if (ev.projectId === id) {
+            ev.projectId = null;
+          }
+        });
+        if (selectedProjectId === id) {
+          selectedProjectId = null;
+          if (selectProjectSel) selectProjectSel.value = '';
+        }
+        if (stopwatch.isRunning && stopwatch.projectId === id) {
+          // Decide: stop timer or let it continue without project?
+          if (confirm("Удаляемый проект используется активным таймером. Остановить таймер? (ОК - остановить, Отмена - таймер продолжит без проекта)")) {
+            stopStopwatch(true); // Stop and save
+          } else {
+            stopwatch.projectId = null; // Timer continues without project
+            persistStopwatchState();
+            updateStopwatchUI();
+          }
+        }
+
+        // Save changes to storage
+        storage_storage.set({
+          projects,
+          calendarEvents,
+          selectedProjectId
+        });
+        // No need to call render functions if onChanged listener is robust
+        // renderProjectSelectAndList();
+        // renderProjectStats(selectedProjectId);
+        // renderEvents(); // if project colors/styling depends on project existence
+      }
+    }
+  });
+}
+if (addProjectBtn && newProjectNameInput) {
+  addProjectBtn.addEventListener('click', async () => {
+    console.log('[ADD PROJECT BTN CLICKED]'); // <--- ДОБАВЬТЕ ЭТОТ ЛОГ
+    const projectName = newProjectNameInput.value.trim();
+    if (!projectName) {
+      alert("Имя проекта не может быть пустым.");
+      return;
+    }
+
+    // Проверка на существующий проект (по локально загруженным данным)
+    if (projects.find(p => p.name.toLowerCase() === projectName.toLowerCase())) {
+      alert("Проект с таким именем уже существует (локально). Попробуйте обновить список или выберите другое имя.");
+      // Можно добавить здесь await loadProjects(); для актуализации, если есть сомнения
+      return;
+    }
+    console.log(`[ADD PROJECT] Попытка создать проект: "${projectName}"`);
+    try {
+      // Объект для отправки в Supabase. ID будет сгенерирован Supabase.
+      // `color` и другие поля должны соответствовать вашей схеме таблицы 'projects' в Supabase.
+      const projectDataForSupabase = {
+        name: projectName,
+        color: getRandomColor() // Убедитесь, что в таблице есть поле 'color' или удалите это
+        // user_id: supabase.auth.user()?.id // Если проекты привязаны к пользователю
+      };
+
+      // Вызываем метод из вашего db объекта
+      const createdProject = await db.createProject(projectDataForSupabase);
+      if (!createdProject || !createdProject.id) {
+        alert("Не удалось создать проект. Сервер не вернул данные о созданном проекте.");
+        console.error('[ADD PROJECT] Supabase.createProject не вернул ожидаемый объект:', createdProject);
+        return;
+      }
+      console.log('[ADD PROJECT] Проект успешно создан в Supabase:', createdProject);
+
+      // 1. Обновляем локальный список проектов, перезагрузив их все из Supabase.
+      // Это самый надежный способ получить актуальное состояние, включая новый проект.
+      await loadProjects(); // Эта функция должна обновить глобальную переменную `projects`
+
+      // 2. Очищаем поле ввода
+      newProjectNameInput.value = '';
+
+      // 3. Автоматически выбираем новый проект в UI
+      selectedProjectId = createdProject.id;
+      if (selectProjectSel) {
+        selectProjectSel.value = createdProject.id; // Это может не сработать сразу, если renderProjectSelectAndList() еще не вызван с обновленными projects
+      }
+      // Сохраняем ID выбранного проекта в локальное хранилище,
+      // чтобы и другие части приложения знали о выборе, и чтобы сработал onChanged.
+      storage_storage.set({
+        selectedProjectId: createdProject.id
+      });
+
+      // 4. Обновляем UI явно (можно положиться на onChanged, но явный вызов надежнее для немедленного эффекта)
+      // renderProjectSelectAndList(); // Вызовется через onChanged или если loadProjects не обновляет UI
+      // renderProjectsList();         // Аналогично
+      // renderProjectStats(createdProject.id); // Обновить статистику для нового проекта
+
+      // Если loadProjects() не вызывает рендеры и не сохраняет `projects` в storage (чей onChanged бы вызвал рендеры),
+      // то нужно вызвать их здесь:
+      // renderProjectSelectAndList(); // Должен быть вызван так как projects обновился
+      // renderProjectsList();
+      // renderProjectStats(selectedProjectId);
+    } catch (error) {
+      alert(`Ошибка при создании проекта: ${error.message}`);
+      console.error('[ADD PROJECT] Ошибка при взаимодействии с Supabase:', error);
+    }
+  });
+}
+function getRandomColor() {
+  // Helper for new projects
+  const letters = '0123456789ABCDEF';
+  let color = '#';
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
+function formatTime(totalMinutes) {
+  if (!totalMinutes || totalMinutes <= 0) return '0 мин';
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  let result = [];
+  if (hours > 0) {
+    result.push(`${hours} ч`);
+  }
+  if (minutes > 0) {
+    result.push(`${minutes} мин`);
+  }
+  return result.join(' ');
+}
+function renderProjectStats(projId) {
+  if (!projectStats) return;
+  projectStats.innerHTML = ''; // Очищаем контейнер
+
+  if (!projId) {
+    projectStats.textContent = 'Проект не выбран.';
+    return;
+  }
+  const project = projects.find(p => p.id === projId);
+  if (!project) {
+    projectStats.textContent = 'Проект не найден.';
+    return;
+  }
+  const todayStr = formatDate(new Date());
+
+  // Общая функция-сумматор для подсчета минут
+  const calculateMinutes = events => {
+    return events.reduce((total, ev) => {
+      try {
+        // Пропускаем "живые" события, так как их длительность еще не финальная
+        if (ev.is_live) return total;
+        const startTime = localToDate(ev.startTime);
+        const endTime = localToDate(ev.endTime);
+        if (!isNaN(startTime.getTime()) && !isNaN(endTime.getTime())) {
+          const duration = Math.max(0, Math.round((endTime - startTime) / 60000));
+          return total + duration;
+        }
+        return total;
+      } catch (e) {
+        console.warn("Could not calculate duration for event:", ev);
+        return total;
+      }
+    }, 0);
+  };
+
+  // 1. Считаем время за СЕГОДНЯ
+  const todaysEvents = calendarEvents.filter(ev => ev.projectId === projId && ev.date === todayStr);
+  const todayTotalMinutes = calculateMinutes(todaysEvents);
+
+  // 2. Считаем время за ТЕКУЩУЮ ОТОБРАЖАЕМУЮ НЕДЕЛЮ
+  // calendarEvents уже содержит только события текущей недели
+  const weeklyEvents = calendarEvents.filter(ev => ev.projectId === projId);
+  const weekTotalMinutes = calculateMinutes(weeklyEvents);
+
+  // Формируем и выводим HTML
+  projectStats.innerHTML = `
+        <div class="stats-header"><b>${project.name}</b></div>
+        <div class="stats-item">
+            <span>За сегодня:</span>
+            <span>${formatTime(todayTotalMinutes)}</span>
+        </div>
+        <div class="stats-item">
+            <span>За эту неделю:</span>
+            <span>${formatTime(weekTotalMinutes)}</span>
+        </div>
+    `;
+}
+function renderDaysHeader(weekStart) {
+  if (!daysHeaderContainer) return;
+  daysHeaderContainer.innerHTML = '';
+  const weekDates = getWeekDates(weekStart);
+  const todayStr = formatDate(new Date());
+  weekDates.forEach(date => {
+    const dateStr = formatDate(date);
+    const dayData = allDayDetailsData[dateStr];
+    const totalCalories = dayData && dayData.calories ? (parseInt(dayData.calories.morning) || 0) + (parseInt(dayData.calories.afternoon) || 0) + (parseInt(dayData.calories.evening) || 0) : 0;
+    const commentExists = dayData && dayData.comment && dayData.comment.trim() !== '';
+    const dayHeader = document.createElement('div');
+    dayHeader.className = 'day-header';
+    dayHeader.setAttribute('data-date', dateStr);
+    if (dateStr === todayStr) {
+      dayHeader.classList.add('today-header');
+    }
+    dayHeader.innerHTML = `
+            <div class="day-name">${date.toLocaleDateString('ru-RU', {
+      weekday: 'short'
+    })}</div>
+            <div.day-date">${pad(date.getDate())}.${pad(date.getMonth() + 1)}</div>
+            <div class="day-header-icons">
+                <span class="calories-icon" style="display: ${totalCalories > 0 ? 'inline-flex' : 'none'}" title="Калории: ${totalCalories}">
+                    🔥 <span class="calories-count">${totalCalories > 0 ? totalCalories : ''}</span>
+                </span>
+                <span class="comment-icon ${commentExists ? 'has-comment' : ''}" style="display: ${commentExists ? 'inline-flex' : 'none'}" title="Есть комментарий">💬</span>
+            </div>
+        `;
+    dayHeader.addEventListener('click', () => {
+      // Вся логика открытия модального окна теперь будет в отдельной функции
+      // Мы просто вызываем ее с нужной датой
+      openDayDetailModal(dateStr);
+    });
+    daysHeaderContainer.appendChild(dayHeader);
+  });
+}
+
+// ==== Календарь — выбор даты (Date Picker) ====
+let selectedPickerYear = currentDate.getFullYear();
+let selectedPickerMonth = currentDate.getMonth();
+function openDatePicker() {
+  selectedPickerYear = currentDate.getFullYear();
+  selectedPickerMonth = currentDate.getMonth();
+  if (datePickerModal) {
+    datePickerModal.style.display = 'block';
+    renderDatePickerCalendar(selectedPickerYear, selectedPickerMonth);
+  } else {
+    console.error("Date picker modal not found");
+  }
+}
+if (datePickerCancelBtn) datePickerCancelBtn.addEventListener('click', () => {
+  if (datePickerModal) datePickerModal.style.display = 'none';
+});
+if (datePickerTodayBtn) {
+  datePickerTodayBtn.addEventListener('click', () => {
+    const today = new Date();
+    currentDate = new Date(today.getFullYear(), today.getMonth(), today.getDate()); // Normalized to start of day
+    currentWeekStart = getStartOfWeek(currentDate);
+    renderDaysHeader(currentWeekStart);
+    renderWeekGrid(currentWeekStart);
+    if (datePickerModal) datePickerModal.style.display = 'none';
+  });
+}
+if (datePickerSelectBtn) {
+  datePickerSelectBtn.addEventListener('click', () => {
+    const sel = calendarGridDom ? calendarGridDom.querySelector('.calendar-day.selected') : null;
+    if (sel && sel.dataset.date) {
+      const datestr = sel.dataset.date;
+      currentDate = localToDate(datestr + "T00:00:00"); // Use localToDate or new Date()
+      currentWeekStart = getStartOfWeek(currentDate);
+      renderDaysHeader(currentWeekStart);
+      renderWeekGrid(currentWeekStart);
+      if (datePickerModal) datePickerModal.style.display = 'none';
+    } else {
+      alert("Дата не выбрана.");
+    }
+  });
+}
+if (prevMonthBtn) {
+  prevMonthBtn.addEventListener('click', () => {
+    selectedPickerMonth--;
+    if (selectedPickerMonth < 0) {
+      selectedPickerMonth = 11;
+      selectedPickerYear--;
+    }
+    renderDatePickerCalendar(selectedPickerYear, selectedPickerMonth);
+  });
+}
+if (nextMonthBtn) {
+  nextMonthBtn.addEventListener('click', () => {
+    selectedPickerMonth++;
+    if (selectedPickerMonth > 11) {
+      selectedPickerMonth = 0;
+      selectedPickerYear++;
+    }
+    renderDatePickerCalendar(selectedPickerYear, selectedPickerMonth);
+  });
+}
+function renderDatePickerCalendar(year, month) {
+  if (!monthTitle || !calendarGridDom || !weekdayHeader) {
+    console.error("Date picker elements missing for rendering.");
+    return;
+  }
+  monthTitle.textContent = `${new Date(year, month).toLocaleString('ru-RU', {
+    month: 'long'
+  })} ${year}`;
+  calendarGridDom.innerHTML = '';
+  if (weekdayHeader.children.length === 0) {
+    ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].forEach(d => weekdayHeader.innerHTML += `<span>${d}</span>`);
+  }
+  const firstOfMonth = new Date(year, month, 1);
+  const lastOfMonth = new Date(year, month + 1, 0);
+  const todayStr = formatDate(new Date());
+  const currentSelectedDateStr = formatDate(currentDate);
+  let dayElementsHtml = "";
+  let firstDayOfWeek = (firstOfMonth.getDay() + 6) % 7;
+  for (let i = 0; i < firstDayOfWeek; i++) {
+    dayElementsHtml += `<div class="calendar-day other-month"></div>`;
+  }
+  for (let day = 1; day <= lastOfMonth.getDate(); day++) {
+    let dt = new Date(year, month, day);
+    let dateStr = formatDate(dt);
+    let classes = 'calendar-day';
+    if (dateStr === currentSelectedDateStr) classes += ' selected';
+    if (dateStr === todayStr) classes += ' today-picker';
+    dayElementsHtml += `<div class="${classes}" data-date="${dateStr}">${day}</div>`;
+  }
+  calendarGridDom.innerHTML = dayElementsHtml;
+  calendarGridDom.querySelectorAll('.calendar-day:not(.other-month)').forEach(dayDiv => {
+    dayDiv.addEventListener('click', function () {
+      calendarGridDom.querySelectorAll('.calendar-day.selected').forEach(el => el.classList.remove('selected'));
+      this.classList.add('selected');
+    });
+  });
+}
+
+// ==== Неделя влево/вправо ====
+if (prevWeekBtn) prevWeekBtn.addEventListener('click', () => {
+  currentDate.setDate(currentDate.getDate() - 7);
+  currentWeekStart = getStartOfWeek(currentDate); // Recalculate to be sure
+  renderDaysHeader(currentWeekStart);
+  renderWeekGrid(currentWeekStart);
+});
+if (nextWeekBtn) nextWeekBtn.addEventListener('click', () => {
+  currentDate.setDate(currentDate.getDate() + 7);
+  currentWeekStart = getStartOfWeek(currentDate);
+  renderDaysHeader(currentWeekStart);
+  renderWeekGrid(currentWeekStart);
+});
+if (currentWeekBtn) currentWeekBtn.addEventListener('click', () => {
+  currentDate = new Date();
+  currentDate.setHours(0, 0, 0, 0); // Normalize
+  currentWeekStart = getStartOfWeek(currentDate);
+  renderDaysHeader(currentWeekStart);
+  renderWeekGrid(currentWeekStart);
+});
+
+// ==== Экспорт / Импорт ====
+if (exportCsvBtn) {
+  exportCsvBtn.addEventListener('click', exportToCSV);
+}
+if (importCsvBtn) {
+  importCsvBtn.addEventListener('click', async () => {
+    let fileInp = document.createElement('input');
+    fileInp.type = 'file';
+    fileInp.accept = '.csv';
+    fileInp.style.display = 'none';
+    fileInp.addEventListener('change', function () {
+      if (!fileInp.files || fileInp.files.length === 0) {
+        if (fileInp.parentNode) fileInp.remove();
+        return;
+      }
+      const selectedFile = fileInp.files[0];
+      let reader = new FileReader();
+      reader.onload = async function (e) {
+        try {
+          let txt = e.target.result;
+          console.log(`Import: Reading file ${selectedFile.name} (${txt.length} bytes)`);
+          if (txt.charCodeAt(0) === 0xFEFF) {
+            txt = txt.slice(1);
+          }
+          const lines = txt.split(/\r\n|\n|\r/).filter(line => line.trim());
+          if (lines.length < 2) {
+            alert("Файл пуст или содержит только заголовки без данных.");
+            if (fileInp.parentNode) fileInp.remove();
+            return;
+          }
+          const headerLine = lines[0];
+          let headerFields;
+          try {
+            // Use parseCSVRow for header as well, in case header fields are quoted
+            headerFields = parseCSVRow(headerLine);
+          } catch (error) {
+            alert("Ошибка при разборе заголовка CSV: " + error.message);
+            if (fileInp.parentNode) fileInp.remove();
+            return;
+          }
+          const headerMap = {};
+          headerFields.forEach((field, index) => {
+            headerMap[field.trim().replace(/^"|"$/g, '')] = index; // Ensure field names are clean
+          });
+          if (!('Дата' in headerMap)) {
+            alert("В CSV файле отсутствует обязательная колонка 'Дата'.");
+            if (fileInp.parentNode) fileInp.remove();
+            return;
+          }
+          console.log("Import: Found headers:", headerMap);
+          let importedCalendarEvents = [];
+          let importedAllDayDetails = {};
+          storage_storage.get(['projects'], storageData => {
+            const existingProjects = storageData.projects || [];
+            const projectNameToId = {};
+            existingProjects.forEach(project => {
+              projectNameToId[project.name.toLowerCase()] = project.id; // Use toLowerCase for matching
+            });
+            let newProjects = [];
+            for (let i = 1; i < lines.length; i++) {
+              const line = lines[i].trim();
+              if (!line) continue;
+
+              // Use robust parseCSVRow for data lines
+              const fields = parseCSVRow(line);
+              if (fields.length < Object.keys(headerMap).length && fields.length < headerFields.length) {
+                // check against original header length too
+                console.warn(`Import: Line ${i + 1} has ${fields.length} fields, expected at least ${Math.min(Object.keys(headerMap).length, headerFields.length)}. Line: "${line}"`);
+                continue;
+              }
+              const dateStr = fields[headerMap['Дата']];
+              if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+                console.warn(`Import: Invalid date format in line ${i + 1}:`, dateStr);
+                continue;
+              }
+              importedAllDayDetails[dateStr] = {
+                calories: {
+                  morning: parseInt(fields[headerMap['Калории утром']] || '0') || 0,
+                  afternoon: parseInt(fields[headerMap['Калории днем']] || '0') || 0,
+                  evening: parseInt(fields[headerMap['Калории вечером']] || '0') || 0
+                },
+                comment: fields[headerMap['Комментарий дня']] || ''
+              };
+              const safeParseJSON = jsonString => {
+                if (!jsonString || jsonString === '[]' || jsonString.trim() === '') return [];
+                try {
+                  let cleaned = jsonString;
+                  if (cleaned.startsWith('"') && cleaned.endsWith('"')) {
+                    cleaned = cleaned.substring(1, cleaned.length - 1);
+                  }
+                  cleaned = cleaned.replace(/""/g, '"');
+                  return JSON.parse(cleaned);
+                } catch (error) {
+                  console.error("Error parsing JSON:", error, "Original String:", jsonString);
+                  return [];
+                }
+              };
+              const processJsonField = (jsonFieldKey, type) => {
+                if (jsonFieldKey in headerMap) {
+                  const jsonString = fields[headerMap[jsonFieldKey]];
+                  const items = safeParseJSON(jsonString);
+                  if (Array.isArray(items)) {
+                    items.forEach(item => {
+                      if (!item || !item.startTime || !item.endTime) {
+                        // Basic validation
+                        console.warn(`Import: Skipping invalid item in ${jsonFieldKey} for date ${dateStr}:`, item);
+                        return;
+                      }
+                      let projectId = null;
+                      if (item.projectName && item.projectName.toLowerCase() !== 'null' && item.projectName.toLowerCase() !== 'undefined') {
+                        const projNameLower = item.projectName.toLowerCase();
+                        if (projectNameToId[projNameLower]) {
+                          projectId = projectNameToId[projNameLower];
+                        } else {
+                          const existingNew = newProjects.find(p => p.name.toLowerCase() === projNameLower);
+                          if (existingNew) {
+                            projectId = existingNew.id;
+                          } else {
+                            const newPrjId = `prj-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+                            const newProj = {
+                              id: newPrjId,
+                              name: item.projectName,
+                              color: getRandomColor()
+                            };
+                            newProjects.push(newProj);
+                            projectNameToId[projNameLower] = newPrjId; // Add to map for subsequent items
+                            projectId = newPrjId;
+                          }
+                        }
+                      }
+                      importedCalendarEvents.push({
+                        id: `evt-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
+                        title: item.title || 'Без названия',
+                        description: item.description || '',
+                        date: dateStr,
+                        startTime: item.startTime,
+                        endTime: item.endTime,
+                        projectId: projectId,
+                        type: type,
+                        isLive: false
+                      });
+                    });
+                  }
+                }
+              };
+              processJsonField('События', 'event');
+              processJsonField('Проекты', 'project');
+            }
+            console.log(`Import: Processed ${importedCalendarEvents.length} events and ${Object.keys(importedAllDayDetails).length} days data.`);
+            console.log(`Import: Found ${newProjects.length} new projects to add:`, newProjects.map(p => p.name));
+            const updatedProjects = [...existingProjects];
+            newProjects.forEach(newProject => {
+              if (!updatedProjects.some(p => p.id === newProject.id || p.name.toLowerCase() === newProject.name.toLowerCase())) {
+                updatedProjects.push(newProject);
+              }
+            });
+
+            // Ask for confirmation before wiping and importing
+            if (!confirm(`Готовы импортировать ${importedCalendarEvents.length} событий, данные для ${Object.keys(importedAllDayDetails).length} дней и ${newProjects.length} новых проектов? Существующие данные календаря и дней будут ЗАМЕНЕНЫ.`)) {
+              console.log("Import cancelled by user.");
+              if (fileInp.parentNode) fileInp.remove();
+              return;
+            }
+            storage_storage.remove(['calendarEvents', ALL_DAY_DETAILS_KEY], () => {
+              if (chrome.runtime.lastError) {
+                console.error("Import: Error removing old data:", chrome.runtime.lastError);
+                alert("Ошибка при удалении старых данных: " + chrome.runtime.lastError.message);
+                if (fileInp.parentNode) fileInp.remove();
+                return;
+              }
+              console.log("Import: Old calendar data removed");
+              storage_storage.set({
+                calendarEvents: importedCalendarEvents,
+                [ALL_DAY_DETAILS_KEY]: importedAllDayDetails,
+                projects: updatedProjects // Save combined projects list
+              }, () => {
+                if (chrome.runtime.lastError) {
+                  console.error("Import: Error saving data:", chrome.runtime.lastError);
+                  alert("Ошибка при сохранении импортированных данных: " + chrome.runtime.lastError.message);
+                } else {
+                  console.log("Import: Data saved successfully!");
+                  alert(`Импорт завершен. Импортировано ${importedCalendarEvents.length} событий, данные для ${Object.keys(importedAllDayDetails).length} дней. Добавлено/обновлено проектов. Страница будет перезагружена.`);
+                  window.location.reload();
+                }
+                if (fileInp.parentNode) fileInp.remove();
+              });
+            });
+          }); // end storage.get
+        } catch (error) {
+          console.error("Error importing data:", error);
+          alert("Ошибка при импорте данных");
+        }
+      };
+      reader.onerror = event => {
+        // Correctly access error from event
+        alert("Ошибка чтения файла: " + event.target.error);
+        console.error("FileReader error:", event.target.error);
+        if (fileInp.parentNode) fileInp.remove();
+      };
+      reader.readAsText(selectedFile, "UTF-8"); // Specify encoding
+    }); // end fileInp.addEventListener('change')
+
+    document.body.appendChild(fileInp); // Add to body to make it clickable in some browsers
+    fileInp.click();
+    // No need to remove immediately, change handler or new click will handle it
+  }); // end importCsvBtn.addEventListener('click')
+} // end if (importCsvBtn)
+
+function openEventModal(eventId = null, dateStr = null, hour = null) {
+  const eventModalHeader = document.getElementById('event-modal-header'); // <-- внутри функции!
+  if (!eventModal || !eventForm || !regularEventDetails || !eventModalHeader) return;
+
+  // Сначала скрываем оба блока контента
+  eventForm.style.display = 'none';
+  regularEventDetails.style.display = 'none';
+  editingEventId = eventId;
+
+  // --- Обработка РЕГУЛЯРНЫХ событий ---
+  if (eventId && eventId.startsWith('reg-')) {
+    // Устанавливаем заголовок для регулярного события
+    eventModalHeader.textContent = "Детали регулярного события";
+    const [, configId] = eventId.split('-');
+    const config = regularEventsConfig.find(c => c.id == configId);
+    const eventInstance = calendarEvents.find(ev => ev.id === eventId);
+    const isCompleted = eventInstance ? eventInstance.completed : false;
+    if (config) {
+      regularEventModalTitle.textContent = config.name;
+      regularEventModalStatus.textContent = isCompleted ? 'Выполнено' : 'Не выполнено';
+      toggleCompletionBtn.textContent = isCompleted ? 'Снять отметку' : 'Отметить как выполненное';
+      toggleCompletionBtn.onclick = () => {
+        handleRegularEventToggle(eventId, !isCompleted);
+        closeEventModal();
+      };
+    }
+    regularEventDetails.style.display = 'block';
+
+    // --- Обработка ОБЫЧНЫХ и ПРОЕКТНЫХ событий ---
+  } else {
+    // Устанавливаем заголовок для обычного события
+    eventModalHeader.textContent = eventId ? "Редактировать событие" : "Создать событие";
+    eventForm.reset();
+    if (eventId) {
+      // Редактирование
+      const event = calendarEvents.find(ev => ev.id === eventId);
+      if (event) {
+        // ... остальная логика заполнения формы как была ...
+        eventTitleInput.value = event.title;
+        eventDateInput.value = event.date;
+        eventStartInput.value = event.startTime.split('T')[1];
+        eventEndInput.value = event.endTime.split('T')[1];
+        eventDescriptionInput.value = event.description || "";
+        if (selectProjectSel && event.projectId) {
+          selectProjectSel.value = event.projectId;
+        }
+        deleteEventBtn.style.display = 'inline-block';
+      }
+    } else {
+      // Создание нового
+      // ... остальная логика как была ...
+      deleteEventBtn.style.display = 'none';
+      // ... и так далее
+      eventDateInput.value = dateStr || formatDate(currentDate);
+      if (hour !== null) {
+        eventStartInput.value = `${pad(hour)}:00`;
+        eventEndInput.value = `${pad(hour + 1)}:00`;
+      } else {
+        const now = new Date();
+        eventStartInput.value = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        now.setHours(now.getHours() + 1);
+        eventEndInput.value = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+      }
+    }
+    eventForm.style.display = 'block';
+  }
+  eventModal.style.display = 'block';
+}
+function closeEventModal() {
+  if (eventModal) {
+    eventModal.style.display = 'none';
+  }
+  editingEventId = null;
+
+  // Очищаем обработчик, чтобы избежать случайных вызовов
+  if (toggleCompletionBtn) {
+    toggleCompletionBtn.onclick = null;
+  }
+}
+async function saveEvent(eventData) {
+  const result = await storage_storage.get('calendarEvents');
+  const allEvents = result.calendarEvents || [];
+  if (eventData.id) {
+    const index = allEvents.findIndex(e => e.id === eventData.id);
+    if (index !== -1) {
+      allEvents[index] = {
+        ...allEvents[index],
+        ...eventData
+      };
+    }
+  } else {
+    eventData.id = Date.now().toString();
+    allEvents.push(eventData);
+  }
+  await storage_storage.set({
+    calendarEvents: allEvents
+  });
+  await loadEvents();
+}
+async function deleteEvent(eventId) {
+  const result = await storage_storage.get('calendarEvents');
+  const allEvents = result.calendarEvents || [];
+  const updatedEvents = allEvents.filter(e => e.id !== eventId);
+  await storage_storage.set({
+    calendarEvents: updatedEvents
+  });
+  await loadEvents();
+}
+
+// Обновляем обработчик сохранения события
+if (saveEventBtn) {
+  saveEventBtn.addEventListener('click', async e => {
+    e.preventDefault();
+    const title = eventTitleInput.value.trim();
+    const date = eventDateInput.value;
+    const startTimeString = eventStartInput.value;
+    const endTimeString = eventEndInput.value;
+    const description = eventDescriptionInput.value.trim();
+    if (!title || !date || !startTimeString || !endTimeString) {
+      alert("Пожалуйста, заполните название, дату и время начала/окончания.");
+      return;
+    }
+    if (endTimeString <= startTimeString) {
+      alert("Время окончания должно быть позже времени начала.");
+      return;
+    }
+
+    // Получаем projectId из селекта в модальном окне, если он там есть
+    // Или из глобального selectedProjectId, если это новое событие
+    let finalProjectId = null;
+    const eventProjectSelect = document.getElementById('event-modal-project-select');
+    if (eventProjectSelect && eventProjectSelect.value) {
+      finalProjectId = eventProjectSelect.value;
+    } else if (!editingEventId && selectProjectSel && selectProjectSel.value) {
+      finalProjectId = selectProjectSel.value;
+    } else if (editingEventId) {
+      const currentEvent = calendarEvents.find(ev => ev.id === editingEventId);
+      if (currentEvent) finalProjectId = currentEvent.project_id; // Используем project_id из существующего события
+    }
+    const eventType = finalProjectId ? 'project' : 'event'; // Определяем ТИП ЗДЕСЬ
+
+    const eventDataPayload = {
+      id: editingEventId,
+      title,
+      description,
+      date,
+      startTime: `${date}T${startTimeString}`,
+      endTime: `${date}T${endTimeString}`,
+      projectId: finalProjectId,
+      type: eventType,
+      // <--- ДОБАВЛЯЕМ ПОЛЕ TYPE
+      isLive: false
+    };
+
+    // console.log("Собранный eventDataPayload для saveEvent:", eventDataPayload); // Для отладки
+    await saveEvent(eventDataPayload);
+    closeEventModal();
+  });
+}
+// Обновляем обработчик удаления события
+if (deleteEventBtn) {
+  deleteEventBtn.addEventListener('click', async () => {
+    if (editingEventId && confirm("Вы уверены, что хотите удалить это событие?")) {
+      await deleteEvent(editingEventId);
+      closeEventModal();
+    }
+  });
+}
+if (cancelEventBtn) {
+  cancelEventBtn.addEventListener('click', closeEventModal);
+}
+
+// Placeholder for DayDetailsManager if you create it as a class
+// class DayDetailsManager {
+//     constructor() { /* ... */ }
+//     openDayDetailModal(dateStr) { /* ... */ }
+//     closeDayDetailModal() { /* ... */ }
+//     saveDayDetails() { /* ... */ }
+// }
+// if (!dayDetailsManager) {
+//    dayDetailsManager = new DayDetailsManager();
+// }
+
+// Обработчик для кнопки сохранения деталей дня
+if (saveDayDetailsBtn) {
+  saveDayDetailsBtn.addEventListener('click', async () => {
+    const dateStr = dayDetailModalDateDisplay.textContent;
+    if (!dateStr) {
+      alert("Не удалось определить дату дня.");
+      return;
+    }
+    const calories = {
+      morning: parseInt(caloriesMorningInput.value) || 0,
+      afternoon: parseInt(caloriesAfternoonInput.value) || 0,
+      evening: parseInt(caloriesEveningInput.value) || 0
+    };
+    const comment = commentInput.value.trim();
+    const detailsToSave = {
+      calories: calories,
+      comment: comment
+    };
+    await saveDayDetails(dateStr, detailsToSave);
+    // После сохранения, обновим локальный кэш allDayDetailsData и UI заголовков дней
+    await loadDayDetails();
+    renderDaysHeader(currentWeekStart);
+    closeDayDetailModal();
+  });
+}
+
+// Обработчик для кнопки отмены деталей дня
+if (cancelDayDetailsBtn) {
+  cancelDayDetailsBtn.addEventListener('click', () => {
+    closeDayDetailModal();
+  });
+}
+console.log("Main script initialized and listeners attached.");
+// НОВАЯ ФУНКЦИЯ для смены статуса из модального окна
+async function handleRegularEventToggle(instanceId, newCompletionState) {
+  // Найти существующее событие или создать новое для записи статуса
+  let event = calendarEvents.find(ev => ev.id === instanceId);
+  if (event) {
+    event.completed = newCompletionState;
+  } else {
+    // Если события еще не было в массиве, создаем его
+    const [, configId, dateStr] = instanceId.split('-');
+    const config = regularEventsConfig.find(c => c.id == configId);
+    if (!config) {
+      console.error("Не найдена конфигурация для регулярного события:", configId);
+      return;
+    }
+    event = {
+      id: instanceId,
+      title: config.name,
+      date: dateStr,
+      type: 'regular',
+      completed: newCompletionState,
+      startTime: `${dateStr}T${config.time}`,
+      endTime: `${dateStr}T${config.time}` // Длительность условна
+    };
+    calendarEvents.push(event);
+  }
+
+  // Сохраняем все события в хранилище. onChanged listener перерисует UI.
+  storage_storage.set({
+    calendarEvents
+  });
+}
+function initializeEventHandlers() {
+  // Добавление новой регулярной задачи
+  const addRegularEventBtn = document.getElementById('add-regular-event');
+  if (addRegularEventBtn) {
+    addRegularEventBtn.addEventListener('click', async () => {
+      console.log('Клик по кнопке добавления регулярного события');
+      console.log('DOM загружен:', document.readyState);
+      const container = document.querySelector('.regular-event-management');
+      console.log('Контейнер регулярных событий:', container);
+      console.log('Видимость контейнера:', container ? window.getComputedStyle(container).display : 'не найден');
+      const nameInput = document.getElementById('regular-event-name');
+      const startTimeInput = document.getElementById('regular-event-start-time');
+      const endTimeInput = document.getElementById('regular-event-end-time');
+      console.log('Элемент regular-event-name:', nameInput);
+      console.log('Видимость regular-event-name:', nameInput ? window.getComputedStyle(nameInput).display : 'не найден');
+      console.log('Элемент regular-event-start-time:', startTimeInput);
+      console.log('Видимость regular-event-start-time:', startTimeInput ? window.getComputedStyle(startTimeInput).display : 'не найден');
+      console.log('Элемент regular-event-end-time:', endTimeInput);
+      console.log('Видимость regular-event-end-time:', endTimeInput ? window.getComputedStyle(endTimeInput).display : 'не найден');
+      if (!nameInput || !startTimeInput || !endTimeInput) {
+        console.error('Не найдены необходимые элементы формы');
+        return;
+      }
+      const name = nameInput.value.trim();
+      const startTime = startTimeInput.value;
+      const endTime = endTimeInput.value;
+      if (!name || !startTime || !endTime) {
+        alert('Пожалуйста, заполните все поля');
+        return;
+      }
+
+      // Получаем выбранные дни недели
+      const selectedDays = Array.from(document.querySelectorAll('#regular-event-weekdays .weekday-btn.selected')).map(btn => parseInt(btn.dataset.day));
+      if (selectedDays.length === 0) {
+        alert('Пожалуйста, выберите хотя бы один день недели');
+        return;
+      }
+
+      // Создаем новую конфигурацию регулярного события
+      const newConfig = {
+        id: Date.now().toString(),
+        name,
+        startTime,
+        endTime,
+        days: selectedDays
+      };
+
+      // Добавляем в массив конфигураций
+      regularEventsConfig.push(newConfig);
+
+      // Сохраняем в storage
+      storage_storage.set({
+        regularEventsConfig
+      });
+
+      // Очищаем поля формы
+      nameInput.value = '';
+      startTimeInput.value = '';
+      endTimeInput.value = '';
+      document.querySelectorAll('#regular-event-weekdays .weekday-btn.selected').forEach(btn => btn.classList.remove('selected'));
+
+      // Перерисовываем события
+      renderEvents();
+    });
+  }
+
+  // Обработчик для кнопок дней недели
+  const weekdaysContainer = document.getElementById('regular-event-weekdays');
+  if (weekdaysContainer) {
+    weekdaysContainer.addEventListener('click', e => {
+      if (e.target.classList.contains('weekday-btn')) {
+        e.target.classList.toggle('selected');
+      }
+    });
+  }
+}
+
+// Инициализация после загрузки DOM
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('=== Проверка элементов при инициализации ===');
+  console.log('regular-event-time до инициализации:', document.getElementById('regular-event-time'));
+  console.log('regular-event-name до инициализации:', document.getElementById('regular-event-name'));
+
+  // Проверяем родительский контейнер
+  const container = document.querySelector('.regular-event-management');
+  console.log('Контейнер регулярных событий:', container);
+  if (container) {
+    console.log('HTML контейнера:', container.innerHTML);
+  }
+  initializeEventHandlers();
+  initialLoad();
+
+  // Проверяем состояние после инициализации
+  console.log('=== Состояние после инициализации ===');
+  console.log('regular-event-time после инициализации:', document.getElementById('regular-event-time'));
+  console.log('regular-event-name после инициализации:', document.getElementById('regular-event-name'));
+
+  // Проверяем родительский контейнер снова
+  const containerAfter = document.querySelector('.regular-event-management');
+  console.log('Контейнер регулярных событий после инициализации:', containerAfter);
+  if (containerAfter) {
+    console.log('HTML контейнера после инициализации:', containerAfter.innerHTML);
+  }
+});
+/******/ })()
+;
+//# sourceMappingURL=main.bundle.js.map

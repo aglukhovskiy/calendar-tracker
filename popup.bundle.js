@@ -1,1 +1,173 @@
-document.addEventListener("DOMContentLoaded",(function(){const e=document.getElementById("timer-display"),t=document.getElementById("start-btn"),n=document.getElementById("pause-btn"),a=document.getElementById("stop-btn"),o=document.getElementById("project-select"),l=document.getElementById("calendar-btn");let s=[],c={isRunning:!1,startTimestamp:null,elapsed:0,liveEventId:null,projectId:null};function i(){let l=c.elapsed;c.isRunning&&c.startTimestamp&&(l+=Date.now()-c.startTimestamp);let s=Math.floor(l/1e3),i=Math.floor(s/60);s%=60,e.textContent=`${i.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`,e.style.color="#fff",t.disabled=c.isRunning||!o.value,n.disabled=!c.isRunning,a.disabled=!c.isRunning&&0===c.elapsed}function r(){chrome.storage.local.get(["projects","selectedProjectId"],(e=>{s=e.projects||[],o.innerHTML='<option value="">-- Проект --</option>',s.forEach((e=>{let t=document.createElement("option");t.value=e.id,t.textContent=e.name,o.appendChild(t)})),e.selectedProjectId&&(o.value=e.selectedProjectId),i()}))}function d(){chrome.storage.local.get("stopwatch",(e=>{e.stopwatch&&(c={...c,...e.stopwatch}),i()}))}chrome.storage.onChanged.addListener(((e,t)=>{"local"===t&&e.stopwatch&&d(),"local"===t&&e.projects&&r()})),t.onclick=function(){let e=o.value;e?chrome.storage.local.set({selectedProjectId:e},(()=>{chrome.storage.local.get(["stopwatch","calendarEvents","projects"],(t=>{if((t.stopwatch||{}).isRunning)return;const n=(t.projects||[]).find((t=>t.id===e)),a=new Date,o=e=>e.toString().padStart(2,"0"),l=e=>e.getFullYear()+"-"+o(e.getMonth()+1)+"-"+o(e.getDate())+"T"+o(e.getHours())+":"+o(e.getMinutes()),s={id:`live-${Date.now()}`,title:n?n.name:"Без проекта",description:"",date:(c=a,`${c.getFullYear()}-${o(c.getMonth()+1)}-${o(c.getDate())}`),startTime:l(a),endTime:l(new Date(a.getTime()+6e4)),projectId:e,isLive:!0,type:"project"};var c;const i=t.calendarEvents||[];i.push(s),chrome.storage.local.set({stopwatch:{isRunning:!0,startTimestamp:Date.now(),elapsed:0,liveEventId:s.id,projectId:e},calendarEvents:i})}))})):alert("Выберите проект!")},n.onclick=function(){chrome.storage.local.get(["stopwatch","calendarEvents"],(e=>{let t=e.stopwatch||{};if(!t.isRunning)return;let n=(t.elapsed||0)+(Date.now()-t.startTimestamp),a=e.calendarEvents||[];if(t.liveEventId){const e=a.findIndex((e=>e.id===t.liveEventId));e>-1&&(a[e].isLive=!1)}chrome.storage.local.set({stopwatch:{...t,isRunning:!1,startTimestamp:null,elapsed:n,projectId:t.projectId||null},calendarEvents:a})}))},a.onclick=function(){chrome.storage.local.get(["stopwatch","calendarEvents"],(e=>{let t=e.stopwatch||{},n=e.calendarEvents||[];if(t.liveEventId){const e=n.findIndex((e=>e.id===t.liveEventId));e>-1&&(n[e].isLive=!1)}chrome.storage.local.set({stopwatch:{isRunning:!1,startTimestamp:null,elapsed:0,liveEventId:null,projectId:null},calendarEvents:n})}))},o.onchange=function(){chrome.storage.local.get("stopwatch",(e=>{let t=e.stopwatch||{};(t.isRunning||t.elapsed)&&chrome.storage.local.set({stopwatch:{isRunning:!1,startTimestamp:null,elapsed:0,liveEventId:null,projectId:o.value}}),chrome.storage.local.set({selectedProjectId:o.value})}))},l.onclick=function(){chrome.tabs.create({url:chrome.runtime.getURL("index.html")})},r(),d(),setInterval(i,1e3)}));
+/******/ (() => { // webpackBootstrap
+document.addEventListener('DOMContentLoaded', function () {
+  const timerDisplay = document.getElementById('timer-display');
+  const startBtn = document.getElementById('start-btn');
+  const pauseBtn = document.getElementById('pause-btn');
+  const stopBtn = document.getElementById('stop-btn');
+  const projectSelect = document.getElementById('project-select');
+  const calendarBtn = document.getElementById('calendar-btn');
+  let projects = [];
+  let stopwatch = {
+    isRunning: false,
+    startTimestamp: null,
+    elapsed: 0,
+    liveEventId: null,
+    projectId: null
+  };
+  let interval = null;
+  function updateDisplay() {
+    let ms = stopwatch.elapsed;
+    if (stopwatch.isRunning && stopwatch.startTimestamp) ms += Date.now() - stopwatch.startTimestamp;
+    let sec = Math.floor(ms / 1000),
+      min = Math.floor(sec / 60);
+    sec = sec % 60;
+    timerDisplay.textContent = `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+    timerDisplay.style.color = '#fff';
+    startBtn.disabled = stopwatch.isRunning || !projectSelect.value;
+    pauseBtn.disabled = !stopwatch.isRunning;
+    stopBtn.disabled = !stopwatch.isRunning && stopwatch.elapsed === 0;
+  }
+  function loadProjects() {
+    chrome.storage.local.get(['projects', 'selectedProjectId'], res => {
+      projects = res.projects || [];
+      projectSelect.innerHTML = `<option value="">-- Проект --</option>`;
+      projects.forEach(prj => {
+        let opt = document.createElement('option');
+        opt.value = prj.id;
+        opt.textContent = prj.name;
+        projectSelect.appendChild(opt);
+      });
+      if (res.selectedProjectId) projectSelect.value = res.selectedProjectId;
+      updateDisplay();
+    });
+  }
+  function loadStopwatch() {
+    chrome.storage.local.get('stopwatch', res => {
+      if (res.stopwatch) stopwatch = {
+        ...stopwatch,
+        ...res.stopwatch
+      };
+      updateDisplay();
+    });
+  }
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "local" && changes.stopwatch) loadStopwatch();
+    if (area === "local" && changes.projects) loadProjects();
+  });
+  startBtn.onclick = function () {
+    let prj = projectSelect.value;
+    if (!prj) {
+      alert("Выберите проект!");
+      return;
+    }
+    chrome.storage.local.set({
+      selectedProjectId: prj
+    }, () => {
+      chrome.storage.local.get(['stopwatch', 'calendarEvents', 'projects'], res => {
+        let sw = res.stopwatch || {};
+        if (sw.isRunning) return;
+        const projectsArr = res.projects || [];
+        const project = projectsArr.find(p => p.id === prj);
+        const now = new Date();
+        const pad = x => x.toString().padStart(2, '0');
+        const localIso = dt => dt.getFullYear() + '-' + pad(dt.getMonth() + 1) + '-' + pad(dt.getDate()) + 'T' + pad(dt.getHours()) + ':' + pad(dt.getMinutes());
+        const getLocalDateString = dt => `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}`;
+        const liveEv = {
+          id: `live-${Date.now()}`,
+          title: project ? project.name : "Без проекта",
+          description: "",
+          date: getLocalDateString(now),
+          startTime: localIso(now),
+          endTime: localIso(new Date(now.getTime() + 60000)),
+          projectId: prj,
+          isLive: true,
+          type: 'project'
+        };
+        const calendarEvents = res.calendarEvents || [];
+        calendarEvents.push(liveEv);
+        chrome.storage.local.set({
+          stopwatch: {
+            isRunning: true,
+            startTimestamp: Date.now(),
+            elapsed: 0,
+            liveEventId: liveEv.id,
+            projectId: prj
+          },
+          calendarEvents
+        });
+      });
+    });
+  };
+  pauseBtn.onclick = function () {
+    chrome.storage.local.get(['stopwatch', 'calendarEvents'], res => {
+      let sw = res.stopwatch || {};
+      if (!sw.isRunning) return;
+      let elapsed = (sw.elapsed || 0) + (Date.now() - sw.startTimestamp);
+      let calendarEvents = res.calendarEvents || [];
+      if (sw.liveEventId) {
+        const evIdx = calendarEvents.findIndex(ev => ev.id === sw.liveEventId);
+        if (evIdx > -1) calendarEvents[evIdx].isLive = false;
+      }
+      chrome.storage.local.set({
+        stopwatch: {
+          ...sw,
+          isRunning: false,
+          startTimestamp: null,
+          elapsed,
+          projectId: sw.projectId || null
+        },
+        calendarEvents
+      });
+    });
+  };
+  stopBtn.onclick = function () {
+    chrome.storage.local.get(['stopwatch', 'calendarEvents'], res => {
+      let sw = res.stopwatch || {};
+      let calendarEvents = res.calendarEvents || [];
+      if (sw.liveEventId) {
+        const evIdx = calendarEvents.findIndex(ev => ev.id === sw.liveEventId);
+        if (evIdx > -1) calendarEvents[evIdx].isLive = false;
+      }
+      chrome.storage.local.set({
+        stopwatch: {
+          isRunning: false,
+          startTimestamp: null,
+          elapsed: 0,
+          liveEventId: null,
+          projectId: null
+        },
+        calendarEvents
+      });
+    });
+  };
+  projectSelect.onchange = function () {
+    chrome.storage.local.get('stopwatch', res => {
+      let sw = res.stopwatch || {};
+      if (sw.isRunning || sw.elapsed) {
+        chrome.storage.local.set({
+          stopwatch: {
+            isRunning: false,
+            startTimestamp: null,
+            elapsed: 0,
+            liveEventId: null,
+            projectId: projectSelect.value
+          }
+        });
+      }
+      chrome.storage.local.set({
+        selectedProjectId: projectSelect.value
+      });
+    });
+  };
+  calendarBtn.onclick = function () {
+    chrome.tabs.create({
+      url: chrome.runtime.getURL("index.html")
+    });
+  };
+  loadProjects();
+  loadStopwatch();
+  setInterval(updateDisplay, 1000);
+});
+/******/ })()
+;
+//# sourceMappingURL=popup.bundle.js.map

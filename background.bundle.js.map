@@ -1,0 +1,1 @@
+{"version":3,"file":"background.bundle.js","mappings":";AAAA;AACA;AACA,Q","sources":["webpack://stopwatch-widget-extension/./background.js"],"sourcesContent":["// chrome.runtime.onInstalled.addListener(() => {\n//     // no special logic required \n//   });\n  "],"names":[],"sourceRoot":""}
