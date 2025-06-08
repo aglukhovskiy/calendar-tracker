@@ -1,4 +1,5 @@
 import { db } from './supabase';
+import { storage } from './storage';
 
 // === Globals ===
 let calendarEvents = [];
@@ -110,19 +111,15 @@ function parseCSVRow(text) {
 
 async function exportToCSV() {
     console.log("Export process started");
-    const result = await new Promise(resolve =>
-        chrome.storage.local.get([
-            'calendarEvents', 'projects', ALL_DAY_DETAILS_KEY
-        ], data => {
-            console.log("Data fetched from storage for export");
-            resolve(data);
-        })
-    );
-
+    const result = await storage.get([
+        'calendarEvents', 'projects', ALL_DAY_DETAILS_KEY
+    ]);
+    console.log("Data fetched from storage for export");
+    
     const localCalendarEvents = result.calendarEvents || [];
     const localProjects = result.projects || [];
     const localAllDayDetails = result[ALL_DAY_DETAILS_KEY] || {};
-
+    
     const projectMap = {};
     localProjects.forEach(project => {
         projectMap[project.id] = project.name;
@@ -276,7 +273,7 @@ function updateStopwatchUI() {
 
 
 function persistStopwatchState() {
-    chrome.storage.local.set({ stopwatch: {
+    storage.set({ stopwatch: {
         isRunning: stopwatch.isRunning,
         startTimestamp: stopwatch.startTimestamp,
         projectId: stopwatch.projectId,
@@ -500,110 +497,38 @@ function stopStopwatch() {
 
 
 async function loadStopwatchState() {
-    const result = await new Promise(resolve => chrome.storage.local.get(['stopwatch'], resolve));
-
+    const result = await storage.get('stopwatch');
     if (result.stopwatch) {
-        stopwatch = { ...stopwatch, ...result.stopwatch }; 
-        
+        stopwatch = result.stopwatch;
         if (stopwatch.isRunning) {
-            console.warn("[LOAD STOPWATCH] Таймер был активен при перезагрузке. Возобновляем работу...");
-            // ИЗМЕНЕНО: Вместо финализации, возобновляем интервал
-            tick(); // Вызываем сразу для обновления UI
-            stopwatchInterval = setInterval(tick, 1000);
+            startStopwatch();
+        } else {
+            updateStopwatchUI();
         }
     }
-
-    updateStopwatchUI();
-    // Обновляем состояние кнопок в соответствии с загруженным состоянием
-    const startBtn = document.getElementById('start-pomodoro');
-    const pauseBtn = document.getElementById('pause-pomodoro');
-    if (startBtn) startBtn.disabled = stopwatch.isRunning;
-    if (pauseBtn) pauseBtn.disabled = !stopwatch.isRunning;
 }
 
 async function loadProjects() {
-    console.log('[LOAD PROJECTS] Начинаю загрузку проектов...');
-    let loadedSuccessfully = false;
-    try {
-        console.log('[LOAD PROJECTS] Before calling Supabase for projects (await db.getProjects())...');
-        const loadedDataFromSupabase = await db.getProjects();
-
-        if (Array.isArray(loadedDataFromSupabase)) {
-            projects = loadedDataFromSupabase;
-            console.log('[LOAD PROJECTS] Проекты УСПЕШНО загружены из Supabase:', projects);
-            // СОХРАНЯЕМ ЗАГРУЖЕННЫЕ ПРОЕКТЫ В ЛОКАЛЬНОЕ ХРАНИЛИЩЕ
-            // Это вызовет chrome.storage.onChanged, который должен обновить UI
-            await chrome.storage.local.set({ projects: projects });
-            loadedSuccessfully = true;
-        } else {
-            console.warn('[LOAD PROJECTS] Данные проектов из Supabase НЕ являются массивом:', loadedDataFromSupabase);
-            projects = []; // Безопасное значение по умолчанию
-            await chrome.storage.local.set({ projects: [] }); // Также сохраним пустой массив
-        }
-    } catch (error) {
-        console.error('[LOAD PROJECTS] ОШИБКА при загрузке проектов из Supabase:', error);
-        console.log('[LOAD PROJECTS] Попытка загрузить проекты из локального хранилища как резервный вариант...');
-        try {
-            const result = await new Promise(resolve =>
-                chrome.storage.local.get(['projects'], data => resolve(data))
-            );
-            projects = result.projects || [];
-            console.log('[LOAD PROJECTS] Проекты загружены из локального хранилища (резерв):', projects);
-            // Не нужно здесь set, так как мы уже взяли из storage
-            loadedSuccessfully = true; // Считаем успешной загрузкой из резерва
-        } catch (localError) {
-            console.error('[LOAD PROJECTS] Ошибка при загрузке из локального хранилища (резерв):', localError);
-            projects = [];
-            await chrome.storage.local.set({ projects: [] });
-        }
-    }
-    // Если проекты были успешно загружены (из Supabase или резерва),
-    // и UI не обновился через onChanged, можно вызвать рендер здесь
-    // Но лучше положиться на onChanged, если он правильно настроен.
-    // if (loadedSuccessfully) {
-    //    renderProjectSelectAndList();
-    //    renderProjectsList();
-    // }
+    const result = await storage.get('projects');
+    projects = result.projects || [];
+    console.log('Projects loaded:', projects);
+    renderProjectSelectAndList();
 }
 
-async function loadEvents(forWeekStart) { // forWeekStart может быть необязательным, если всегда currentWeekStart
-    const weekToLoadFor = forWeekStart || currentWeekStart; // Используем переданный или глобальный
-    try {
-        const weekEnd = new Date(weekToLoadFor);
-        weekEnd.setDate(weekEnd.getDate() + 6); // Предполагаем, что getCalendarEvents берет диапазон
-        
-        // Запрашиваем события из Supabase (через db.getCalendarEvents)
-        const eventsFromSupabase = await db.getCalendarEvents(
-            formatDate(weekToLoadFor),
-            formatDate(weekEnd)
-        );
-        
-        // Преобразуем формат, если нужно (у вас уже есть map)
-        calendarEvents = eventsFromSupabase.map(event => ({
-            ...event,
-            // Если db.getCalendarEvents уже возвращает startTime/endTime в нужном формате T,
-            // то этот map может быть не нужен или упрощен
-            startTime: `${event.date}T${event.start_time}`,
-            endTime: `${event.date}T${event.end_time}`
-        }));
-        
-        console.log("[LOAD EVENTS] Calendar events loaded from Supabase:", calendarEvents.length);
-
-        // !!! ВАЖНО: СОХРАНЯЕМ ОБНОВЛЕННЫЕ СОБЫТИЯ В ЛОКАЛЬНОЕ ХРАНИЛИЩЕ !!!
-        // Это вызовет chrome.storage.onChanged, который должен обновить UI (вызвать renderWeekGrid)
-        await chrome.storage.local.set({ calendarEvents: calendarEvents });
-        
-        // Явный вызов renderEvents здесь может быть избыточен, если onChanged сработает,
-        // но если есть задержки или проблемы с onChanged, можно добавить для надежности:
-        // renderEvents(); 
-        // или лучше renderWeekGrid(currentWeekStart); если структура сетки должна обновиться
-
-    } catch (error) {
-        console.error("Error loading events:", error);
-        calendarEvents = [];
-        // Также стоит обновить storage, если произошла ошибка, чтобы UI отразил пустой список
-        await chrome.storage.local.set({ calendarEvents: [] });
-    }
+async function loadEvents(forWeekStart) {
+    const weekStart = forWeekStart || currentWeekStart;
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+    
+    const result = await storage.get('calendarEvents');
+    const allEvents = result.calendarEvents || [];
+    
+    calendarEvents = allEvents.filter(event => {
+        const eventDate = new Date(event.date);
+        return eventDate >= weekStart && eventDate <= weekEnd;
+    });
+    
+    renderEvents();
 }
 
 // ==== Day Detail Modal Functions ====
@@ -667,28 +592,12 @@ function closeDayDetailModal() {
 
 // Эта функция должна вызываться при сохранении
 async function saveDayDetails(date, detailsToSave) {
-    try {
-        // Мы используем upsert, который создаст запись, если ее нет, или обновит существующую.
-        // onConflict: 'date' говорит Supabase, что `date` - это уникальный ключ для сопоставления.
-        await db.upsertDayDetails({
-            date: date,
-            calories: detailsToSave.calories,
-            comment: detailsToSave.comment
-        });
-        console.log(`[saveDayDetails] Details saved for ${date}`);
-        
-        // После успешного сохранения, нам нужно обновить наш локальный кэш и перерисовать UI.
-        // Самый надежный способ - перезагрузить данные для всей недели.
-        await loadDayDetails(); // Эта функция загружает данные и обновляет allDayDetailsData
-        await chrome.storage.local.set({ [ALL_DAY_DETAILS_KEY]: allDayDetailsData }); // Сохраняем в storage чтобы вызвать onChanged, если loadDayDetails этого не делает
-
-        // Явно перерисовываем заголовки дней, чтобы отобразить иконки калорий/комментариев
-        renderDaysHeader(currentWeekStart);
-
-    } catch (error) {
-        console.error("Error saving day details:", error);
-        alert("Ошибка при сохранении деталей дня: " + error.message);
-    }
+    const result = await storage.get(ALL_DAY_DETAILS_KEY);
+    const allDayDetails = result[ALL_DAY_DETAILS_KEY] || {};
+    allDayDetails[date] = detailsToSave;
+    await storage.set({ [ALL_DAY_DETAILS_KEY]: allDayDetails });
+    allDayDetailsData = allDayDetails;
+    updateTotalCaloriesDisplay();
 }
 
 // Функция для динамического подсчета калорий в модальном окне
@@ -732,30 +641,9 @@ if (cancelDayDetailsBtn) {
 }
 
 async function loadDayDetails() {
-    try {
-        const weekDates = getWeekDates(currentWeekStart);
-        const detailsPromises = weekDates.map(date => db.getDayDetails(formatDate(date)));
-        const detailsResults = await Promise.allSettled(detailsPromises);
-        
-        const newDayDetailsData = {};
-        detailsResults.forEach((result, index) => {
-            if (result.status === 'fulfilled' && result.value) {
-                newDayDetailsData[result.value.date] = result.value;
-            }
-        });
-        
-        allDayDetailsData = newDayDetailsData;
-        
-        console.log("[loadDayDetails] Day details loaded. Count:", Object.keys(allDayDetailsData).length);
-        
-        // Сохраняем в storage, чтобы вызвать onChanged и синхронизировать другие компоненты
-        await chrome.storage.local.set({ [ALL_DAY_DETAILS_KEY]: allDayDetailsData });
-
-    } catch (error) {
-        console.error("Error in loadDayDetails:", error);
-        allDayDetailsData = {};
-        await chrome.storage.local.set({ [ALL_DAY_DETAILS_KEY]: {} });
-    }
+    const result = await storage.get(ALL_DAY_DETAILS_KEY);
+    allDayDetailsData = result[ALL_DAY_DETAILS_KEY] || {};
+    updateTotalCaloriesDisplay();
 }
 /* ============================================= */
 /* ===       ОТРИСОВКА СОБЫТИЙ (ВАЖНО!)       === */
@@ -908,7 +796,7 @@ async function initialLoad() {
     console.log('regular-event-time:', document.getElementById('regular-event-time'));
     
     try {
-        const storageData = await chrome.storage.local.get(['selectedProjectId', 'regularEventsConfig']);
+        const storageData = await storage.get(['selectedProjectId', 'regularEventsConfig']);
         selectedProjectId = storageData.selectedProjectId || null;
         regularEventsConfig = storageData.regularEventsConfig || [];
         console.log('[INITIAL LOAD] Загружены конфигурации регулярных событий:', regularEventsConfig.length);
@@ -1042,7 +930,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await initialLoad();
 
     // Слушатель изменений в storage
-    chrome.storage.onChanged.addListener(async (changes, area) => { // Make listener async
+    storage.onChanged.addListener(async (changes, area) => { // Make listener async
         if (area === "local") {
             let eventsRefreshNeeded = false;
             let projectsRefreshNeeded = false;
@@ -1269,7 +1157,7 @@ function renderProjectsList() {
             div.querySelector('.project-name-display').addEventListener('click', () => {
                 if (selectProjectSel) selectProjectSel.value = project.id;
                 selectedProjectId = project.id;
-                chrome.storage.local.set({selectedProjectId});
+                storage.set({selectedProjectId});
                 renderProjectStats(project.id);
                 // Highlight selected project in the list (add a class)
             });
@@ -1286,7 +1174,7 @@ if (selectProjectSel) {
             if (confirm("Секундомер активен для другого проекта. Остановить текущий отсчет и переключить проект? (ОК для остановки и смены, Отмена для сохранения текущей работы)")) {
                 stopStopwatch(true); // Stop and save current tracked time
                 selectedProjectId = newProjectId;
-                chrome.storage.local.set({selectedProjectId});
+                storage.set({selectedProjectId});
                 // Update stopwatch's project context IF user decides to immediately start for new project
                 // stopwatch.projectId = newProjectId; // This would happen on next startStopwatch()
             } else {
@@ -1295,7 +1183,7 @@ if (selectProjectSel) {
             }
         } else {
             selectedProjectId = newProjectId;
-            chrome.storage.local.set({selectedProjectId});
+            storage.set({selectedProjectId});
         }
         renderProjectStats(selectedProjectId);
         updateStopwatchUI(); // To update project name in stopwatch display if any
@@ -1335,7 +1223,7 @@ if (projectsListContainer) {
                 }
                 
                 // Save changes to storage
-                await chrome.storage.local.set({projects, calendarEvents, selectedProjectId});
+                storage.set({projects, calendarEvents, selectedProjectId});
                 // No need to call render functions if onChanged listener is robust
                 // renderProjectSelectAndList();
                 // renderProjectStats(selectedProjectId);
@@ -1396,7 +1284,7 @@ if (addProjectBtn && newProjectNameInput) {
             }
             // Сохраняем ID выбранного проекта в локальное хранилище,
             // чтобы и другие части приложения знали о выборе, и чтобы сработал onChanged.
-            await chrome.storage.local.set({ selectedProjectId: createdProject.id });
+            storage.set({ selectedProjectId: createdProject.id });
 
             // 4. Обновляем UI явно (можно положиться на onChanged, но явный вызов надежнее для немедленного эффекта)
             // renderProjectSelectAndList(); // Вызовется через onChanged или если loadProjects не обновляет UI
@@ -1729,7 +1617,7 @@ if (importCsvBtn) {
                     let importedCalendarEvents = [];
                     let importedAllDayDetails = {};
 
-                    chrome.storage.local.get(['projects'], (storageData) => {
+                    storage.get(['projects'], (storageData) => {
                         const existingProjects = storageData.projects || [];
                         const projectNameToId = {};
                         existingProjects.forEach(project => {
@@ -1849,7 +1737,7 @@ if (importCsvBtn) {
                         }
 
 
-                        chrome.storage.local.remove(['calendarEvents', ALL_DAY_DETAILS_KEY], () => {
+                        storage.remove(['calendarEvents', ALL_DAY_DETAILS_KEY], () => {
                             if (chrome.runtime.lastError) {
                                  console.error("Import: Error removing old data:", chrome.runtime.lastError);
                                  alert("Ошибка при удалении старых данных: " + chrome.runtime.lastError.message);
@@ -1858,7 +1746,7 @@ if (importCsvBtn) {
                             }
                             console.log("Import: Old calendar data removed");
 
-                            chrome.storage.local.set({
+                            storage.set({
                                 calendarEvents: importedCalendarEvents,
                                 [ALL_DAY_DETAILS_KEY]: importedAllDayDetails,
                                 projects: updatedProjects // Save combined projects list
@@ -1874,7 +1762,7 @@ if (importCsvBtn) {
                                 if (fileInp.parentNode) fileInp.remove();
                             });
                         });
-                    }); // end chrome.storage.local.get
+                    }); // end storage.get
                 } catch (error) {
                     console.error("Error importing data:", error);
                     alert("Ошибка при импорте данных");
@@ -1985,56 +1873,29 @@ function closeEventModal() {
 }
 
 async function saveEvent(eventData) {
-    try {
-        const { date, startTime, endTime, ...rest } = eventData;
-        const [startHour, startMinute] = startTime.split('T')[1].split(':');
-        const [endHour, endMinute] = endTime.split('T')[1].split(':');
-        
-        // const eventToSave = {
-        //     ...rest,
-        //     date,
-        //     start_time: `${startHour}:${startMinute}`,
-        //     end_time: `${endHour}:${endMinute}`
-        // };
-        
-        const eventToSave = {
-            title: eventData.title,
-            description: eventData.description || null,
-            date: eventData.date,
-            start_time: eventData.startTime.split('T')[1], // Берем только HH:MM
-            end_time: eventData.endTime.split('T')[1],     // Берем только HH:MM
-            project_id: eventData.projectId || null,
-            type: eventData.type,                 // <--- ПЕРЕДАЕМ TYPE
-            is_live: eventData.isLive             // false для обычных событий
-        };
-
-        console.log("ПОПЫТКА СОХРАНИТЬ СОБЫТИЕ. Данные (eventToSave):", JSON.stringify(eventToSave, null, 2));
-        console.log("ID для обновления (если есть):", eventData.id);
-
-        if (eventData.id) {
-            await db.updateCalendarEvent(eventData.id, eventToSave);
-        } else {
-            await db.createCalendarEvent(eventToSave);
+    const result = await storage.get('calendarEvents');
+    const allEvents = result.calendarEvents || [];
+    
+    if (eventData.id) {
+        const index = allEvents.findIndex(e => e.id === eventData.id);
+        if (index !== -1) {
+            allEvents[index] = { ...allEvents[index], ...eventData };
         }
-        
-        await loadEvents(currentWeekStart);
-        // renderEvents(); // Должен вызваться через loadEvents -> chrome.storage.onChanged
-    } catch (error) {
-        // Ошибка '23502' теперь будет правильно выведена здесь
-        console.error("Error saving event:", error);
-        alert("Ошибка при сохранении события: " + error.message);
+    } else {
+        eventData.id = Date.now().toString();
+        allEvents.push(eventData);
     }
+    
+    await storage.set({ calendarEvents: allEvents });
+    await loadEvents();
 }
 
 async function deleteEvent(eventId) {
-    try {
-        await db.deleteCalendarEvent(eventId);
-        await loadEvents(currentWeekStart);
-        renderEvents();
-    } catch (error) {
-        console.error("Error deleting event:", error);
-        alert("Ошибка при удалении события");
-    }
+    const result = await storage.get('calendarEvents');
+    const allEvents = result.calendarEvents || [];
+    const updatedEvents = allEvents.filter(e => e.id !== eventId);
+    await storage.set({ calendarEvents: updatedEvents });
+    await loadEvents();
 }
 
 // Обновляем обработчик сохранения события
@@ -2182,7 +2043,7 @@ async function handleRegularEventToggle(instanceId, newCompletionState) {
     }
     
     // Сохраняем все события в хранилище. onChanged listener перерисует UI.
-    await chrome.storage.local.set({ calendarEvents });
+    storage.set({ calendarEvents });
 }
 
 
@@ -2245,7 +2106,7 @@ function initializeEventHandlers() {
             regularEventsConfig.push(newConfig);
             
             // Сохраняем в storage
-            await chrome.storage.local.set({ regularEventsConfig });
+            storage.set({ regularEventsConfig });
             
             // Очищаем поля формы
             nameInput.value = '';
