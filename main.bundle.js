@@ -8631,7 +8631,7 @@ let calendarEvents = [];
 let projects = [];
 console.log('Global projects initialized:', projects);
 let selectedProjectId = null;
-let regularEventsConfig = []; // Хранит конфигурации регулярных событий
+let regularEventsConfig = (/* unused pure expression or super */ null && ([])); // Хранит конфигурации регулярных событий
 // stopwatch.startTimestamp будет хранить время начала в виде timestamp (Date.now())
 // stopwatch.elapsed не используется активно, если startTimeStamp есть, его можно вычислять
 let stopwatch = {
@@ -10011,73 +10011,60 @@ if (importCsvBtn) {
   }); // end importCsvBtn.addEventListener('click')
 } // end if (importCsvBtn)
 
-function openEventModal(eventId = null, dateStr = null, hour = null) {
-  const eventModalHeader = document.getElementById('event-modal-header'); // <-- внутри функции!
-  if (!eventModal || !eventForm || !regularEventDetails || !eventModalHeader) return;
+async function openEventModal(eventId = null, dateStr = null, hour = null) {
+  console.log('[OPEN EVENT MODAL] Открытие модального окна:', {
+    eventId,
+    dateStr,
+    hour
+  });
+  const modal = document.getElementById('eventModal');
+  const titleInput = document.getElementById('eventTitle');
+  const startTimeInput = document.getElementById('eventStartTime');
+  const endTimeInput = document.getElementById('eventEndTime');
+  const projectSelect = document.getElementById('eventProject');
+  const deleteButton = document.getElementById('deleteEventButton');
+  const saveButton = document.getElementById('saveEventButton');
 
-  // Сначала скрываем оба блока контента
-  eventForm.style.display = 'none';
-  regularEventDetails.style.display = 'none';
-  editingEventId = eventId;
-
-  // --- Обработка РЕГУЛЯРНЫХ событий ---
-  if (eventId && eventId.startsWith('reg-')) {
-    // Устанавливаем заголовок для регулярного события
-    eventModalHeader.textContent = "Детали регулярного события";
-    const [, configId] = eventId.split('-');
-    const config = regularEventsConfig.find(c => c.id == configId);
-    const eventInstance = calendarEvents.find(ev => ev.id === eventId);
-    const isCompleted = eventInstance ? eventInstance.completed : false;
-    if (config) {
-      regularEventModalTitle.textContent = config.name;
-      regularEventModalStatus.textContent = isCompleted ? 'Выполнено' : 'Не выполнено';
-      toggleCompletionBtn.textContent = isCompleted ? 'Снять отметку' : 'Отметить как выполненное';
-      toggleCompletionBtn.onclick = () => {
-        handleRegularEventToggle(eventId, !isCompleted);
-        closeEventModal();
-      };
+  // Очищаем форму
+  titleInput.value = '';
+  startTimeInput.value = '';
+  endTimeInput.value = '';
+  projectSelect.value = '';
+  if (eventId) {
+    // Редактирование существующего события
+    console.log('[OPEN EVENT MODAL] Загрузка данных события:', eventId);
+    const {
+      data: event,
+      error
+    } = await db.from('calendar_events').select('*').eq('id', eventId).single();
+    if (error) {
+      console.error('[OPEN EVENT MODAL] Ошибка загрузки события:', error);
+      return;
     }
-    regularEventDetails.style.display = 'block';
+    console.log('[OPEN EVENT MODAL] Загруженные данные события:', event);
+    titleInput.value = event.title || '';
+    startTimeInput.value = event.start_time || '';
+    endTimeInput.value = event.end_time || '';
+    projectSelect.value = event.project_id || '';
+    deleteButton.style.display = 'block';
+    saveButton.textContent = 'Сохранить изменения';
 
-    // --- Обработка ОБЫЧНЫХ и ПРОЕКТНЫХ событий ---
+    // Сохраняем ID события для последующего сохранения
+    modal.dataset.eventId = eventId;
   } else {
-    // Устанавливаем заголовок для обычного события
-    eventModalHeader.textContent = eventId ? "Редактировать событие" : "Создать событие";
-    eventForm.reset();
-    if (eventId) {
-      // Редактирование
-      const event = calendarEvents.find(ev => ev.id === eventId);
-      if (event) {
-        // ... остальная логика заполнения формы как была ...
-        eventTitleInput.value = event.title;
-        eventDateInput.value = event.date;
-        eventStartInput.value = event.startTime.split('T')[1];
-        eventEndInput.value = event.endTime.split('T')[1];
-        eventDescriptionInput.value = event.description || "";
-        if (selectProjectSel && event.projectId) {
-          selectProjectSel.value = event.projectId;
-        }
-        deleteEventBtn.style.display = 'inline-block';
-      }
-    } else {
-      // Создание нового
-      // ... остальная логика как была ...
-      deleteEventBtn.style.display = 'none';
-      // ... и так далее
-      eventDateInput.value = dateStr || formatDate(currentDate);
-      if (hour !== null) {
-        eventStartInput.value = `${pad(hour)}:00`;
-        eventEndInput.value = `${pad(hour + 1)}:00`;
-      } else {
-        const now = new Date();
-        eventStartInput.value = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
-        now.setHours(now.getHours() + 1);
-        eventEndInput.value = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
-      }
+    // Создание нового события
+    if (dateStr && hour !== null) {
+      const startHour = Math.floor(hour);
+      const startMinute = Math.round((hour - startHour) * 60);
+      const endHour = startHour + 1;
+      startTimeInput.value = `${pad(startHour)}:${pad(startMinute)}`;
+      endTimeInput.value = `${pad(endHour)}:${pad(startMinute)}`;
     }
-    eventForm.style.display = 'block';
+    deleteButton.style.display = 'none';
+    saveButton.textContent = 'Создать событие';
+    delete modal.dataset.eventId;
   }
-  eventModal.style.display = 'block';
+  modal.style.display = 'block';
 }
 function closeEventModal() {
   if (eventModal) {
@@ -10271,7 +10258,7 @@ async function handleRegularEventToggle(instanceId, newCompletionState) {
   }
 
   // Сохраняем все события в хранилище. onChanged listener перерисует UI.
-  storage_storage.set({
+  storage.set({
     calendarEvents
   });
 }
