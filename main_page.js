@@ -763,45 +763,37 @@ function renderEvents() {
 async function initialLoad() {
     console.log('[INITIAL LOAD] Начало initialLoad...');
     
-    // Проверка DOM до загрузки данных
     console.log('=== Проверка DOM до загрузки данных ===');
     console.log('regular-event-time:', document.getElementById('regular-event-time'));
     
     try {
-        const storageData = await storage.get(['selectedProjectId', 'regularEventsConfig']);
-        selectedProjectId = storageData.selectedProjectId || null;
-        regularEventsConfig = storageData.regularEventsConfig || [];
-        console.log('[INITIAL LOAD] Загружены конфигурации регулярных событий:', regularEventsConfig.length);
+        // Загрузка конфигураций регулярных событий
+        const { regularEventsConfig } = await storage.get('regularEventsConfig');
+        console.log('[INITIAL LOAD] Загружены конфигурации регулярных событий:', regularEventsConfig?.length || 0);
         
-        // Проверка DOM после загрузки из storage
         console.log('=== Проверка DOM после загрузки из storage ===');
         console.log('regular-event-time:', document.getElementById('regular-event-time'));
         
-        await loadProjects();
-        await loadEvents(currentWeekStart);
-        await loadDayDetails();
+        // Загрузка проектов
+        projects = await db.getProjects();
+        console.log('[INITIAL LOAD] Projects loaded:', projects);
         
-        // Проверка DOM после загрузки всех данных
         console.log('=== Проверка DOM после загрузки всех данных ===');
         console.log('regular-event-time:', document.getElementById('regular-event-time'));
         
-        renderWeekGrid(currentWeekStart);
-        renderTimeSlots();
-        renderDaysHeader(currentWeekStart);
+        // Рендеринг UI
         renderProjectSelectAndList();
         renderProjectsList();
-        renderProjectStats(selectedProjectId);
+        renderWeekGrid(currentWeekStart);
+        renderTimeSlots();
+        scrollToWorkingHours();
         
-        // Проверка DOM после рендеринга
         console.log('=== Проверка DOM после рендеринга ===');
         console.log('regular-event-time:', document.getElementById('regular-event-time'));
         
-        scrollToWorkingHours();
-        updateCurrentTimeIndicator();
-        
         console.log('[INITIAL LOAD] initialLoad завершен.');
     } catch (error) {
-        console.error('[INITIAL LOAD] Ошибка при загрузке:', error);
+        console.error('[INITIAL LOAD] Error during initial load:', error);
     }
 }
 

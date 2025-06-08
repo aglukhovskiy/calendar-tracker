@@ -2,6 +2,10 @@ import { createClient } from '@supabase/supabase-js'
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config'
 
 // Проверяем наличие необходимых переменных
+console.log('=== Supabase Configuration ===');
+console.log('SUPABASE_URL:', SUPABASE_URL ? `${SUPABASE_URL.substring(0, 10)}...` : 'undefined');
+console.log('SUPABASE_ANON_KEY:', SUPABASE_ANON_KEY ? `${SUPABASE_ANON_KEY.substring(0, 10)}...` : 'undefined');
+
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     console.error('Ошибка: SUPABASE_URL и SUPABASE_ANON_KEY должны быть определены');
     throw new Error('SUPABASE_URL и SUPABASE_ANON_KEY должны быть определены');
@@ -9,17 +13,28 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
 
 // Initialize Supabase client
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+console.log('Supabase client initialized');
 
 // Database operations
 export const db = {
     // Events
     async getEvents(date) {
-        const { data, error } = await supabase
-            .from('events')
-            .select('*')
-            .eq('date', date)
-        if (error) throw error
-        return data
+        console.log('Fetching events for date:', date);
+        try {
+            const { data, error } = await supabase
+                .from('events')
+                .select('*')
+                .eq('date', date)
+            if (error) {
+                console.error('Error fetching events:', error);
+                throw error;
+            }
+            console.log('Events fetched successfully:', data);
+            return data;
+        } catch (error) {
+            console.error('Exception in getEvents:', error);
+            throw error;
+        }
     },
 
     async createEvent(event) {
@@ -70,11 +85,21 @@ export const db = {
 
     // Projects
     async getProjects() {
-        const { data, error } = await supabase
-            .from('projects')
-            .select('*')
-        if (error) throw error
-        return data
+        console.log('Fetching projects...');
+        try {
+            const { data, error } = await supabase
+                .from('projects')
+                .select('*')
+            if (error) {
+                console.error('Error fetching projects:', error);
+                throw error;
+            }
+            console.log('Projects fetched successfully:', data);
+            return data;
+        } catch (error) {
+            console.error('Exception in getProjects:', error);
+            throw error;
+        }
     },
 
     async createProject(project) {
@@ -97,15 +122,25 @@ export const db = {
 
     // Calendar events
     async getCalendarEvents(startDate, endDate) {
-        const { data, error } = await supabase
-            .from('calendar_events')
-            .select('*')
-            .gte('date', startDate)
-            .lte('date', endDate)
-            .order('date')
-            .order('start_time')
-        if (error) throw error
-        return data || []
+        console.log('Fetching calendar events from', startDate, 'to', endDate);
+        try {
+            const { data, error } = await supabase
+                .from('calendar_events')
+                .select('*')
+                .gte('date', startDate)
+                .lte('date', endDate)
+                .order('date')
+                .order('start_time')
+            if (error) {
+                console.error('Error fetching calendar events:', error);
+                throw error;
+            }
+            console.log('Calendar events fetched successfully:', data);
+            return data || [];
+        } catch (error) {
+            console.error('Exception in getCalendarEvents:', error);
+            throw error;
+        }
     },
 
     async createCalendarEvent(eventData) {
