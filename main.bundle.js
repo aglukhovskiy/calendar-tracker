@@ -9138,31 +9138,36 @@ function updateTotalCaloriesDisplay() {
 }
 
 // Слушатели событий
-[caloriesMorningInput, caloriesAfternoonInput, caloriesEveningInput].forEach(input => {
-  if (input) input.addEventListener('input', updateTotalCaloriesDisplay);
-});
-if (saveDayDetailsBtn) {
-  saveDayDetailsBtn.addEventListener('click', async () => {
-    const dateStr = dayDetailModalDateDisplay.textContent;
-    if (!dateStr) {
-      alert("Ошибка: не удалось определить дату для сохранения.");
-      return;
-    }
-    const detailsPayload = {
-      calories: {
-        morning: parseInt(caloriesMorningInput.value, 10) || 0,
-        afternoon: parseInt(caloriesAfternoonInput.value, 10) || 0,
-        evening: parseInt(caloriesEveningInput.value, 10) || 0
-      },
-      comment: commentInput.value.trim()
-    };
-    await saveDayDetails(dateStr, detailsPayload);
-    closeDayDetailModal();
-  });
-}
-if (cancelDayDetailsBtn) {
-  cancelDayDetailsBtn.addEventListener('click', closeDayDetailModal);
-}
+// [caloriesMorningInput, caloriesAfternoonInput, caloriesEveningInput].forEach(input => {
+//     if (input) input.addEventListener('input', updateTotalCaloriesDisplay);
+// });
+
+// if (saveDayDetailsBtn) {
+//     saveDayDetailsBtn.addEventListener('click', async () => {
+//         const dateStr = dayDetailModalDateDisplay.textContent;
+//         if (!dateStr) {
+//             alert("Ошибка: не удалось определить дату для сохранения.");
+//             return;
+//         }
+
+//         const detailsPayload = {
+//             calories: {
+//                 morning: parseInt(caloriesMorningInput.value, 10) || 0,
+//                 afternoon: parseInt(caloriesAfternoonInput.value, 10) || 0,
+//                 evening: parseInt(caloriesEveningInput.value, 10) || 0,
+//             },
+//             comment: commentInput.value.trim()
+//         };
+
+//         await saveDayDetails(dateStr, detailsPayload);
+//         closeDayDetailModal();
+//     });
+// }
+
+// if (cancelDayDetailsBtn) {
+//     cancelDayDetailsBtn.addEventListener('click', closeDayDetailModal);
+// }
+
 async function loadDayDetails() {
   const result = await storage_storage.get(ALL_DAY_DETAILS_KEY);
   allDayDetailsData = result[ALL_DAY_DETAILS_KEY] || {};
@@ -10527,7 +10532,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (container) {
     console.log('HTML контейнера:', container.innerHTML);
   }
-  initializeEventHandlers();
+  initializeEventHandlers(); // ЭТОТ ВЫЗОВ ДОЛЖЕН БЫТЬ ПЕРВЫМ
   initialLoad();
 
   // Проверяем состояние после инициализации
