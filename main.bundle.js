@@ -9229,13 +9229,19 @@ function renderEvents() {
   // --- 1. Отрисовка ОБЫЧНЫХ и ПРОЕКТНЫХ событий ---
   const filteredEvents = calendarEvents.filter(event => {
     const isRegular = event.type === 'regular';
-    const isInWeek = weekDates.some(d => formatDate(d) === event.date);
+    const eventDate = new Date(event.date);
+    const isInWeek = weekDates.some(d => {
+      const weekDate = new Date(d);
+      return weekDate.getFullYear() === eventDate.getFullYear() && weekDate.getMonth() === eventDate.getMonth() && weekDate.getDate() === eventDate.getDate();
+    });
     console.log('[RENDER EVENTS] Проверка события:', {
       id: event.id,
       date: event.date,
       type: event.type,
       isRegular,
-      isInWeek
+      isInWeek,
+      eventDate: eventDate.toISOString(),
+      weekDates: weekDates.map(d => d.toISOString())
     });
     return !isRegular && isInWeek;
   });
