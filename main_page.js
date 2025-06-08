@@ -547,14 +547,14 @@ async function loadEvents(forWeekStart) {
         const events = await db.getCalendarEvents(weekStart, weekEnd);
         console.log('[LOAD EVENTS] Загружено событий:', events.length);
         
-        renderEvents(events);
+        renderEvents(events, weekStart);
     } catch (error) {
         console.error('[LOAD EVENTS] Ошибка загрузки событий:', error);
     }
 }
 
-function renderEvents(events) {
-    const weekDates = getWeekDates(getStartOfWeek(new Date()));
+function renderEvents(events, weekStart) {
+    const weekDates = getWeekDates(weekStart);
     console.log('[RENDER EVENTS] Даты недели:', weekDates.map(d => d.toISOString()));
     
     // Получаем высоту ячейки часа
@@ -580,7 +580,11 @@ function renderEvents(events) {
         });
         
         if (!weekDate) {
-            console.log('[RENDER EVENTS] Событие не входит в текущую неделю:', event);
+            console.log('[RENDER EVENTS] Событие не входит в текущую неделю:', {
+                event: event,
+                eventDate: eventDate.toISOString(),
+                weekDates: weekDates.map(d => d.toISOString())
+            });
             return;
         }
 
@@ -1942,7 +1946,7 @@ function renderWeekGrid(weekStart) {
         }
     }
 
-    renderEvents(calendarEvents);
+    loadEvents(weekStart);
     setTimeout(scrollToWorkingHours, 5);
     updateCurrentTimeIndicator();
 }
