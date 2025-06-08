@@ -616,7 +616,7 @@ function renderEvents(events, weekStart) {
         eventElement.className = 'calendar-event';
         eventElement.style.top = `${topPosition}px`;
         eventElement.style.height = `${height}px`;
-        eventElement.dataset.eventId = event.id;
+        eventElement.dataset.id = event.id;
         
         // Форматируем время для отображения в HH:mm
         const startTimeStr = `${pad(startHour)}:${pad(startMinute)}`;
