@@ -2122,3 +2122,56 @@ async function saveDayDetails(date, detailsToSave) {
     }
 }
 
+function closeDayDetailModal() {
+    console.log('[CLOSE DAY DETAIL] Закрытие модального окна деталей дня');
+    const modal = document.getElementById('day-detail-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+function initializeEventHandlers() {
+    // ... existing code ...
+    
+    // Обработчики для модального окна деталей дня
+    const dayDetailModal = document.getElementById('day-detail-modal');
+    const closeDayDetailBtn = document.getElementById('close-day-detail');
+    const saveDayDetailBtn = document.getElementById('save-day-detail');
+    
+    if (closeDayDetailBtn) {
+        closeDayDetailBtn.addEventListener('click', closeDayDetailModal);
+    }
+    
+    if (saveDayDetailBtn) {
+        saveDayDetailBtn.addEventListener('click', async () => {
+            const modal = document.getElementById('day-detail-modal');
+            const date = modal.dataset.date;
+            
+            if (!date) {
+                console.error('[SAVE DAY DETAIL] Дата не указана');
+                return;
+            }
+            
+            const notesInput = document.getElementById('day-notes');
+            const moodSelect = document.getElementById('day-mood');
+            const productivitySelect = document.getElementById('day-productivity');
+            
+            const detailsToSave = {
+                notes: notesInput ? notesInput.value : '',
+                mood: moodSelect ? moodSelect.value : 'neutral',
+                productivity: productivitySelect ? productivitySelect.value : 'medium'
+            };
+            
+            try {
+                await saveDayDetails(date, detailsToSave);
+                closeDayDetailModal();
+            } catch (error) {
+                console.error('[SAVE DAY DETAIL] Ошибка при сохранении:', error);
+                alert('Ошибка при сохранении деталей дня: ' + error.message);
+            }
+        });
+    }
+    
+    // ... existing code ...
+}
+
