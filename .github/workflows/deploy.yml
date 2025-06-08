@@ -28,8 +28,19 @@ jobs:
           rm -f package-lock.json
           npm install
 
+      - name: Create .env file
+        run: |
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env
+          echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
+
+      - name: Verify .env content
+        run: cat .env
+
       - name: Build
         run: npm run build
+
+      - name: Verify generated index.html
+        run: cat dist/index.html
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
