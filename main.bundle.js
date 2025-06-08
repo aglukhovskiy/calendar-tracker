@@ -8303,7 +8303,7 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
 }
 
 // Initialize Supabase client
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabase_supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 console.log('[SUPABASE] Client initialized successfully');
 
 // Database operations
@@ -8315,7 +8315,7 @@ const db = {
       const {
         data,
         error
-      } = await supabase.from('events').select('*').eq('date', date);
+      } = await supabase_supabase.from('events').select('*').eq('date', date);
       if (error) {
         console.error('Error fetching events:', error);
         throw error;
@@ -8331,7 +8331,7 @@ const db = {
     const {
       data,
       error
-    } = await supabase.from('events').insert([event]).select();
+    } = await supabase_supabase.from('events').insert([event]).select();
     if (error) throw error;
     return data[0];
   },
@@ -8339,14 +8339,14 @@ const db = {
     const {
       data,
       error
-    } = await supabase.from('events').update(updates).eq('id', id).select();
+    } = await supabase_supabase.from('events').update(updates).eq('id', id).select();
     if (error) throw error;
     return data[0];
   },
   async deleteEvent(id) {
     const {
       error
-    } = await supabase.from('events').delete().eq('id', id);
+    } = await supabase_supabase.from('events').delete().eq('id', id);
     if (error) throw error;
   },
   // Pomodoro sessions
@@ -8354,7 +8354,7 @@ const db = {
     const {
       data,
       error
-    } = await supabase.from('pomodoro_sessions').select('*').eq('date', date);
+    } = await supabase_supabase.from('pomodoro_sessions').select('*').eq('date', date);
     if (error) throw error;
     return data;
   },
@@ -8362,7 +8362,7 @@ const db = {
     const {
       data,
       error
-    } = await supabase.from('pomodoro_sessions').insert([session]).select();
+    } = await supabase_supabase.from('pomodoro_sessions').insert([session]).select();
     if (error) throw error;
     return data[0];
   },
@@ -8373,7 +8373,7 @@ const db = {
       const {
         data,
         error
-      } = await supabase.from('projects').select('*');
+      } = await supabase_supabase.from('projects').select('*');
       if (error) {
         console.error('Error fetching projects:', error);
         throw error;
@@ -8389,14 +8389,14 @@ const db = {
     const {
       data,
       error
-    } = await supabase.from('projects').insert([project]).select();
+    } = await supabase_supabase.from('projects').insert([project]).select();
     if (error) throw error;
     return data[0];
   },
   async deleteProject(projectId) {
     const {
       error
-    } = await supabase.from('projects').delete().eq('id', projectId);
+    } = await supabase_supabase.from('projects').delete().eq('id', projectId);
     if (error) throw error;
     return true;
   },
@@ -8414,7 +8414,7 @@ const db = {
       const {
         data,
         error
-      } = await supabase.from('calendar_events').select('*').gte('date', startDateISO).lte('date', endDateISO).order('date', {
+      } = await supabase_supabase.from('calendar_events').select('*').gte('date', startDateISO).lte('date', endDateISO).order('date', {
         ascending: true
       }).order('start_time', {
         ascending: true
@@ -8434,7 +8434,7 @@ const db = {
     const {
       data,
       error
-    } = await supabase.from('calendar_events').insert([eventData]).select().single();
+    } = await supabase_supabase.from('calendar_events').insert([eventData]).select().single();
     if (error) throw error;
     return data;
   },
@@ -8442,14 +8442,14 @@ const db = {
     const {
       data,
       error
-    } = await supabase.from('calendar_events').update(eventData).eq('id', eventId).select().single();
+    } = await supabase_supabase.from('calendar_events').update(eventData).eq('id', eventId).select().single();
     if (error) throw error;
     return data;
   },
   async deleteCalendarEvent(eventId) {
     const {
       error
-    } = await supabase.from('calendar_events').delete().eq('id', eventId);
+    } = await supabase_supabase.from('calendar_events').delete().eq('id', eventId);
     if (error) throw error;
     return true;
   },
@@ -8458,7 +8458,7 @@ const db = {
     const {
       data,
       error
-    } = await supabase.from('day_details').select('*').eq('date', date).single();
+    } = await supabase_supabase.from('day_details').select('*').eq('date', date).single();
     if (error && error.code !== 'PGRST116') throw error;
     return data || null;
   },
@@ -8466,7 +8466,7 @@ const db = {
     const {
       data,
       error
-    } = await supabase.from('day_details').upsert([dayData], {
+    } = await supabase_supabase.from('day_details').upsert([dayData], {
       onConflict: 'date'
     }).select().single();
     if (error) throw error;
@@ -8476,21 +8476,21 @@ const db = {
   async syncCalendarData() {
     const {
       data: syncData
-    } = await supabase.from('sync_status').select('last_sync').single();
+    } = await supabase_supabase.from('sync_status').select('last_sync').single();
     const lastSync = syncData?.last_sync || new Date(0).toISOString();
     const {
       data: events,
       error: eventsError
-    } = await supabase.from('calendar_events').select('*').gt('updated_at', lastSync);
+    } = await supabase_supabase.from('calendar_events').select('*').gt('updated_at', lastSync);
     if (eventsError) throw eventsError;
-    await supabase.from('sync_status').upsert([{
+    await supabase_supabase.from('sync_status').upsert([{
       last_sync: new Date().toISOString()
     }]);
     return events || [];
   },
   // Export/Import
   async exportCalendarData(startDate, endDate) {
-    const [events, dayDetails] = await Promise.all([this.getCalendarEvents(startDate, endDate), supabase.from('day_details').select('*').gte('date', startDate).lte('date', endDate).then(({
+    const [events, dayDetails] = await Promise.all([this.getCalendarEvents(startDate, endDate), supabase_supabase.from('day_details').select('*').gte('date', startDate).lte('date', endDate).then(({
       data
     }) => data || [])]);
     return {
@@ -8506,7 +8506,7 @@ const db = {
     if (events && events.length > 0) {
       const {
         error: eventsError
-      } = await supabase.from('calendar_events').upsert(events, {
+      } = await supabase_supabase.from('calendar_events').upsert(events, {
         onConflict: 'id'
       });
       if (eventsError) throw eventsError;
@@ -8514,7 +8514,7 @@ const db = {
     if (dayDetails && dayDetails.length > 0) {
       const {
         error: detailsError
-      } = await supabase.from('day_details').upsert(dayDetails, {
+      } = await supabase_supabase.from('day_details').upsert(dayDetails, {
         onConflict: 'date'
       });
       if (detailsError) throw detailsError;
@@ -9662,39 +9662,33 @@ function renderProjectStats(projId) {
     `;
 }
 function renderDaysHeader(weekStart) {
-  if (!daysHeaderContainer) return;
-  daysHeaderContainer.innerHTML = '';
+  const daysHeader = document.getElementById('days-header');
+  if (!daysHeader) return;
+  daysHeader.innerHTML = '';
   const weekDates = getWeekDates(weekStart);
-  const todayStr = formatDate(new Date());
   weekDates.forEach(date => {
-    const dateStr = formatDate(date);
-    const dayData = allDayDetailsData[dateStr];
-    const totalCalories = dayData && dayData.calories ? (parseInt(dayData.calories.morning) || 0) + (parseInt(dayData.calories.afternoon) || 0) + (parseInt(dayData.calories.evening) || 0) : 0;
-    const commentExists = dayData && dayData.comment && dayData.comment.trim() !== '';
+    const dayColumn = document.createElement('div');
+    dayColumn.className = 'day-column';
     const dayHeader = document.createElement('div');
     dayHeader.className = 'day-header';
-    dayHeader.setAttribute('data-date', dateStr);
-    if (dateStr === todayStr) {
-      dayHeader.classList.add('today-header');
-    }
-    dayHeader.innerHTML = `
-            <div class="day-name">${date.toLocaleDateString('ru-RU', {
+    const dayName = document.createElement('div');
+    dayName.className = 'day-name';
+    dayName.textContent = date.toLocaleDateString('ru-RU', {
       weekday: 'short'
-    })}</div>
-            <div.day-date">${pad(date.getDate())}.${pad(date.getMonth() + 1)}</div>
-            <div class="day-header-icons">
-                <span class="calories-icon" style="display: ${totalCalories > 0 ? 'inline-flex' : 'none'}" title="Калории: ${totalCalories}">
-                    🔥 <span class="calories-count">${totalCalories > 0 ? totalCalories : ''}</span>
-                </span>
-                <span class="comment-icon ${commentExists ? 'has-comment' : ''}" style="display: ${commentExists ? 'inline-flex' : 'none'}" title="Есть комментарий">💬</span>
-            </div>
-        `;
-    dayHeader.addEventListener('click', () => {
-      // Вся логика открытия модального окна теперь будет в отдельной функции
-      // Мы просто вызываем ее с нужной датой
-      openDayDetailModal(dateStr);
     });
-    daysHeaderContainer.appendChild(dayHeader);
+    const dayNumber = document.createElement('div');
+    dayNumber.className = 'day-number';
+    dayNumber.textContent = date.getDate();
+
+    // Добавляем обработчик клика на заголовок дня
+    dayHeader.addEventListener('click', () => {
+      console.log('[DAY HEADER] Клик по заголовку дня:', formatDate(date));
+      openDayDetailModal(formatDate(date));
+    });
+    dayHeader.appendChild(dayName);
+    dayHeader.appendChild(dayNumber);
+    dayColumn.appendChild(dayHeader);
+    daysHeader.appendChild(dayColumn);
   });
 }
 
@@ -10512,84 +10506,68 @@ function scrollToWorkingHours() {
   }
 }
 async function openDayDetailModal(dateStr) {
-  if (!dayDetailModal || !dayDetailModalDateDisplay || !caloriesMorningInput || !caloriesAfternoonInput || !caloriesEveningInput || !commentInput) return;
-
-  // Устанавливаем дату в заголовок модального окна
-  dayDetailModalDateDisplay.textContent = dateStr;
-
-  // Получаем данные для этого дня
-  const detailsFromCache = allDayDetailsData[dateStr] || {};
-  const caloriesFromCache = detailsFromCache.calories || {};
-  console.log(`[openDayDetailModal] Opening for ${dateStr}. Details from cache:`, detailsFromCache);
-
-  // Заполняем поля модального окна данными из кэша
-  caloriesMorningInput.value = caloriesFromCache.morning || '';
-  caloriesAfternoonInput.value = caloriesFromCache.afternoon || '';
-  caloriesEveningInput.value = caloriesFromCache.evening || '';
-  commentInput.value = detailsFromCache.comment || '';
-
-  // Обновляем счетчик калорий
-  updateTotalCaloriesDisplay();
-
-  // Показываем модальное окно
-  dayDetailModal.style.display = 'block';
-
-  // Запрашиваем свежие данные
+  console.log('[OPEN DAY DETAIL] Открытие модального окна для дня:', dateStr);
+  const modal = document.getElementById('day-detail-modal');
+  if (!modal) {
+    console.error('[OPEN DAY DETAIL] Модальное окно не найдено');
+    return;
+  }
   try {
-    const freshDetails = await db.getDayDetails(dateStr);
-    if (freshDetails) {
-      allDayDetailsData[dateStr] = freshDetails;
-      const freshCalories = freshDetails.calories || {};
-      if (dayDetailModal.style.display === 'block' && dayDetailModalDateDisplay.textContent === dateStr) {
-        console.log(`[openDayDetailModal] Fresh details loaded and applied for ${dateStr}`);
-        caloriesMorningInput.value = freshCalories.morning || '';
-        caloriesAfternoonInput.value = freshCalories.afternoon || '';
-        caloriesEveningInput.value = freshCalories.evening || '';
-        commentInput.value = freshDetails.comment || '';
-        updateTotalCaloriesDisplay();
-      }
-    }
+    // Загружаем детали дня
+    const details = await loadDayDetails(dateStr);
+    console.log('[OPEN DAY DETAIL] Загруженные детали:', details);
+
+    // Заполняем форму
+    const notesInput = document.getElementById('day-notes');
+    const moodSelect = document.getElementById('day-mood');
+    const productivitySelect = document.getElementById('day-productivity');
+    if (notesInput) notesInput.value = details.notes || '';
+    if (moodSelect) moodSelect.value = details.mood || 'neutral';
+    if (productivitySelect) productivitySelect.value = details.productivity || 'medium';
+
+    // Сохраняем дату в dataset модального окна
+    modal.dataset.date = dateStr;
+
+    // Показываем модальное окно
+    modal.style.display = 'block';
   } catch (error) {
-    console.error(`[openDayDetailModal] Failed to fetch fresh details for ${dateStr}:`, error);
+    console.error('[OPEN DAY DETAIL] Ошибка при открытии модального окна:', error);
+    alert('Ошибка при загрузке деталей дня: ' + error.message);
   }
 }
-
-// ==== Day Detail Modal Functions ====
-function closeDayDetailModal() {
-  if (dayDetailModal) {
-    dayDetailModal.style.display = 'none';
+async function loadDayDetails(dateStr) {
+  console.log('[LOAD DAY DETAILS] Загрузка деталей для дня:', dateStr);
+  try {
+    const {
+      data,
+      error
+    } = await supabase.from('day_details').select('*').eq('date', dateStr).single();
+    if (error) {
+      console.error('[LOAD DAY DETAILS] Ошибка при загрузке деталей:', error);
+      return {};
+    }
+    return data || {};
+  } catch (error) {
+    console.error('[LOAD DAY DETAILS] Ошибка при загрузке деталей:', error);
+    return {};
   }
 }
 async function saveDayDetails(date, detailsToSave) {
+  console.log('[SAVE DAY DETAILS] Сохранение деталей для дня:', date, detailsToSave);
   try {
-    const result = await db.upsertDayDetails({
+    const {
+      error
+    } = await supabase.from('day_details').upsert({
       date: date,
-      calories: {
-        morning: detailsToSave.calories.morning,
-        afternoon: detailsToSave.calories.afternoon,
-        evening: detailsToSave.calories.evening
-      },
-      comment: detailsToSave.comment
+      ...detailsToSave
     });
-    allDayDetailsData[date] = result;
-    updateTotalCaloriesDisplay();
-    console.log('[saveDayDetails] Details saved successfully:', result);
+    if (error) {
+      throw error;
+    }
+    console.log('[SAVE DAY DETAILS] Детали успешно сохранены');
   } catch (error) {
-    console.error('[saveDayDetails] Error saving details:', error);
-  }
-}
-async function loadDayDetails() {
-  try {
-    const weekDates = getWeekDates(currentWeekStart);
-    const details = await Promise.all(weekDates.map(date => db.getDayDetails(formatDate(date))));
-    details.forEach((detail, index) => {
-      if (detail) {
-        allDayDetailsData[formatDate(weekDates[index])] = detail;
-      }
-    });
-    updateTotalCaloriesDisplay();
-  } catch (error) {
-    console.error('[loadDayDetails] Error loading details:', error);
+    console.error('[SAVE DAY DETAILS] Ошибка при сохранении деталей:', error);
+    throw error;
   }
 }
 /******/ })()
