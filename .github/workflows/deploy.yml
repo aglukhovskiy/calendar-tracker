@@ -32,12 +32,19 @@ jobs:
         run: |
           echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env
           echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
+          echo "Checking .env file content (first few characters):"
+          echo "SUPABASE_URL: ${SUPABASE_URL:0:10}..."
+          echo "SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY:0:10}..."
 
       - name: Build
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-        run: npm run build
+        run: |
+          echo "Checking environment variables before build:"
+          echo "SUPABASE_URL: ${SUPABASE_URL:0:10}..."
+          echo "SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY:0:10}..."
+          npm run build
 
       - name: Create .nojekyll file
         run: touch dist/.nojekyll

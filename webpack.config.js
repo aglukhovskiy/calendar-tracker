@@ -3,6 +3,16 @@ const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
+// Получаем переменные окружения
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
+
+// Проверяем наличие переменных окружения
+if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Ошибка: SUPABASE_URL и SUPABASE_ANON_KEY должны быть определены в переменных окружения');
+    process.exit(1);
+}
+
 module.exports = {
     entry: {
         main: './main_page.js',
@@ -41,8 +51,8 @@ module.exports = {
     },
     plugins: [
         new webpack.DefinePlugin({
-            'process.env.SUPABASE_URL': JSON.stringify(process.env.SUPABASE_URL),
-            'process.env.SUPABASE_ANON_KEY': JSON.stringify(process.env.SUPABASE_ANON_KEY)
+            'process.env.SUPABASE_URL': JSON.stringify(supabaseUrl),
+            'process.env.SUPABASE_ANON_KEY': JSON.stringify(supabaseAnonKey)
         }),
         new HtmlWebpackPlugin({
             template: './index.html',
