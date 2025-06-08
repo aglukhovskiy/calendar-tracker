@@ -1544,6 +1544,12 @@ async function openEventModal(eventId = null, dateStr = null, hour = null) {
     endTimeInput.value = '';
     projectSelect.value = '';
     
+    // Активируем все поля
+    titleInput.disabled = false;
+    startTimeInput.disabled = false;
+    endTimeInput.disabled = false;
+    projectSelect.disabled = false;
+    
     if (eventId) {
         // Редактирование существующего события
         console.log('[OPEN EVENT MODAL] Загрузка данных события:', eventId);
@@ -1583,6 +1589,14 @@ async function openEventModal(eventId = null, dateStr = null, hour = null) {
             
             startTimeInput.value = `${pad(startHour)}:${pad(startMinute)}`;
             endTimeInput.value = `${pad(endHour)}:${pad(startMinute)}`;
+        } else {
+            // Если время не указано, устанавливаем текущее время
+            const now = new Date();
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+            
+            startTimeInput.value = `${pad(currentHour)}:${pad(currentMinute)}`;
+            endTimeInput.value = `${pad(currentHour + 1)}:${pad(currentMinute)}`;
         }
         
         deleteButton.style.display = 'none';
@@ -1615,39 +1629,29 @@ function generateUUID() {
 }
 
 async function saveEvent(eventData) {
+    console.log('[SAVE EVENT] Сохранение события:', eventData);
+    
     try {
-        // Преобразуем время в нужный формат
-        const startTime = new Date(eventData.startTime);
-        const endTime = new Date(eventData.endTime);
+        const modal = document.getElementById('event-modal');
+        const eventId = modal.dataset.eventId;
         
-        const eventDataToSave = {
-            ...eventData,
-            start_time: `${pad(startTime.getHours())}:${pad(startTime.getMinutes())}:00`,
-            end_time: `${pad(endTime.getHours())}:${pad(endTime.getMinutes())}:00`,
-            is_live: eventData.isLive
-        };
-        
-        // Удаляем старые названия полей
-        delete eventDataToSave.startTime;
-        delete eventDataToSave.endTime;
-        delete eventDataToSave.isLive;
-        
-        console.log('[SAVE EVENT] Сохраняем событие:', eventDataToSave);
-        
-        if (eventData.id) {
+        if (eventId) {
             // Обновление существующего события
-            await db.updateCalendarEvent(eventData.id, eventDataToSave);
+            await db.updateCalendarEvent(eventId, eventData);
         } else {
             // Создание нового события
-            eventDataToSave.id = generateUUID();
-            await db.createCalendarEvent(eventDataToSave);
+            await db.createCalendarEvent(eventData);
         }
         
-        // Перезагружаем события
-        await loadEvents();
+        // Перезагружаем события и обновляем отображение
+        const weekStart = getStartOfWeek(new Date());
+        const events = await loadEvents(weekStart);
+        renderEvents(events, weekStart);
+        
+        closeEventModal();
     } catch (error) {
         console.error('[SAVE EVENT] Ошибка при сохранении события:', error);
-        throw error;
+        alert('Ошибка при сохранении события. Пожалуйста, попробуйте еще раз.');
     }
 }
 
