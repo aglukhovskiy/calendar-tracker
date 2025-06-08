@@ -10045,12 +10045,10 @@ async function openEventModal(eventId = null, dateStr = null, hour = null) {
   if (eventId) {
     // Редактирование существующего события
     console.log('[OPEN EVENT MODAL] Загрузка данных события:', eventId);
-    const {
-      data: event,
-      error
-    } = await db.from('calendar_events').select('*').eq('id', eventId).single();
-    if (error) {
-      console.error('[OPEN EVENT MODAL] Ошибка загрузки события:', error);
+    const events = await db.getCalendarEvents(new Date(), new Date());
+    const event = events.find(e => e.id === eventId);
+    if (!event) {
+      console.error('[OPEN EVENT MODAL] Событие не найдено:', eventId);
       return;
     }
     console.log('[OPEN EVENT MODAL] Загруженные данные события:', event);
