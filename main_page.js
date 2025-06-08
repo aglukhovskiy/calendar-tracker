@@ -621,64 +621,103 @@ async function loadDayDetails() {
 /* ===       ОТРИСОВКА СОБЫТИЙ (ВАЖНО!)       === */
 /* ============================================= */
 function renderEvents() {
+    console.log('[RENDER EVENTS] Начало отрисовки событий');
     const weekGridContainer = document.getElementById('week-grid');
-    if (!weekGridContainer) return;
+    if (!weekGridContainer) {
+        console.error('[RENDER EVENTS] Не найден контейнер week-grid');
+        return;
+    }
 
     // Очищаем старые события
     weekGridContainer.querySelectorAll('.calendar-event').forEach(el => el.remove());
 
     const weekDates = getWeekDates(currentWeekStart);
+    console.log('[RENDER EVENTS] Даты недели:', weekDates.map(d => formatDate(d)));
 
     // --- 1. Отрисовка ОБЫЧНЫХ и ПРОЕКТНЫХ событий ---
-    calendarEvents
-        .filter(event => event.type !== 'regular' && weekDates.some(d => formatDate(d) === event.date))
-        .forEach(event => {
-            const dayColumn = weekGridContainer.querySelector(`.day-column[data-date="${event.date}"]`);
-            if (!dayColumn) return;
-
-            let startTime, endTime;
-            try {
-                startTime = localToDate(event.startTime);
-                endTime = localToDate(event.endTime);
-            } catch (e) { return; }
-            if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) return;
-
-            const hourCell = dayColumn.querySelector('.hour-cell');
-            if (!hourCell) return;
-            const HOUR_CELL_HEIGHT = hourCell.offsetHeight;
-            const PIXELS_PER_MINUTE = HOUR_CELL_HEIGHT / 60;
-
-            const startMinutes = startTime.getHours() * 60 + startTime.getMinutes();
-            let durationMinutes = Math.round((endTime - startTime) / 60000);
-            if (durationMinutes < 1) durationMinutes = 1;
-            const topPosition = startMinutes * PIXELS_PER_MINUTE;
-            const height = durationMinutes * PIXELS_PER_MINUTE;
-
-            const eventElement = document.createElement('div');
-            let classList = ['calendar-event'];
-            if (event.type === 'project') classList.push('project-event');
-            if (event.is_live) classList.push('live');
-            eventElement.className = classList.join(' ');
-
-            if (event.projectId) {
-                const project = projects.find(p => p.id === event.projectId);
-                if (project && project.color) {
-                    eventElement.style.backgroundColor = project.color;
-                }
-            }
-
-            eventElement.dataset.eventId = event.id;
-            eventElement.style.position = 'absolute';
-            eventElement.style.top = `${topPosition}px`;
-            eventElement.style.height = `${Math.max(height, 15)}px`;
-            eventElement.style.left = '2px';
-            eventElement.style.right = '2px';
-            
-            eventElement.innerHTML = `<div class="event-title">${event.title}</div>`;
-            eventElement.addEventListener('click', () => openEventModal(event.id));
-
-            dayColumn.appendChild(eventElement);
+    const filteredEvents = calendarEvents.filter(event => {
+        const isRegular = event.type === 'regular';
+        const isInWeek = weekDates.some(d => formatDate(d) === event.date);
+        console.log('[RENDER EVENTS] Проверка события:', {
+            id: event.id,
+            date: event.date,
+            type: event.type,
+            isRegular,
+            isInWeek
         });
+        return !isRegular && isInWeek;
+    });
+
+    console.log('[RENDER EVENTS] Отфильтрованные события:', filteredEvents);
+
+    filteredEvents.forEach(event => {
+        const dayColumn = weekGridContainer.querySelector(`.day-column[data-date="${event.date}"]`);
+        if (!dayColumn) {
+            console.warn('[RENDER EVENTS] Не найдена колонка для даты:', event.date);
+            return;
+        }
+
+        let startTime, endTime;
+        try {
+            startTime = localToDate(event.startTime);
+            endTime = localToDate(event.endTime);
+        } catch (e) {
+            console.error('[RENDER EVENTS] Ошибка парсинга времени:', e);
+            return;
+        }
+        if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) {
+            console.error('[RENDER EVENTS] Некорректное время:', { startTime, endTime });
+            return;
+        }
+
+        const hourCell = dayColumn.querySelector('.hour-cell');
+        if (!hourCell) {
+            console.warn('[RENDER EVENTS] Не найдена ячейка часа в колонке:', event.date);
+            return;
+        }
+        const HOUR_CELL_HEIGHT = hourCell.offsetHeight;
+        const PIXELS_PER_MINUTE = HOUR_CELL_HEIGHT / 60;
+
+        const startMinutes = startTime.getHours() * 60 + startTime.getMinutes();
+        let durationMinutes = Math.round((endTime - startTime) / 60000);
+        if (durationMinutes < 1) durationMinutes = 1;
+        const topPosition = startMinutes * PIXELS_PER_MINUTE;
+        const height = durationMinutes * PIXELS_PER_MINUTE;
+
+        console.log('[RENDER EVENTS] Создание элемента события:', {
+            id: event.id,
+            startMinutes,
+            durationMinutes,
+            topPosition,
+            height
+        });
+
+        const eventElement = document.createElement('div');
+        let classList = ['calendar-event'];
+        if (event.type === 'project') classList.push('project-event');
+        if (event.is_live) classList.push('live');
+        eventElement.className = classList.join(' ');
+
+        if (event.projectId) {
+            const project = projects.find(p => p.id === event.projectId);
+            if (project && project.color) {
+                eventElement.style.backgroundColor = project.color;
+            }
+        }
+
+        eventElement.dataset.eventId = event.id;
+        eventElement.style.position = 'absolute';
+        eventElement.style.top = `${topPosition}px`;
+        eventElement.style.height = `${Math.max(height, 15)}px`;
+        eventElement.style.left = '2px';
+        eventElement.style.right = '2px';
+        
+        eventElement.innerHTML = `<div class="event-title">${event.title}</div>`;
+        eventElement.addEventListener('click', () => openEventModal(event.id));
+
+        dayColumn.appendChild(eventElement);
+        console.log('[RENDER EVENTS] Событие добавлено в DOM:', event.id);
+    });
 
     // --- 2. Генерация и отрисовка РЕГУЛЯРНЫХ событий ---
     weekDates.forEach(date => {
