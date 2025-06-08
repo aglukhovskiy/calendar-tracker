@@ -1835,3 +1835,130 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+function updateTotalCaloriesDisplay() {
+    if (!elements.totalCaloriesValueSpan || !elements.caloriesMorningInput || 
+        !elements.caloriesAfternoonInput || !elements.caloriesEveningInput) return;
+    
+    const morning = parseInt(elements.caloriesMorningInput.value) || 0;
+    const afternoon = parseInt(elements.caloriesAfternoonInput.value) || 0;
+    const evening = parseInt(elements.caloriesEveningInput.value) || 0;
+    elements.totalCaloriesValueSpan.textContent = (morning + afternoon + evening).toString();
+}
+
+async function initialLoad() {
+    console.log('[INITIAL LOAD] Начало initialLoad...');
+    
+    try {
+        // Загрузка конфигураций регулярных событий
+        const { regularEventsConfig } = await storage.get('regularEventsConfig');
+        console.log('[INITIAL LOAD] Загружены конфигурации регулярных событий:', regularEventsConfig?.length || 0);
+        
+        // Загрузка проектов
+        projects = await db.getProjects();
+        console.log('[INITIAL LOAD] Projects loaded:', projects);
+
+        // Загрузка событий для текущей недели
+        const weekDates = getWeekDates(currentWeekStart);
+        const startDate = weekDates[0];
+        const endDate = weekDates[weekDates.length - 1];
+        console.log('[INITIAL LOAD] Loading events from', startDate, 'to', endDate);
+        calendarEvents = await db.getCalendarEvents(startDate, endDate);
+        console.log('[INITIAL LOAD] Calendar events loaded:', calendarEvents);
+        
+        // Рендеринг UI
+        renderProjectSelectAndList();
+        renderProjectsList();
+        renderWeekGrid(currentWeekStart);
+        renderTimeSlots();
+        renderDaysHeader(currentWeekStart);
+        renderEvents(calendarEvents);
+        scrollToWorkingHours();
+        
+        console.log('[INITIAL LOAD] initialLoad завершен.');
+    } catch (error) {
+        console.error('[INITIAL LOAD] Error during initial load:', error);
+    }
+}
+
+function renderWeekGrid(weekStart) {
+    const weekGrid = document.getElementById('week-grid');
+    if (!weekGrid) {
+        console.error("Не найден элемент #week-grid");
+        return;
+    }
+
+    weekGrid.innerHTML = '';
+    const weekDates = getWeekDates(weekStart);
+    
+    // Создаем колонки для каждого дня недели
+    weekDates.forEach(date => {
+        const dayColumn = document.createElement('div');
+        dayColumn.className = 'day-column';
+        dayColumn.setAttribute('data-date', formatDate(date));
+        
+        // Создаем ячейки для каждого часа
+        for (let hour = 0; hour <= 23; hour++) {
+            const hourCell = document.createElement('div');
+            hourCell.className = 'hour-cell';
+            hourCell.setAttribute('data-hour', hour.toString());
+            
+            // Обработчик клика для создания нового события
+            hourCell.addEventListener('click', (e) => {
+                if (e.target.closest('.calendar-event')) {
+                    return;
+                }
+                const dateStr = dayColumn.getAttribute('data-date');
+                openEventModal(null, dateStr, hour);
+            });
+            
+            dayColumn.appendChild(hourCell);
+        }
+        
+        weekGrid.appendChild(dayColumn);
+    });
+
+    // Создаем временные метки
+    const timeSlotsContainer = document.querySelector('.time-slots-container');
+    if (timeSlotsContainer) {
+        timeSlotsContainer.innerHTML = '';
+        for (let hour = 0; hour <= 23; hour++) {
+            const timeSlot = document.createElement('div');
+            timeSlot.className = 'time-slot';
+            timeSlot.textContent = `${pad(hour)}:00`;
+            timeSlotsContainer.appendChild(timeSlot);
+        }
+    }
+
+    renderEvents(calendarEvents);
+    setTimeout(scrollToWorkingHours, 5);
+    updateCurrentTimeIndicator();
+}
+
+function renderTimeSlots() {
+    const timeSlotsContainer = document.querySelector('.time-slots-container');
+    if (!timeSlotsContainer) {
+        console.error("Не найден контейнер time-slots-container!");
+        return;
+    }
+    
+    timeSlotsContainer.innerHTML = '';
+    
+    for (let h = 0; h <= 23; h++) {
+        const div = document.createElement('div');
+        div.className = 'time-slot';
+        div.setAttribute('data-hour', h.toString());
+        div.textContent = `${pad(h)}:00`;
+        timeSlotsContainer.appendChild(div);
+    }
+}
+
+function scrollToWorkingHours() {
+    const scrollContainer = document.getElementById('week-grid-scroll-container');
+    if (!scrollContainer) return;
+    
+    const hourCells = document.querySelectorAll('.hour-cell[data-hour="8"]');
+    if (hourCells.length > 0) {
+        scrollContainer.scrollTop = hourCells[0].offsetTop;
+    }
+}
+
