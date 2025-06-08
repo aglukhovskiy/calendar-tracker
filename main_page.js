@@ -1547,7 +1547,14 @@ async function openEventModal(eventId = null, dateStr = null, hour = null) {
     if (eventId) {
         // Редактирование существующего события
         console.log('[OPEN EVENT MODAL] Загрузка данных события:', eventId);
-        const events = await db.getCalendarEvents(new Date(), new Date());
+        
+        // Получаем начало и конец текущей недели
+        const weekStart = getStartOfWeek(new Date());
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+        
+        // Загружаем события за всю неделю
+        const events = await db.getCalendarEvents(weekStart, weekEnd);
         const event = events.find(e => e.id === eventId);
             
         if (!event) {
