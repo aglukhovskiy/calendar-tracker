@@ -5,6 +5,10 @@ on:
     branches:
       - main  # или master, в зависимости от названия вашей основной ветки
 
+permissions:
+  contents: write # Разрешение на запись для репозитория
+  pages: write # Разрешение на запись для GitHub Pages
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
