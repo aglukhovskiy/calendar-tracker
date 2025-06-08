@@ -51,8 +51,8 @@ module.exports = {
     },
     plugins: [
         new webpack.DefinePlugin({
-            'SUPABASE_URL': JSON.stringify(supabaseUrl),
-            'SUPABASE_ANON_KEY': JSON.stringify(supabaseAnonKey)
+            'window.SUPABASE_URL': JSON.stringify(supabaseUrl),
+            'window.SUPABASE_ANON_KEY': JSON.stringify(supabaseAnonKey)
         }),
         new HtmlWebpackPlugin({
             template: './index.html',
