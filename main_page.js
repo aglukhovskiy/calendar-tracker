@@ -66,16 +66,16 @@ function localToDate(str) {
         return new Date('Invalid');
     }
     
-    // Если время приходит в формате "HH:mm"
-    if (str.length === 5 && str[2] === ':') {
+    // Если время приходит в формате "HH:mm" или "HH:mm:ss"
+    if (str.length >= 5 && str[2] === ':') {
         const [hours, minutes] = str.split(':').map(Number);
         const date = new Date();
         date.setHours(hours, minutes, 0, 0);
         return date;
     }
     
-    // Если время приходит в формате "YYYY-MM-DD HH:mm"
-    if (str.length === 16 && str[10] === ' ') {
+    // Если время приходит в формате "YYYY-MM-DD HH:mm" или "YYYY-MM-DD HH:mm:ss"
+    if (str.length >= 16 && str[10] === ' ') {
         const [datePart, timePart] = str.split(' ');
         const [year, month, day] = datePart.split('-').map(Number);
         const [hours, minutes] = timePart.split(':').map(Number);
