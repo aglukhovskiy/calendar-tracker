@@ -8403,20 +8403,31 @@ const db = {
   },
   // Calendar events
   async getCalendarEvents(startDate, endDate) {
-    console.log('Fetching calendar events from', startDate, 'to', endDate);
+    console.log('[SUPABASE] Getting calendar events from', startDate, 'to', endDate);
     try {
+      // Преобразуем даты в формат ISO без времени
+      const startDateISO = new Date(startDate).toISOString().split('T')[0];
+      const endDateISO = new Date(endDate).toISOString().split('T')[0];
+      console.log('[SUPABASE] Formatted dates:', {
+        startDateISO,
+        endDateISO
+      });
       const {
         data,
         error
-      } = await supabase.from('calendar_events').select('*').gte('date', startDate).lte('date', endDate).order('date').order('start_time');
+      } = await supabase.from('calendar_events').select('*').gte('date', startDateISO).lte('date', endDateISO).order('date', {
+        ascending: true
+      }).order('start_time', {
+        ascending: true
+      });
       if (error) {
-        console.error('Error fetching calendar events:', error);
+        console.error('[SUPABASE] Error fetching calendar events:', error);
         throw error;
       }
-      console.log('Calendar events fetched successfully:', data);
+      console.log('[SUPABASE] Calendar events fetched successfully:', data?.length || 0);
       return data || [];
     } catch (error) {
-      console.error('Exception in getCalendarEvents:', error);
+      console.error('[SUPABASE] Exception in getCalendarEvents:', error);
       throw error;
     }
   },
