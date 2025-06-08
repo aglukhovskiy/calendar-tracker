@@ -537,19 +537,23 @@ async function loadProjects() {
 }
 
 async function loadEvents(forWeekStart) {
-    const weekStart = forWeekStart || currentWeekStart;
-    const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekEnd.getDate() + 6);
-    
-    const result = await storage.get('calendarEvents');
-    const allEvents = result.calendarEvents || [];
-    
-    calendarEvents = allEvents.filter(event => {
-        const eventDate = new Date(event.date);
-        return eventDate >= weekStart && eventDate <= weekEnd;
-    });
-    
-    renderEvents();
+    try {
+        const weekStart = forWeekStart || currentWeekStart;
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+        
+        console.log('[LOAD EVENTS] Загрузка событий с', formatDate(weekStart), 'по', formatDate(weekEnd));
+        
+        // Загружаем события из базы данных
+        calendarEvents = await db.getCalendarEvents(weekStart, weekEnd);
+        
+        console.log('[LOAD EVENTS] Загружено событий:', calendarEvents.length);
+        
+        // Отрисовываем события
+        renderEvents();
+    } catch (error) {
+        console.error('[LOAD EVENTS] Ошибка при загрузке событий:', error);
+    }
 }
 
 // ==== Day Detail Modal Functions ====
