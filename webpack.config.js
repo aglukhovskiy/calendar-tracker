@@ -1,4 +1,6 @@
 const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
     entry: {
@@ -19,10 +21,43 @@ module.exports = {
                 use: {
                     loader: 'babel-loader',
                     options: {
-                        presets: ['@babel/preset-env']
+                        presets: [
+                            ['@babel/preset-env', {
+                                targets: {
+                                    browsers: ['last 2 versions', 'not dead']
+                                }
+                            }]
+                        ]
                     }
                 }
+            },
+            {
+                test: /\.css$/,
+                use: ['style-loader', 'css-loader'],
             }
         ]
+    },
+    plugins: [
+        new HtmlWebpackPlugin({
+            template: './index.html',
+            filename: 'index.html',
+            chunks: ['main']
+        }),
+        new HtmlWebpackPlugin({
+            template: './popup.html',
+            filename: 'popup.html',
+            chunks: ['popup']
+        }),
+        new CopyWebpackPlugin({
+            patterns: [
+                { from: './main_page.css', to: 'main_page.css' },
+                { from: './popup.css', to: 'popup.css' },
+                { from: './images', to: 'images' },
+                { from: './manifest.json', to: 'manifest.json' }
+            ],
+        }),
+    ],
+    resolve: {
+        extensions: ['.js']
     }
 }; 
