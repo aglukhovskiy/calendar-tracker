@@ -9117,13 +9117,13 @@ async function loadEvents(forWeekStart) {
     console.log('[LOAD EVENTS] Загрузка событий с', weekStart.toISOString(), 'по', weekEnd.toISOString());
     const events = await db.getCalendarEvents(weekStart, weekEnd);
     console.log('[LOAD EVENTS] Загружено событий:', events.length);
-    renderEvents(events);
+    renderEvents(events, weekStart);
   } catch (error) {
     console.error('[LOAD EVENTS] Ошибка загрузки событий:', error);
   }
 }
-function renderEvents(events) {
-  const weekDates = getWeekDates(getStartOfWeek(new Date()));
+function renderEvents(events, weekStart) {
+  const weekDates = getWeekDates(weekStart);
   console.log('[RENDER EVENTS] Даты недели:', weekDates.map(d => d.toISOString()));
 
   // Получаем высоту ячейки часа
@@ -9145,7 +9145,11 @@ function renderEvents(events) {
       return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
     });
     if (!weekDate) {
-      console.log('[RENDER EVENTS] Событие не входит в текущую неделю:', event);
+      console.log('[RENDER EVENTS] Событие не входит в текущую неделю:', {
+        event: event,
+        eventDate: eventDate.toISOString(),
+        weekDates: weekDates.map(d => d.toISOString())
+      });
       return;
     }
     const startTime = new Date(`2000-01-01T${event.start_time}`);
@@ -10418,7 +10422,7 @@ function renderWeekGrid(weekStart) {
       timeSlotsContainer.appendChild(timeSlot);
     }
   }
-  renderEvents(calendarEvents);
+  loadEvents(weekStart);
   setTimeout(scrollToWorkingHours, 5);
   updateCurrentTimeIndicator();
 }
