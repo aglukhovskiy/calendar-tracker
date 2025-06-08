@@ -61,9 +61,29 @@ function localIso(dt) {
 }
 
 function localToDate(str) {
-    const [y,m,d] = [str.slice(0,4), str.slice(5,7), str.slice(8,10)];
-    const [hh,mm] = [str.slice(11,13), str.slice(14,16)];
-    return new Date(+y, +m-1, +d, +hh, +mm);
+    if (!str) {
+        console.error('[localToDate] Пустая строка времени');
+        return new Date('Invalid');
+    }
+    
+    // Если время приходит в формате "HH:mm"
+    if (str.length === 5 && str[2] === ':') {
+        const [hours, minutes] = str.split(':').map(Number);
+        const date = new Date();
+        date.setHours(hours, minutes, 0, 0);
+        return date;
+    }
+    
+    // Если время приходит в формате "YYYY-MM-DD HH:mm"
+    if (str.length === 16 && str[10] === ' ') {
+        const [datePart, timePart] = str.split(' ');
+        const [year, month, day] = datePart.split('-').map(Number);
+        const [hours, minutes] = timePart.split(':').map(Number);
+        return new Date(year, month - 1, day, hours, minutes);
+    }
+    
+    console.error('[localToDate] Неизвестный формат времени:', str);
+    return new Date('Invalid');
 }
 
 function getLocalDateString(dt) {
