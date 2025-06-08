@@ -8295,6 +8295,9 @@ const TABLES = {
 
 
 // Проверяем наличие необходимых переменных
+console.log('=== Supabase Configuration ===');
+console.log('SUPABASE_URL:', SUPABASE_URL ? `${SUPABASE_URL.substring(0, 10)}...` : 'undefined');
+console.log('SUPABASE_ANON_KEY:', SUPABASE_ANON_KEY ? `${SUPABASE_ANON_KEY.substring(0, 10)}...` : 'undefined');
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   console.error('Ошибка: SUPABASE_URL и SUPABASE_ANON_KEY должны быть определены');
   throw new Error('SUPABASE_URL и SUPABASE_ANON_KEY должны быть определены');
@@ -8302,17 +8305,28 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
 
 // Initialize Supabase client
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+console.log('Supabase client initialized');
 
 // Database operations
 const db = {
   // Events
   async getEvents(date) {
-    const {
-      data,
-      error
-    } = await supabase.from('events').select('*').eq('date', date);
-    if (error) throw error;
-    return data;
+    console.log('Fetching events for date:', date);
+    try {
+      const {
+        data,
+        error
+      } = await supabase.from('events').select('*').eq('date', date);
+      if (error) {
+        console.error('Error fetching events:', error);
+        throw error;
+      }
+      console.log('Events fetched successfully:', data);
+      return data;
+    } catch (error) {
+      console.error('Exception in getEvents:', error);
+      throw error;
+    }
   },
   async createEvent(event) {
     const {
@@ -8355,12 +8369,22 @@ const db = {
   },
   // Projects
   async getProjects() {
-    const {
-      data,
-      error
-    } = await supabase.from('projects').select('*');
-    if (error) throw error;
-    return data;
+    console.log('Fetching projects...');
+    try {
+      const {
+        data,
+        error
+      } = await supabase.from('projects').select('*');
+      if (error) {
+        console.error('Error fetching projects:', error);
+        throw error;
+      }
+      console.log('Projects fetched successfully:', data);
+      return data;
+    } catch (error) {
+      console.error('Exception in getProjects:', error);
+      throw error;
+    }
   },
   async createProject(project) {
     const {
@@ -8379,12 +8403,22 @@ const db = {
   },
   // Calendar events
   async getCalendarEvents(startDate, endDate) {
-    const {
-      data,
-      error
-    } = await supabase.from('calendar_events').select('*').gte('date', startDate).lte('date', endDate).order('date').order('start_time');
-    if (error) throw error;
-    return data || [];
+    console.log('Fetching calendar events from', startDate, 'to', endDate);
+    try {
+      const {
+        data,
+        error
+      } = await supabase.from('calendar_events').select('*').gte('date', startDate).lte('date', endDate).order('date').order('start_time');
+      if (error) {
+        console.error('Error fetching calendar events:', error);
+        throw error;
+      }
+      console.log('Calendar events fetched successfully:', data);
+      return data || [];
+    } catch (error) {
+      console.error('Exception in getCalendarEvents:', error);
+      throw error;
+    }
   },
   async createCalendarEvent(eventData) {
     const {
@@ -9265,41 +9299,34 @@ function renderEvents() {
 /* ============================================= */
 async function initialLoad() {
   console.log('[INITIAL LOAD] Начало initialLoad...');
-
-  // Проверка DOM до загрузки данных
   console.log('=== Проверка DOM до загрузки данных ===');
   console.log('regular-event-time:', document.getElementById('regular-event-time'));
   try {
-    const storageData = await storage_storage.get(['selectedProjectId', 'regularEventsConfig']);
-    selectedProjectId = storageData.selectedProjectId || null;
-    regularEventsConfig = storageData.regularEventsConfig || [];
-    console.log('[INITIAL LOAD] Загружены конфигурации регулярных событий:', regularEventsConfig.length);
-
-    // Проверка DOM после загрузки из storage
+    // Загрузка конфигураций регулярных событий
+    const {
+      regularEventsConfig
+    } = await storage_storage.get('regularEventsConfig');
+    console.log('[INITIAL LOAD] Загружены конфигурации регулярных событий:', regularEventsConfig?.length || 0);
     console.log('=== Проверка DOM после загрузки из storage ===');
     console.log('regular-event-time:', document.getElementById('regular-event-time'));
-    await loadProjects();
-    await loadEvents(currentWeekStart);
-    await loadDayDetails();
 
-    // Проверка DOM после загрузки всех данных
+    // Загрузка проектов
+    projects = await db.getProjects();
+    console.log('[INITIAL LOAD] Projects loaded:', projects);
     console.log('=== Проверка DOM после загрузки всех данных ===');
     console.log('regular-event-time:', document.getElementById('regular-event-time'));
-    renderWeekGrid(currentWeekStart);
-    renderTimeSlots();
-    renderDaysHeader(currentWeekStart);
+
+    // Рендеринг UI
     renderProjectSelectAndList();
     renderProjectsList();
-    renderProjectStats(selectedProjectId);
-
-    // Проверка DOM после рендеринга
+    renderWeekGrid(currentWeekStart);
+    renderTimeSlots();
+    scrollToWorkingHours();
     console.log('=== Проверка DOM после рендеринга ===');
     console.log('regular-event-time:', document.getElementById('regular-event-time'));
-    scrollToWorkingHours();
-    updateCurrentTimeIndicator();
     console.log('[INITIAL LOAD] initialLoad завершен.');
   } catch (error) {
-    console.error('[INITIAL LOAD] Ошибка при загрузке:', error);
+    console.error('[INITIAL LOAD] Error during initial load:', error);
   }
 }
 function renderWeekGrid(weekStart) {
