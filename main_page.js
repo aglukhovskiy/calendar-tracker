@@ -1124,43 +1124,37 @@ function renderProjectStats(projId) {
 }
 
 function renderDaysHeader(weekStart) {
-    if (!daysHeaderContainer) return;
-    daysHeaderContainer.innerHTML = '';
+    const daysHeader = document.getElementById('days-header');
+    if (!daysHeader) return;
+    
+    daysHeader.innerHTML = '';
+    
     const weekDates = getWeekDates(weekStart);
-    const todayStr = formatDate(new Date());
-
     weekDates.forEach(date => {
-        const dateStr = formatDate(date);
-        const dayData = allDayDetailsData[dateStr];
-        const totalCalories = dayData && dayData.calories ?
-            ( (parseInt(dayData.calories.morning) || 0) +
-              (parseInt(dayData.calories.afternoon) || 0) +
-              (parseInt(dayData.calories.evening) || 0) ) : 0;
-        const commentExists = dayData && dayData.comment && dayData.comment.trim() !== '';
-
+        const dayColumn = document.createElement('div');
+        dayColumn.className = 'day-column';
+        
         const dayHeader = document.createElement('div');
         dayHeader.className = 'day-header';
-        dayHeader.setAttribute('data-date', dateStr);
-        if (dateStr === todayStr) {
-            dayHeader.classList.add('today-header');
-        }
-        dayHeader.innerHTML = `
-            <div class="day-name">${date.toLocaleDateString('ru-RU', { weekday: 'short' })}</div>
-            <div.day-date">${pad(date.getDate())}.${pad(date.getMonth() + 1)}</div>
-            <div class="day-header-icons">
-                <span class="calories-icon" style="display: ${totalCalories > 0 ? 'inline-flex' : 'none'}" title="Калории: ${totalCalories}">
-                    🔥 <span class="calories-count">${totalCalories > 0 ? totalCalories : ''}</span>
-                </span>
-                <span class="comment-icon ${commentExists ? 'has-comment' : ''}" style="display: ${commentExists ? 'inline-flex' : 'none'}" title="Есть комментарий">💬</span>
-            </div>
-        `;
+        
+        const dayName = document.createElement('div');
+        dayName.className = 'day-name';
+        dayName.textContent = date.toLocaleDateString('ru-RU', { weekday: 'short' });
+        
+        const dayNumber = document.createElement('div');
+        dayNumber.className = 'day-number';
+        dayNumber.textContent = date.getDate();
+        
+        // Добавляем обработчик клика на заголовок дня
         dayHeader.addEventListener('click', () => {
-            // Вся логика открытия модального окна теперь будет в отдельной функции
-            // Мы просто вызываем ее с нужной датой
-            openDayDetailModal(dateStr);
+            console.log('[DAY HEADER] Клик по заголовку дня:', formatDate(date));
+            openDayDetailModal(formatDate(date));
         });
         
-        daysHeaderContainer.appendChild(dayHeader);
+        dayHeader.appendChild(dayName);
+        dayHeader.appendChild(dayNumber);
+        dayColumn.appendChild(dayHeader);
+        daysHeader.appendChild(dayColumn);
     });
 }
 
@@ -2051,92 +2045,80 @@ function scrollToWorkingHours() {
 }
 
 async function openDayDetailModal(dateStr) {
-    if (!dayDetailModal || !dayDetailModalDateDisplay || !caloriesMorningInput || !caloriesAfternoonInput || !caloriesEveningInput || !commentInput) return;
-
-    // Устанавливаем дату в заголовок модального окна
-    dayDetailModalDateDisplay.textContent = dateStr;
-
-    // Получаем данные для этого дня
-    const detailsFromCache = allDayDetailsData[dateStr] || {};
-    const caloriesFromCache = detailsFromCache.calories || {};
-
-    console.log(`[openDayDetailModal] Opening for ${dateStr}. Details from cache:`, detailsFromCache);
-
-    // Заполняем поля модального окна данными из кэша
-    caloriesMorningInput.value = caloriesFromCache.morning || '';
-    caloriesAfternoonInput.value = caloriesFromCache.afternoon || '';
-    caloriesEveningInput.value = caloriesFromCache.evening || '';
-    commentInput.value = detailsFromCache.comment || '';
-
-    // Обновляем счетчик калорий
-    updateTotalCaloriesDisplay();
-
-    // Показываем модальное окно
-    dayDetailModal.style.display = 'block';
-
-    // Запрашиваем свежие данные
+    console.log('[OPEN DAY DETAIL] Открытие модального окна для дня:', dateStr);
+    
+    const modal = document.getElementById('day-detail-modal');
+    if (!modal) {
+        console.error('[OPEN DAY DETAIL] Модальное окно не найдено');
+        return;
+    }
+    
     try {
-        const freshDetails = await db.getDayDetails(dateStr);
-        if (freshDetails) {
-            allDayDetailsData[dateStr] = freshDetails;
-            const freshCalories = freshDetails.calories || {};
-            if (dayDetailModal.style.display === 'block' && dayDetailModalDateDisplay.textContent === dateStr) {
-                console.log(`[openDayDetailModal] Fresh details loaded and applied for ${dateStr}`);
-                caloriesMorningInput.value = freshCalories.morning || '';
-                caloriesAfternoonInput.value = freshCalories.afternoon || '';
-                caloriesEveningInput.value = freshCalories.evening || '';
-                commentInput.value = freshDetails.comment || '';
-                updateTotalCaloriesDisplay();
-            }
-        }
+        // Загружаем детали дня
+        const details = await loadDayDetails(dateStr);
+        console.log('[OPEN DAY DETAIL] Загруженные детали:', details);
+        
+        // Заполняем форму
+        const notesInput = document.getElementById('day-notes');
+        const moodSelect = document.getElementById('day-mood');
+        const productivitySelect = document.getElementById('day-productivity');
+        
+        if (notesInput) notesInput.value = details.notes || '';
+        if (moodSelect) moodSelect.value = details.mood || 'neutral';
+        if (productivitySelect) productivitySelect.value = details.productivity || 'medium';
+        
+        // Сохраняем дату в dataset модального окна
+        modal.dataset.date = dateStr;
+        
+        // Показываем модальное окно
+        modal.style.display = 'block';
     } catch (error) {
-        console.error(`[openDayDetailModal] Failed to fetch fresh details for ${dateStr}:`, error);
+        console.error('[OPEN DAY DETAIL] Ошибка при открытии модального окна:', error);
+        alert('Ошибка при загрузке деталей дня: ' + error.message);
     }
 }
 
-// ==== Day Detail Modal Functions ====
-function closeDayDetailModal() {
-    if (dayDetailModal) {
-        dayDetailModal.style.display = 'none';
+async function loadDayDetails(dateStr) {
+    console.log('[LOAD DAY DETAILS] Загрузка деталей для дня:', dateStr);
+    
+    try {
+        const { data, error } = await supabase
+            .from('day_details')
+            .select('*')
+            .eq('date', dateStr)
+            .single();
+            
+        if (error) {
+            console.error('[LOAD DAY DETAILS] Ошибка при загрузке деталей:', error);
+            return {};
+        }
+        
+        return data || {};
+    } catch (error) {
+        console.error('[LOAD DAY DETAILS] Ошибка при загрузке деталей:', error);
+        return {};
     }
 }
 
 async function saveDayDetails(date, detailsToSave) {
+    console.log('[SAVE DAY DETAILS] Сохранение деталей для дня:', date, detailsToSave);
+    
     try {
-        const result = await db.upsertDayDetails({
-            date: date,
-            calories: {
-                morning: detailsToSave.calories.morning,
-                afternoon: detailsToSave.calories.afternoon,
-                evening: detailsToSave.calories.evening
-            },
-            comment: detailsToSave.comment
-        });
+        const { error } = await supabase
+            .from('day_details')
+            .upsert({
+                date: date,
+                ...detailsToSave
+            });
+            
+        if (error) {
+            throw error;
+        }
         
-        allDayDetailsData[date] = result;
-        updateTotalCaloriesDisplay();
-        console.log('[saveDayDetails] Details saved successfully:', result);
+        console.log('[SAVE DAY DETAILS] Детали успешно сохранены');
     } catch (error) {
-        console.error('[saveDayDetails] Error saving details:', error);
-    }
-}
-
-async function loadDayDetails() {
-    try {
-        const weekDates = getWeekDates(currentWeekStart);
-        const details = await Promise.all(
-            weekDates.map(date => db.getDayDetails(formatDate(date)))
-        );
-        
-        details.forEach((detail, index) => {
-            if (detail) {
-                allDayDetailsData[formatDate(weekDates[index])] = detail;
-            }
-        });
-        
-        updateTotalCaloriesDisplay();
-    } catch (error) {
-        console.error('[loadDayDetails] Error loading details:', error);
+        console.error('[SAVE DAY DETAILS] Ошибка при сохранении деталей:', error);
+        throw error;
     }
 }
 
