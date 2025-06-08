@@ -69,7 +69,8 @@ module.exports = {
                 { from: './main_page.css', to: 'main_page.css' },
                 { from: './popup.css', to: 'popup.css' },
                 { from: './images', to: 'images' },
-                { from: './manifest.json', to: 'manifest.json' }
+                { from: './manifest.json', to: 'manifest.json' },
+                { from: './dom-elements.js', to: 'dom-elements.js' }
             ],
         }),
     ],

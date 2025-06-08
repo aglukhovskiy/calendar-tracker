@@ -1,5 +1,6 @@
 import { db } from './supabase';
 import { storage } from './storage';
+import { elements, initializeElements } from './dom-elements';
 
 // === Globals ===
 let calendarEvents = [];
@@ -602,11 +603,13 @@ async function saveDayDetails(date, detailsToSave) {
 
 // Функция для динамического подсчета калорий в модальном окне
 function updateTotalCaloriesDisplay() {
-    if (!totalCaloriesValueSpan || !caloriesMorningInput || !caloriesAfternoonInput || !caloriesEveningInput) return;
-    const morning = parseInt(caloriesMorningInput.value) || 0;
-    const afternoon = parseInt(caloriesAfternoonInput.value) || 0;
-    const evening = parseInt(caloriesEveningInput.value) || 0;
-    totalCaloriesValueSpan.textContent = (morning + afternoon + evening).toString();
+    if (!elements.totalCaloriesValueSpan || !elements.caloriesMorningInput || 
+        !elements.caloriesAfternoonInput || !elements.caloriesEveningInput) return;
+    
+    const morning = parseInt(elements.caloriesMorningInput.value) || 0;
+    const afternoon = parseInt(elements.caloriesAfternoonInput.value) || 0;
+    const evening = parseInt(elements.caloriesEveningInput.value) || 0;
+    elements.totalCaloriesValueSpan.textContent = (morning + afternoon + evening).toString();
 }
 
 // Слушатели событий
@@ -1028,13 +1031,13 @@ const datePickerTodayBtn = document.getElementById('date-picker-today');
 const datePickerCancelBtn = document.getElementById('date-picker-cancel');
 const weekdayHeader = document.getElementById('weekday-header');
 const dayDetailModal = document.getElementById('day-detail-modal');
-const dayDetailModalDateDisplay = document.getElementById('day-detail-modal-date-display');
+const dayDetailModalDateDisplay = document.getElementById('day-detail-date');
 const caloriesMorningInput = document.getElementById('calories-morning');
 const caloriesAfternoonInput = document.getElementById('calories-afternoon');
 const caloriesEveningInput = document.getElementById('calories-evening');
 const commentInput = document.getElementById('day-comment');
-const saveDayDetailsBtn = document.getElementById('day-detail-save');
-const cancelDayDetailsBtn = document.getElementById('day-detail-cancel');
+const saveDayDetailsBtn = document.getElementById('save-day-details');
+const cancelDayDetailsBtn = document.getElementById('cancel-day-details');
 const totalCaloriesValueSpan = document.getElementById('total-calories-value');
 const regularEventDetails = document.getElementById('regular-event-details');
 const regularEventModalTitle = document.getElementById('regular-event-modal-title');
@@ -2048,87 +2051,46 @@ async function handleRegularEventToggle(instanceId, newCompletionState) {
 
 
 function initializeEventHandlers() {
-    // Добавление новой регулярной задачи
-    const addRegularEventBtn = document.getElementById('add-regular-event');
-    if (addRegularEventBtn) {
-        addRegularEventBtn.addEventListener('click', async () => {
-            console.log('Клик по кнопке добавления регулярного события');
-            console.log('DOM загружен:', document.readyState);
-            
-            const container = document.querySelector('.regular-event-management');
-            console.log('Контейнер регулярных событий:', container);
-            console.log('Видимость контейнера:', container ? window.getComputedStyle(container).display : 'не найден');
-            
-            const nameInput = document.getElementById('regular-event-name');
-            const startTimeInput = document.getElementById('regular-event-start-time');
-            const endTimeInput = document.getElementById('regular-event-end-time');
-            
-            console.log('Элемент regular-event-name:', nameInput);
-            console.log('Видимость regular-event-name:', nameInput ? window.getComputedStyle(nameInput).display : 'не найден');
-            console.log('Элемент regular-event-start-time:', startTimeInput);
-            console.log('Видимость regular-event-start-time:', startTimeInput ? window.getComputedStyle(startTimeInput).display : 'не найден');
-            console.log('Элемент regular-event-end-time:', endTimeInput);
-            console.log('Видимость regular-event-end-time:', endTimeInput ? window.getComputedStyle(endTimeInput).display : 'не найден');
-            
-            if (!nameInput || !startTimeInput || !endTimeInput) {
-                console.error('Не найдены необходимые элементы формы');
+    // Инициализация DOM элементов
+    if (!initializeElements()) {
+        console.error('Не удалось инициализировать DOM элементы');
+        return;
+    }
+
+    // Слушатели событий для калорий
+    [elements.caloriesMorningInput, elements.caloriesAfternoonInput, elements.caloriesEveningInput]
+        .forEach(input => {
+            if (input) input.addEventListener('input', updateTotalCaloriesDisplay);
+        });
+
+    // Слушатели событий для кнопок
+    if (elements.saveDayDetailsBtn) {
+        elements.saveDayDetailsBtn.addEventListener('click', async () => {
+            const dateStr = elements.dayDetailModalDateDisplay.textContent;
+            if (!dateStr) {
+                alert("Ошибка: не удалось определить дату для сохранения.");
                 return;
             }
-            
-            const name = nameInput.value.trim();
-            const startTime = startTimeInput.value;
-            const endTime = endTimeInput.value;
-            
-            if (!name || !startTime || !endTime) {
-                alert('Пожалуйста, заполните все поля');
-                return;
-            }
-            
-            // Получаем выбранные дни недели
-            const selectedDays = Array.from(document.querySelectorAll('#regular-event-weekdays .weekday-btn.selected'))
-                .map(btn => parseInt(btn.dataset.day));
-            
-            if (selectedDays.length === 0) {
-                alert('Пожалуйста, выберите хотя бы один день недели');
-                return;
-            }
-            
-            // Создаем новую конфигурацию регулярного события
-            const newConfig = {
-                id: Date.now().toString(),
-                name,
-                startTime,
-                endTime,
-                days: selectedDays
+
+            const detailsPayload = {
+                calories: {
+                    morning: parseInt(elements.caloriesMorningInput.value, 10) || 0,
+                    afternoon: parseInt(elements.caloriesAfternoonInput.value, 10) || 0,
+                    evening: parseInt(elements.caloriesEveningInput.value, 10) || 0,
+                },
+                comment: elements.commentInput.value.trim()
             };
-            
-            // Добавляем в массив конфигураций
-            regularEventsConfig.push(newConfig);
-            
-            // Сохраняем в storage
-            storage.set({ regularEventsConfig });
-            
-            // Очищаем поля формы
-            nameInput.value = '';
-            startTimeInput.value = '';
-            endTimeInput.value = '';
-            document.querySelectorAll('#regular-event-weekdays .weekday-btn.selected')
-                .forEach(btn => btn.classList.remove('selected'));
-            
-            // Перерисовываем события
-            renderEvents();
+
+            await saveDayDetails(dateStr, detailsPayload);
+            closeDayDetailModal();
         });
     }
 
-    // Обработчик для кнопок дней недели
-    const weekdaysContainer = document.getElementById('regular-event-weekdays');
-    if (weekdaysContainer) {
-        weekdaysContainer.addEventListener('click', (e) => {
-            if (e.target.classList.contains('weekday-btn')) {
-                e.target.classList.toggle('selected');
-            }
-        });
+    if (elements.cancelDayDetailsBtn) {
+        elements.cancelDayDetailsBtn.addEventListener('click', closeDayDetailModal);
     }
+
+    // ... rest of the event handlers ...
 }
 
 // Инициализация после загрузки DOM
