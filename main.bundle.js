@@ -10481,6 +10481,8 @@ async function openDayDetailModal(dateStr) {
     console.error(`[openDayDetailModal] Failed to fetch fresh details for ${dateStr}:`, error);
   }
 }
+
+// ==== Day Detail Modal Functions ====
 function closeDayDetailModal() {
   if (dayDetailModal) {
     dayDetailModal.style.display = 'none';
