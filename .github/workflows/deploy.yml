@@ -33,14 +33,8 @@ jobs:
           echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env
           echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
 
-      - name: Verify .env content
-        run: cat .env
-
       - name: Build
         run: npm run build
-
-      - name: Verify generated index.html
-        run: cat dist/index.html
 
       - name: Create .nojekyll file
         run: touch dist/.nojekyll
