@@ -9123,89 +9123,76 @@ async function loadEvents(forWeekStart) {
   }
 }
 function renderEvents(events, weekStart) {
-  console.log('[RENDER EVENTS] Начало отрисовки событий:', {
-    events,
-    weekStart
-  });
-
-  // Очищаем все существующие события
-  document.querySelectorAll('.calendar-event').forEach(event => event.remove());
-
-  // Получаем даты недели
   const weekDates = getWeekDates(weekStart);
-  console.log('[RENDER EVENTS] Даты недели:', weekDates);
+  console.log('[RENDER EVENTS] Даты недели:', weekDates.map(d => d.toISOString()));
 
-  // Для каждого события
+  // Получаем высоту ячейки часа
+  const hourCell = document.querySelector('.hour-cell');
+  if (!hourCell) {
+    console.error('[RENDER EVENTS] Не найдена ячейка часа для определения высоты');
+    return;
+  }
+  const HOUR_CELL_HEIGHT = hourCell.offsetHeight;
+  console.log('[RENDER EVENTS] Высота ячейки часа:', HOUR_CELL_HEIGHT);
+
+  // Очищаем существующие события
+  document.querySelectorAll('.calendar-event').forEach(el => el.remove());
   events.forEach(event => {
-    console.log('[RENDER EVENTS] Обработка события:', event);
-
-    // Преобразуем дату события в локальный формат
-    const eventDate = localToDate(event.date);
-    console.log('[RENDER EVENTS] Дата события после преобразования:', eventDate);
-
-    // Проверяем, попадает ли событие в текущую неделю
-    const isInCurrentWeek = weekDates.some(weekDate => {
-      const weekDateStr = formatDate(weekDate);
-      const eventDateStr = formatDate(eventDate);
-      console.log('[RENDER EVENTS] Сравнение дат:', {
-        weekDateStr,
-        eventDateStr
-      });
-      return weekDateStr === eventDateStr;
+    const eventDate = new Date(event.date);
+    const weekDate = weekDates.find(d => {
+      const d1 = new Date(d);
+      const d2 = new Date(eventDate);
+      return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
     });
-    if (!isInCurrentWeek) {
-      console.log('[RENDER EVENTS] Событие не попадает в текущую неделю');
+    if (!weekDate) {
+      console.log('[RENDER EVENTS] Событие не входит в текущую неделю:', {
+        event: event,
+        eventDate: eventDate.toISOString(),
+        weekDates: weekDates.map(d => d.toISOString())
+      });
       return;
     }
-
-    // Находим колонку для дня события
-    const dayColumn = document.querySelector(`.day-column[data-date="${formatDate(eventDate)}"]`);
-    if (!dayColumn) {
-      console.log('[RENDER EVENTS] Колонка для дня не найдена:', formatDate(eventDate));
-      return;
-    }
-
-    // Создаем элемент события
+    const startTime = new Date(`2000-01-01T${event.start_time}`);
+    const endTime = new Date(`2000-01-01T${event.end_time}`);
+    const startHour = startTime.getHours();
+    const startMinute = startTime.getMinutes();
+    const endHour = endTime.getHours();
+    const endMinute = endTime.getMinutes();
+    const startMinutes = startHour * 60 + startMinute;
+    const endMinutes = endHour * 60 + endMinute;
+    const durationMinutes = endMinutes - startMinutes;
+    const topPosition = startMinutes * (HOUR_CELL_HEIGHT / 60);
+    const height = Math.max(durationMinutes * (HOUR_CELL_HEIGHT / 60), 20);
+    console.log('[RENDER EVENTS] Создание события:', {
+      id: event.id,
+      date: event.date,
+      start: event.start_time,
+      end: event.end_time,
+      top: topPosition,
+      height: height
+    });
     const eventElement = document.createElement('div');
     eventElement.className = 'calendar-event';
-    eventElement.dataset.id = event.id;
-    eventElement.dataset.instanceId = event.instance_id;
-    eventElement.dataset.projectId = event.project_id;
-    eventElement.dataset.completed = event.completed;
+    eventElement.style.top = `${topPosition}px`;
+    eventElement.style.height = `${height}px`;
+    eventElement.dataset.eventId = event.id;
 
-    // Форматируем время в HH:mm
-    const startTime = new Date(event.start_time);
-    const endTime = new Date(event.end_time);
-    const startTimeStr = `${pad(startTime.getHours())}:${pad(startTime.getMinutes())}`;
-    const endTimeStr = `${pad(endTime.getHours())}:${pad(endTime.getMinutes())}`;
-
-    // Устанавливаем стили для позиционирования
-    const startMinutes = minutesSinceMidnight(startTime);
-    const endMinutes = minutesSinceMidnight(endTime);
-    const duration = endMinutes - startMinutes;
-    eventElement.style.top = `${startMinutes}px`;
-    eventElement.style.height = `${duration}px`;
-
-    // Добавляем содержимое события
+    // Форматируем время для отображения в HH:mm
+    const startTimeStr = `${pad(startHour)}:${pad(startMinute)}`;
+    const endTimeStr = `${pad(endHour)}:${pad(endMinute)}`;
     eventElement.innerHTML = `
             <div class="event-content">
                 <div class="event-time">${startTimeStr} - ${endTimeStr}</div>
-                <div class="event-title">${event.title}</div>
+                <div class="event-title">${event.title || 'Без названия'}</div>
             </div>
         `;
-
-    // Добавляем класс completed, если событие завершено
-    if (event.completed) {
-      eventElement.classList.add('completed');
+    const dayColumn = document.querySelector(`.day-column[data-date="${formatDate(eventDate)}"]`);
+    if (dayColumn) {
+      dayColumn.appendChild(eventElement);
+      console.log('[RENDER EVENTS] Событие добавлено в DOM:', event.id);
+    } else {
+      console.error('[RENDER EVENTS] Не найден столбец для даты:', formatDate(eventDate));
     }
-
-    // Добавляем событие в колонку
-    dayColumn.appendChild(eventElement);
-    console.log('[RENDER EVENTS] Событие добавлено в календарь:', {
-      id: event.id,
-      date: formatDate(eventDate),
-      time: `${startTimeStr} - ${endTimeStr}`
-    });
   });
 }
 
