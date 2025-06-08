@@ -819,9 +819,8 @@ function renderEvents() {
                 const startMinutes = startHour * 60 + startMinute;
                 const endMinutes = endHour * 60 + endMinute;
                 const durationMinutes = endMinutes - startMinutes;
-                
-                const topPosition = startMinutes * PIXELS_PER_MINUTE;
-                const height = durationMinutes * PIXELS_PER_MINUTE;
+                const topPosition = startMinutes * (HOUR_CELL_HEIGHT / (24 * 60));
+                const height = Math.max(durationMinutes * (HOUR_CELL_HEIGHT / (24 * 60)), 20); // Минимальная высота 20px
 
                 const eventElement = document.createElement('div');
                 eventElement.className = 'calendar-event regular';
