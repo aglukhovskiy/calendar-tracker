@@ -9176,6 +9176,9 @@ function renderEvents(events, weekStart) {
     eventElement.style.top = `${topPosition}px`;
     eventElement.style.height = `${height}px`;
     eventElement.dataset.id = event.id;
+    eventElement.dataset.instanceId = event.instance_id;
+    eventElement.dataset.projectId = event.project_id;
+    eventElement.dataset.completed = event.completed;
 
     // Форматируем время для отображения в HH:mm
     const startTimeStr = `${pad(startHour)}:${pad(startMinute)}`;
@@ -10309,6 +10312,26 @@ function initializeEventHandlers() {
   }
 
   // ... rest of the event handlers ...
+
+  // Обработчик клика по событию
+  document.addEventListener('click', async e => {
+    const eventElement = e.target.closest('.calendar-event');
+    if (eventElement) {
+      const eventId = eventElement.dataset.id;
+      const instanceId = eventElement.dataset.instanceId;
+      const projectId = eventElement.dataset.projectId;
+      const completed = eventElement.dataset.completed === 'true';
+      console.log('[EVENT HANDLER] Клик по событию:', {
+        eventId,
+        instanceId,
+        projectId,
+        completed
+      });
+      if (eventId) {
+        await openEventModal(eventId);
+      }
+    }
+  });
 }
 
 // Инициализация после загрузки DOM
