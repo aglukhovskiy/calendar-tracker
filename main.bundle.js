@@ -8631,7 +8631,7 @@ let calendarEvents = [];
 let projects = [];
 console.log('Global projects initialized:', projects);
 let selectedProjectId = null;
-let regularEventsConfig = []; // Хранит конфигурации регулярных событий
+let regularEventsConfig = (/* unused pure expression or super */ null && ([])); // Хранит конфигурации регулярных событий
 // stopwatch.startTimestamp будет хранить время начала в виде timestamp (Date.now())
 // stopwatch.elapsed не используется активно, если startTimeStamp есть, его можно вычислять
 let stopwatch = {
@@ -9111,423 +9111,68 @@ async function loadProjects() {
 }
 async function loadEvents(forWeekStart) {
   try {
-    const weekStart = forWeekStart || currentWeekStart;
+    const weekStart = forWeekStart || getStartOfWeek(new Date());
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekEnd.getDate() + 6);
-    console.log('[LOAD EVENTS] Загрузка событий:', {
-      weekStart: weekStart.toISOString(),
-      weekEnd: weekEnd.toISOString(),
-      currentWeekStart: currentWeekStart.toISOString()
-    });
-
-    // Загружаем события из базы данных
-    calendarEvents = await db.getCalendarEvents(weekStart, weekEnd);
-    console.log('[LOAD EVENTS] Загружено событий:', calendarEvents.map(event => ({
-      id: event.id,
-      date: event.date,
-      title: event.title
-    })));
-
-    // Отрисовываем события
-    renderEvents();
+    console.log('[LOAD EVENTS] Загрузка событий с', weekStart.toISOString(), 'по', weekEnd.toISOString());
+    const events = await db.getCalendarEvents(weekStart, weekEnd);
+    console.log('[LOAD EVENTS] Загружено событий:', events.length);
+    renderEvents(events);
   } catch (error) {
-    console.error('[LOAD EVENTS] Ошибка при загрузке событий:', error);
+    console.error('[LOAD EVENTS] Ошибка загрузки событий:', error);
   }
 }
+function renderEvents(events) {
+  const weekDates = getWeekDates(getStartOfWeek(new Date()));
+  console.log('[RENDER EVENTS] Даты недели:', weekDates.map(d => d.toISOString()));
 
-// ==== Day Detail Modal Functions ====
-
-// Эта функция будет вызываться при клике на заголовок дня
-async function openDayDetailModal(dateStr) {
-  if (!dayDetailModal || !dayDetailModalDateDisplay || !caloriesMorningInput || !caloriesAfternoonInput || !caloriesEveningInput || !commentInput) return;
-
-  // 1. Устанавливаем дату в заголовок (или скрытый элемент) модального окна,
-  // чтобы потом знать, какой день сохранять.
-  dayDetailModalDateDisplay.textContent = dateStr;
-
-  // 2. Получаем данные для этого дня. Сначала смотрим в локальный кэш `allDayDetailsData`.
-  // Это ускоряет открытие и использует уже загруженные данные.
-  const detailsFromCache = allDayDetailsData[dateStr] || {};
-  const caloriesFromCache = detailsFromCache.calories || {};
-  console.log(`[openDayDetailModal] Opening for ${dateStr}. Details from cache:`, detailsFromCache);
-
-  // 3. Заполняем поля модального окна данными из кэша (или пустыми значениями, если в кэше ничего нет).
-  caloriesMorningInput.value = caloriesFromCache.morning || '';
-  caloriesAfternoonInput.value = caloriesFromCache.afternoon || '';
-  caloriesEveningInput.value = caloriesFromCache.evening || '';
-  commentInput.value = detailsFromCache.comment || '';
-
-  // 4. Обновляем счетчик калорий
-  updateTotalCaloriesDisplay();
-
-  // 5. Показываем модальное окно
-  dayDetailModal.style.display = 'block';
-
-  // 6. Опционально (для 100% гарантии актуальности): Асинхронно запросить свежие данные
-  // и обновить поля, если они отличаются от кэша.
-  // Это полезно, если данные могли быть изменены в другом окне/устройстве.
-  try {
-    const freshDetails = await db.getDayDetails(dateStr);
-    if (freshDetails) {
-      allDayDetailsData[dateStr] = freshDetails; // Обновляем кэш
-      const freshCalories = freshDetails.calories || {};
-      // Если модальное окно все еще открыто для той же даты, обновляем поля
-      if (dayDetailModal.style.display === 'block' && dayDetailModalDateDisplay.textContent === dateStr) {
-        console.log(`[openDayDetailModal] Fresh details loaded and applied for ${dateStr}`);
-        caloriesMorningInput.value = freshCalories.morning || '';
-        caloriesAfternoonInput.value = freshCalories.afternoon || '';
-        caloriesEveningInput.value = freshCalories.evening || '';
-        commentInput.value = freshDetails.comment || '';
-        updateTotalCaloriesDisplay();
-      }
-    }
-  } catch (error) {
-    console.error(`[openDayDetailModal] Failed to fetch fresh details for ${dateStr}:`, error);
-  }
-}
-function closeDayDetailModal() {
-  if (dayDetailModal) {
-    dayDetailModal.style.display = 'none';
-  }
-  // Не нужно очищать поля, openDayDetailModal будет их заполнять заново при следующем открытии.
-}
-
-// Эта функция должна вызываться при сохранении
-async function saveDayDetails(date, detailsToSave) {
-  const result = await storage_storage.get(ALL_DAY_DETAILS_KEY);
-  const allDayDetails = result[ALL_DAY_DETAILS_KEY] || {};
-  allDayDetails[date] = detailsToSave;
-  await storage_storage.set({
-    [ALL_DAY_DETAILS_KEY]: allDayDetails
-  });
-  allDayDetailsData = allDayDetails;
-  updateTotalCaloriesDisplay();
-}
-
-// Функция для динамического подсчета калорий в модальном окне
-function updateTotalCaloriesDisplay() {
-  if (!dom_elements_elements.totalCaloriesValueSpan || !dom_elements_elements.caloriesMorningInput || !dom_elements_elements.caloriesAfternoonInput || !dom_elements_elements.caloriesEveningInput) return;
-  const morning = parseInt(dom_elements_elements.caloriesMorningInput.value) || 0;
-  const afternoon = parseInt(dom_elements_elements.caloriesAfternoonInput.value) || 0;
-  const evening = parseInt(dom_elements_elements.caloriesEveningInput.value) || 0;
-  dom_elements_elements.totalCaloriesValueSpan.textContent = (morning + afternoon + evening).toString();
-}
-async function loadDayDetails() {
-  const result = await storage_storage.get(ALL_DAY_DETAILS_KEY);
-  allDayDetailsData = result[ALL_DAY_DETAILS_KEY] || {};
-  updateTotalCaloriesDisplay();
-}
-/* ============================================= */
-/* ===       ОТРИСОВКА СОБЫТИЙ (ВАЖНО!)       === */
-/* ============================================= */
-function renderEvents() {
-  console.log('[RENDER EVENTS] Начало отрисовки событий');
-  const weekGridContainer = document.getElementById('week-grid');
-  if (!weekGridContainer) {
-    console.error('[RENDER EVENTS] Не найден контейнер week-grid');
-    return;
-  }
-
-  // Очищаем старые события
-  weekGridContainer.querySelectorAll('.calendar-event').forEach(el => el.remove());
-  const weekDates = getWeekDates(currentWeekStart);
-  console.log('[RENDER EVENTS] Даты недели:', weekDates.map(d => ({
-    date: d.toISOString(),
-    formatted: formatDate(d)
-  })));
-
-  // --- 1. Отрисовка ОБЫЧНЫХ и ПРОЕКТНЫХ событий ---
-  const filteredEvents = calendarEvents.filter(event => {
-    const isRegular = event.type === 'regular';
+  // Очищаем существующие события
+  document.querySelectorAll('.calendar-event').forEach(el => el.remove());
+  events.forEach(event => {
     const eventDate = new Date(event.date);
-    console.log('[RENDER EVENTS] Проверка события:', {
+    const weekDate = weekDates.find(d => d.getFullYear() === eventDate.getFullYear() && d.getMonth() === eventDate.getMonth() && d.getDate() === eventDate.getDate());
+    if (!weekDate) {
+      console.log('[RENDER EVENTS] Событие не входит в текущую неделю:', event);
+      return;
+    }
+    const startTime = new Date(`2000-01-01T${event.start_time}`);
+    const endTime = new Date(`2000-01-01T${event.end_time}`);
+    const startHour = startTime.getHours();
+    const startMinute = startTime.getMinutes();
+    const endHour = endTime.getHours();
+    const endMinute = endTime.getMinutes();
+    const startMinutes = startHour * 60 + startMinute;
+    const endMinutes = endHour * 60 + endMinute;
+    const durationMinutes = endMinutes - startMinutes;
+    const topPosition = startMinutes * (HOUR_CELL_HEIGHT / 60);
+    const height = Math.max(durationMinutes * (HOUR_CELL_HEIGHT / 60), 20);
+    console.log('[RENDER EVENTS] Создание события:', {
       id: event.id,
       date: event.date,
-      eventDate: eventDate.toISOString(),
-      type: event.type,
-      isRegular
-    });
-    const isInWeek = weekDates.some(d => {
-      const weekDate = new Date(d);
-      const eventDateStr = eventDate.toISOString().split('T')[0];
-      const weekDateStr = weekDate.toISOString().split('T')[0];
-      const matches = eventDateStr === weekDateStr;
-      console.log('[RENDER EVENTS] Сравнение дат:', {
-        eventDateStr,
-        weekDateStr,
-        matches
-      });
-      return matches;
-    });
-    console.log('[RENDER EVENTS] Результат фильтрации:', {
-      id: event.id,
-      isInWeek
-    });
-    return !isRegular && isInWeek;
-  });
-  console.log('[RENDER EVENTS] Отфильтрованные события:', filteredEvents.map(event => ({
-    id: event.id,
-    date: event.date,
-    title: event.title
-  })));
-  filteredEvents.forEach(event => {
-    const dayColumn = weekGridContainer.querySelector(`.day-column[data-date="${event.date}"]`);
-    if (!dayColumn) {
-      console.warn('[RENDER EVENTS] Не найдена колонка для даты:', event.date);
-      return;
-    }
-    let startTime, endTime;
-    try {
-      startTime = localToDate(event.start_time);
-      endTime = localToDate(event.end_time);
-      console.log('[RENDER EVENTS] Время события:', {
-        id: event.id,
-        start_time: event.start_time,
-        end_time: event.end_time,
-        parsed_start: startTime,
-        parsed_end: endTime
-      });
-    } catch (e) {
-      console.error('[RENDER EVENTS] Ошибка парсинга времени:', e);
-      return;
-    }
-    if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) {
-      console.error('[RENDER EVENTS] Некорректное время:', {
-        startTime,
-        endTime
-      });
-      return;
-    }
-    const hourCell = dayColumn.querySelector('.hour-cell');
-    if (!hourCell) {
-      console.warn('[RENDER EVENTS] Не найдена ячейка часа в колонке:', event.date);
-      return;
-    }
-    const HOUR_CELL_HEIGHT = hourCell.offsetHeight;
-    const PIXELS_PER_MINUTE = HOUR_CELL_HEIGHT / 60;
-    const startMinutes = startTime.getHours() * 60 + startTime.getMinutes();
-    let durationMinutes = Math.round((endTime - startTime) / 60000);
-    if (durationMinutes < 1) durationMinutes = 1;
-    const topPosition = startMinutes * PIXELS_PER_MINUTE;
-    const height = durationMinutes * PIXELS_PER_MINUTE;
-    console.log('[RENDER EVENTS] Создание элемента события:', {
-      id: event.id,
-      startMinutes,
-      durationMinutes,
-      topPosition,
-      height
+      start: event.start_time,
+      end: event.end_time,
+      top: topPosition,
+      height: height
     });
     const eventElement = document.createElement('div');
-    let classList = ['calendar-event'];
-    if (event.type === 'project') classList.push('project-event');
-    if (event.is_live) classList.push('live');
-    eventElement.className = classList.join(' ');
-    if (event.projectId) {
-      const project = projects.find(p => p.id === event.projectId);
-      if (project && project.color) {
-        eventElement.style.backgroundColor = project.color;
-      }
-    }
-    eventElement.dataset.eventId = event.id;
-    eventElement.style.position = 'absolute';
+    eventElement.className = 'calendar-event';
     eventElement.style.top = `${topPosition}px`;
-    eventElement.style.height = `${Math.max(height, 15)}px`;
-    eventElement.style.left = '2px';
-    eventElement.style.right = '2px';
-    eventElement.innerHTML = `<div class="event-title">${event.title}</div>`;
-    eventElement.addEventListener('click', () => openEventModal(event.id));
-    dayColumn.appendChild(eventElement);
-    console.log('[RENDER EVENTS] Событие добавлено в DOM:', event.id);
-  });
-
-  // --- 2. Генерация и отрисовка РЕГУЛЯРНЫХ событий ---
-  weekDates.forEach(date => {
-    const dayOfWeek = date.getDay();
-    const dateStr = formatDate(date);
-    regularEventsConfig.forEach(config => {
-      if (!config || !config.days || !config.startTime || !config.endTime) {
-        console.warn('Пропущено регулярное событие: некорректная конфигурация', config);
-        return;
-      }
-      if (config.days.includes(dayOfWeek)) {
-        const [startHour, startMinute] = config.startTime.split(':').map(Number);
-        const [endHour, endMinute] = config.endTime.split(':').map(Number);
-        const eventStartTime = new Date(dateStr + 'T' + config.startTime);
-        const eventEndTime = new Date(dateStr + 'T' + config.endTime);
-        const instanceId = `reg-${config.id}-${dateStr}`;
-        const existingEvent = calendarEvents.find(ev => ev.id === instanceId);
-        const isCompleted = existingEvent ? existingEvent.completed : false;
-        const dayColumn = weekGridContainer.querySelector(`.day-column[data-date="${dateStr}"]`);
-        if (!dayColumn) return;
-        const hourCell = dayColumn.querySelector('.hour-cell');
-        if (!hourCell) return;
-        const HOUR_CELL_HEIGHT = hourCell.offsetHeight;
-        const PIXELS_PER_MINUTE = HOUR_CELL_HEIGHT / 60;
-        const startMinutes = startHour * 60 + startMinute;
-        const endMinutes = endHour * 60 + endMinute;
-        const durationMinutes = endMinutes - startMinutes;
-        const topPosition = startMinutes * (HOUR_CELL_HEIGHT / (24 * 60));
-        const height = Math.max(durationMinutes * (HOUR_CELL_HEIGHT / (24 * 60)), 20); // Минимальная высота 20px
-
-        const eventElement = document.createElement('div');
-        eventElement.className = 'calendar-event regular';
-        const now = new Date();
-
-        // Новая логика окрашивания
-        if (isCompleted) {
-          // Если выполнено - всегда добавляем класс 'completed' (сделает зеленым)
-          eventElement.classList.add('completed');
-        } else if (now > eventStartTime) {
-          // Если не выполнено И время прошло - добавляем класс 'not-completed' (сделает красным)
-          eventElement.classList.add('not-completed');
-        } else {
-          // Если не выполнено И время еще не наступило - оставляем серым (базовый класс regular)
-          eventElement.classList.remove('completed', 'not-completed');
-        }
-        eventElement.style.position = 'absolute';
-        eventElement.style.top = `${topPosition}px`;
-        eventElement.style.height = `${Math.max(height, 15)}px`;
-        eventElement.style.left = '2px';
-        eventElement.style.right = '2px';
-        eventElement.style.display = 'flex';
-        eventElement.style.alignItems = 'center';
-        eventElement.innerHTML = `
-                    <div class="event-title regular-title">${config.name}</div>
-                    <div class="event-time">${config.startTime} - ${config.endTime}</div>
-                `;
-
-        // При клике на само событие будем открывать модальное окно
-        eventElement.addEventListener('click', () => {
-          openEventModal(instanceId);
-        });
-        dayColumn.appendChild(eventElement);
-      }
-    });
-  });
-}
-
-/* ============================================= */
-/* === ФУНКЦИЯ НАЧАЛЬНОЙ ЗАГРУЗКИ (ВАЖНО!)    === */
-/* ============================================= */
-async function initialLoad() {
-  console.log('[INITIAL LOAD] Начало initialLoad...');
-  console.log('=== Проверка DOM до загрузки данных ===');
-  console.log('regular-event-time:', document.getElementById('regular-event-time'));
-  try {
-    // Загрузка конфигураций регулярных событий
-    const {
-      regularEventsConfig
-    } = await storage_storage.get('regularEventsConfig');
-    console.log('[INITIAL LOAD] Загружены конфигурации регулярных событий:', regularEventsConfig?.length || 0);
-    console.log('=== Проверка DOM после загрузки из storage ===');
-    console.log('regular-event-time:', document.getElementById('regular-event-time'));
-
-    // Загрузка проектов
-    projects = await db.getProjects();
-    console.log('[INITIAL LOAD] Projects loaded:', projects);
-
-    // Загрузка событий для текущей недели
-    const weekDates = getWeekDates(currentWeekStart);
-    const startDate = weekDates[0];
-    const endDate = weekDates[weekDates.length - 1];
-    console.log('[INITIAL LOAD] Loading events from', startDate, 'to', endDate);
-    calendarEvents = await db.getCalendarEvents(startDate, endDate);
-    console.log('[INITIAL LOAD] Calendar events loaded:', calendarEvents);
-    console.log('=== Проверка DOM после загрузки всех данных ===');
-    console.log('regular-event-time:', document.getElementById('regular-event-time'));
-
-    // Рендеринг UI
-    renderProjectSelectAndList();
-    renderProjectsList();
-    renderWeekGrid(currentWeekStart);
-    renderTimeSlots();
-    renderDaysHeader(currentWeekStart);
-    renderEvents();
-    scrollToWorkingHours();
-    console.log('=== Проверка DOM после рендеринга ===');
-    console.log('regular-event-time:', document.getElementById('regular-event-time'));
-    console.log('[INITIAL LOAD] initialLoad завершен.');
-  } catch (error) {
-    console.error('[INITIAL LOAD] Error during initial load:', error);
-  }
-}
-function renderWeekGrid(weekStart) {
-  const weekGrid = document.getElementById('week-grid');
-  if (!weekGrid) {
-    console.error("Не найден элемент #week-grid");
-    return;
-  }
-  weekGrid.innerHTML = '';
-  const weekDates = getWeekDates(weekStart);
-
-  // Создаем колонки для каждого дня недели
-  weekDates.forEach(date => {
-    const dayColumn = document.createElement('div');
-    dayColumn.className = 'day-column';
-    dayColumn.setAttribute('data-date', formatDate(date));
-
-    // Создаем ячейки для каждого часа
-    for (let hour = 0; hour <= 23; hour++) {
-      const hourCell = document.createElement('div');
-      hourCell.className = 'hour-cell';
-      hourCell.setAttribute('data-hour', hour.toString());
-
-      // ДОБАВЛЕНО: Обработчик клика для создания нового события
-      hourCell.addEventListener('click', e => {
-        // Проверяем, не было ли клика по существующему событию
-        if (e.target.closest('.calendar-event')) {
-          return; // Если клик был по событию, не создаем новое
-        }
-        const dateStr = dayColumn.getAttribute('data-date');
-        openEventModal(null, dateStr, hour);
-      });
-      dayColumn.appendChild(hourCell);
+    eventElement.style.height = `${height}px`;
+    eventElement.dataset.eventId = event.id;
+    eventElement.innerHTML = `
+            <div class="event-content">
+                <div class="event-time">${event.start_time} - ${event.end_time}</div>
+                <div class="event-title">${event.title || 'Без названия'}</div>
+            </div>
+        `;
+    const dayColumn = document.querySelector(`.day-column[data-date="${event.date}"]`);
+    if (dayColumn) {
+      dayColumn.appendChild(eventElement);
+      console.log('[RENDER EVENTS] Событие добавлено в DOM:', event.id);
+    } else {
+      console.error('[RENDER EVENTS] Не найден столбец для даты:', event.date);
     }
-    weekGrid.appendChild(dayColumn);
   });
-
-  // Теперь нужно создать временные метки
-  const timeSlotsContainer = document.querySelector('.time-slots-container');
-  if (timeSlotsContainer) {
-    timeSlotsContainer.innerHTML = '';
-    for (let hour = 0; hour <= 23; hour++) {
-      const timeSlot = document.createElement('div');
-      timeSlot.className = 'time-slot';
-      timeSlot.textContent = `${pad(hour)}:00`;
-      timeSlotsContainer.appendChild(timeSlot);
-    }
-  }
-  renderEvents();
-  setTimeout(scrollToWorkingHours, 5);
-  updateCurrentTimeIndicator();
-}
-function renderTimeSlots() {
-  const timeSlotsContainer = document.querySelector('.time-slots-container');
-  if (!timeSlotsContainer) {
-    console.error("Не найден контейнер time-slots-container!");
-    return;
-  }
-  timeSlotsContainer.innerHTML = '';
-
-  // Генерируем слоты для всех 24 часов
-  for (let h = 0; h <= 23; h++) {
-    const div = document.createElement('div');
-    div.className = 'time-slot';
-    div.setAttribute('data-hour', h.toString());
-    div.textContent = `${pad(h)}:00`;
-    timeSlotsContainer.appendChild(div);
-  }
-}
-function scrollToWorkingHours() {
-  const scrollContainer = document.getElementById('week-grid-scroll-container');
-  if (!scrollContainer) return;
-
-  // Найти 8-часовую ячейку (отсчет с 0)
-  const hourCells = document.querySelectorAll('.hour-cell[data-hour="8"]');
-  if (hourCells.length > 0) {
-    // Берем первую ячейку 8-го часа, если их несколько
-    scrollContainer.scrollTop = hourCells[0].offsetTop;
-  }
 }
 
 // ==== Инициализация ====
@@ -10602,7 +10247,7 @@ async function handleRegularEventToggle(instanceId, newCompletionState) {
   }
 
   // Сохраняем все события в хранилище. onChanged listener перерисует UI.
-  storage_storage.set({
+  storage.set({
     calendarEvents
   });
 }
