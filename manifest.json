@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Stopwatch Widget Extension",
+  "name": "Stopwatch Widget Website",
   "version": "1.0",
   "description": "A stopwatch widget extension with calendar integration",
   "permissions": [
