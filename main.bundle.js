@@ -9224,8 +9224,15 @@ function renderEvents() {
     }
     let startTime, endTime;
     try {
-      startTime = localToDate(event.startTime);
-      endTime = localToDate(event.endTime);
+      startTime = localToDate(event.start_time);
+      endTime = localToDate(event.end_time);
+      console.log('[RENDER EVENTS] Время события:', {
+        id: event.id,
+        start_time: event.start_time,
+        end_time: event.end_time,
+        parsed_start: startTime,
+        parsed_end: endTime
+      });
     } catch (e) {
       console.error('[RENDER EVENTS] Ошибка парсинга времени:', e);
       return;
