@@ -777,6 +777,14 @@ async function initialLoad() {
         // Загрузка проектов
         projects = await db.getProjects();
         console.log('[INITIAL LOAD] Projects loaded:', projects);
+
+        // Загрузка событий для текущей недели
+        const weekDates = getWeekDates(currentWeekStart);
+        const startDate = weekDates[0];
+        const endDate = weekDates[weekDates.length - 1];
+        console.log('[INITIAL LOAD] Loading events from', startDate, 'to', endDate);
+        calendarEvents = await db.getCalendarEvents(startDate, endDate);
+        console.log('[INITIAL LOAD] Calendar events loaded:', calendarEvents);
         
         console.log('=== Проверка DOM после загрузки всех данных ===');
         console.log('regular-event-time:', document.getElementById('regular-event-time'));
@@ -786,6 +794,8 @@ async function initialLoad() {
         renderProjectsList();
         renderWeekGrid(currentWeekStart);
         renderTimeSlots();
+        renderDaysHeader(currentWeekStart);
+        renderEvents();
         scrollToWorkingHours();
         
         console.log('=== Проверка DOM после рендеринга ===');
