@@ -2015,6 +2015,7 @@ async function openDayDetailModal(dateStr) {
     }
 }
 
+// ==== Day Detail Modal Functions ====
 function closeDayDetailModal() {
     if (dayDetailModal) {
         dayDetailModal.style.display = 'none';
