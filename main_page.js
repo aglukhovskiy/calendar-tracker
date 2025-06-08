@@ -557,6 +557,15 @@ function renderEvents(events) {
     const weekDates = getWeekDates(getStartOfWeek(new Date()));
     console.log('[RENDER EVENTS] Даты недели:', weekDates.map(d => d.toISOString()));
     
+    // Получаем высоту ячейки часа
+    const hourCell = document.querySelector('.hour-cell');
+    if (!hourCell) {
+        console.error('[RENDER EVENTS] Не найдена ячейка часа для определения высоты');
+        return;
+    }
+    const HOUR_CELL_HEIGHT = hourCell.offsetHeight;
+    console.log('[RENDER EVENTS] Высота ячейки часа:', HOUR_CELL_HEIGHT);
+    
     // Очищаем существующие события
     document.querySelectorAll('.calendar-event').forEach(el => el.remove());
     
