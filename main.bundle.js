@@ -10017,13 +10017,13 @@ async function openEventModal(eventId = null, dateStr = null, hour = null) {
     dateStr,
     hour
   });
-  const modal = document.getElementById('eventModal');
-  const titleInput = document.getElementById('eventTitleInput');
-  const startTimeInput = document.getElementById('eventStartInput');
-  const endTimeInput = document.getElementById('eventEndInput');
-  const projectSelect = document.getElementById('selectProjectSel');
-  const deleteButton = document.getElementById('deleteEventBtn');
-  const saveButton = document.getElementById('saveEventBtn');
+  const modal = document.getElementById('event-modal');
+  const titleInput = document.getElementById('event-title');
+  const startTimeInput = document.getElementById('event-start');
+  const endTimeInput = document.getElementById('event-end');
+  const projectSelect = document.getElementById('select-project');
+  const deleteButton = document.getElementById('delete-event');
+  const saveButton = document.getElementById('save-event');
   if (!modal || !titleInput || !startTimeInput || !endTimeInput || !projectSelect || !deleteButton || !saveButton) {
     console.error('[OPEN EVENT MODAL] Не найдены необходимые элементы:', {
       modal: !!modal,
