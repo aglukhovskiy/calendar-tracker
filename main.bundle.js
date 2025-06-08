@@ -10386,24 +10386,32 @@ function closeEventModal() {
   }
 }
 async function saveEvent(eventData) {
-  const result = await storage_storage.get('calendarEvents');
-  const allEvents = result.calendarEvents || [];
-  if (eventData.id) {
-    const index = allEvents.findIndex(e => e.id === eventData.id);
-    if (index !== -1) {
-      allEvents[index] = {
-        ...allEvents[index],
-        ...eventData
-      };
+  try {
+    // Преобразуем поля времени в нужный формат
+    const eventDataToSave = {
+      ...eventData,
+      start_time: eventData.startTime,
+      end_time: eventData.endTime
+    };
+
+    // Удаляем старые названия полей
+    delete eventDataToSave.startTime;
+    delete eventDataToSave.endTime;
+    console.log('[SAVE EVENT] Сохраняем событие:', eventDataToSave);
+    if (eventData.id) {
+      // Обновление существующего события
+      await db.updateCalendarEvent(eventData.id, eventDataToSave);
+    } else {
+      // Создание нового события
+      await db.createCalendarEvent(eventDataToSave);
     }
-  } else {
-    eventData.id = Date.now().toString();
-    allEvents.push(eventData);
+
+    // Перезагружаем события
+    await loadEvents();
+  } catch (error) {
+    console.error('[SAVE EVENT] Ошибка при сохранении события:', error);
+    throw error;
   }
-  await storage_storage.set({
-    calendarEvents: allEvents
-  });
-  await loadEvents();
 }
 async function deleteEvent(eventId) {
   const result = await storage_storage.get('calendarEvents');
