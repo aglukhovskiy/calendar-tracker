@@ -10387,12 +10387,14 @@ function closeEventModal() {
 }
 async function saveEvent(eventData) {
   try {
-    // Преобразуем поля времени в нужный формат
+    // Преобразуем время в нужный формат
+    const startTime = new Date(eventData.startTime);
+    const endTime = new Date(eventData.endTime);
     const eventDataToSave = {
       ...eventData,
-      start_time: eventData.startTime,
-      end_time: eventData.endTime,
-      is_live: eventData.isLive // Переименовываем isLive в is_live
+      start_time: `${pad(startTime.getHours())}:${pad(startTime.getMinutes())}:00`,
+      end_time: `${pad(endTime.getHours())}:${pad(endTime.getMinutes())}:00`,
+      is_live: eventData.isLive
     };
 
     // Удаляем старые названия полей
@@ -10453,7 +10455,7 @@ if (saveEventBtn) {
       finalProjectId = selectProjectSel.value;
     } else if (editingEventId) {
       const currentEvent = calendarEvents.find(ev => ev.id === editingEventId);
-      if (currentEvent) finalProjectId = currentEvent.project_id; // Используем project_id из существующего события
+      if (currentEvent) finalProjectId = currentEvent.project_id;
     }
     const eventType = finalProjectId ? 'project' : 'event';
     const eventDataPayload = {
@@ -10464,9 +10466,8 @@ if (saveEventBtn) {
       startTime: `${date}T${startTimeString}`,
       endTime: `${date}T${endTimeString}`,
       project_id: finalProjectId,
-      // Переименовываем projectId в project_id
       type: eventType,
-      is_live: false // Переименовываем isLive в is_live
+      is_live: false
     };
     console.log("[SAVE EVENT] Собранный eventDataPayload:", eventDataPayload);
     await saveEvent(eventDataPayload);
