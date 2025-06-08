@@ -1971,3 +1971,92 @@ function scrollToWorkingHours() {
     }
 }
 
+async function openDayDetailModal(dateStr) {
+    if (!dayDetailModal || !dayDetailModalDateDisplay || !caloriesMorningInput || !caloriesAfternoonInput || !caloriesEveningInput || !commentInput) return;
+
+    // Устанавливаем дату в заголовок модального окна
+    dayDetailModalDateDisplay.textContent = dateStr;
+
+    // Получаем данные для этого дня
+    const detailsFromCache = allDayDetailsData[dateStr] || {};
+    const caloriesFromCache = detailsFromCache.calories || {};
+
+    console.log(`[openDayDetailModal] Opening for ${dateStr}. Details from cache:`, detailsFromCache);
+
+    // Заполняем поля модального окна данными из кэша
+    caloriesMorningInput.value = caloriesFromCache.morning || '';
+    caloriesAfternoonInput.value = caloriesFromCache.afternoon || '';
+    caloriesEveningInput.value = caloriesFromCache.evening || '';
+    commentInput.value = detailsFromCache.comment || '';
+
+    // Обновляем счетчик калорий
+    updateTotalCaloriesDisplay();
+
+    // Показываем модальное окно
+    dayDetailModal.style.display = 'block';
+
+    // Запрашиваем свежие данные
+    try {
+        const freshDetails = await db.getDayDetails(dateStr);
+        if (freshDetails) {
+            allDayDetailsData[dateStr] = freshDetails;
+            const freshCalories = freshDetails.calories || {};
+            if (dayDetailModal.style.display === 'block' && dayDetailModalDateDisplay.textContent === dateStr) {
+                console.log(`[openDayDetailModal] Fresh details loaded and applied for ${dateStr}`);
+                caloriesMorningInput.value = freshCalories.morning || '';
+                caloriesAfternoonInput.value = freshCalories.afternoon || '';
+                caloriesEveningInput.value = freshCalories.evening || '';
+                commentInput.value = freshDetails.comment || '';
+                updateTotalCaloriesDisplay();
+            }
+        }
+    } catch (error) {
+        console.error(`[openDayDetailModal] Failed to fetch fresh details for ${dateStr}:`, error);
+    }
+}
+
+function closeDayDetailModal() {
+    if (dayDetailModal) {
+        dayDetailModal.style.display = 'none';
+    }
+}
+
+async function saveDayDetails(date, detailsToSave) {
+    try {
+        const result = await db.upsertDayDetails({
+            date: date,
+            calories: {
+                morning: detailsToSave.calories.morning,
+                afternoon: detailsToSave.calories.afternoon,
+                evening: detailsToSave.calories.evening
+            },
+            comment: detailsToSave.comment
+        });
+        
+        allDayDetailsData[date] = result;
+        updateTotalCaloriesDisplay();
+        console.log('[saveDayDetails] Details saved successfully:', result);
+    } catch (error) {
+        console.error('[saveDayDetails] Error saving details:', error);
+    }
+}
+
+async function loadDayDetails() {
+    try {
+        const weekDates = getWeekDates(currentWeekStart);
+        const details = await Promise.all(
+            weekDates.map(date => db.getDayDetails(formatDate(date)))
+        );
+        
+        details.forEach((detail, index) => {
+            if (detail) {
+                allDayDetailsData[formatDate(weekDates[index])] = detail;
+            }
+        });
+        
+        updateTotalCaloriesDisplay();
+    } catch (error) {
+        console.error('[loadDayDetails] Error loading details:', error);
+    }
+}
+
