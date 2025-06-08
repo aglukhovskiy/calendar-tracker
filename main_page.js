@@ -1501,12 +1501,25 @@ async function openEventModal(eventId = null, dateStr = null, hour = null) {
     console.log('[OPEN EVENT MODAL] Открытие модального окна:', { eventId, dateStr, hour });
     
     const modal = document.getElementById('eventModal');
-    const titleInput = document.getElementById('eventTitle');
-    const startTimeInput = document.getElementById('eventStartTime');
-    const endTimeInput = document.getElementById('eventEndTime');
-    const projectSelect = document.getElementById('eventProject');
-    const deleteButton = document.getElementById('deleteEventButton');
-    const saveButton = document.getElementById('saveEventButton');
+    const titleInput = document.getElementById('eventTitleInput');
+    const startTimeInput = document.getElementById('eventStartInput');
+    const endTimeInput = document.getElementById('eventEndInput');
+    const projectSelect = document.getElementById('selectProjectSel');
+    const deleteButton = document.getElementById('deleteEventBtn');
+    const saveButton = document.getElementById('saveEventBtn');
+    
+    if (!modal || !titleInput || !startTimeInput || !endTimeInput || !projectSelect || !deleteButton || !saveButton) {
+        console.error('[OPEN EVENT MODAL] Не найдены необходимые элементы:', {
+            modal: !!modal,
+            titleInput: !!titleInput,
+            startTimeInput: !!startTimeInput,
+            endTimeInput: !!endTimeInput,
+            projectSelect: !!projectSelect,
+            deleteButton: !!deleteButton,
+            saveButton: !!saveButton
+        });
+        return;
+    }
     
     // Очищаем форму
     titleInput.value = '';
