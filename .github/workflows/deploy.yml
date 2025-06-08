@@ -28,14 +28,6 @@ jobs:
           rm -f package-lock.json
           npm install
 
-      - name: Verify html-webpack-plugin installation
-        run: ls -l node_modules/html-webpack-plugin
-
-      - name: Create .env file and expose to GITHUB_ENV
-        run: |
-          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> $GITHUB_ENV
-          echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> $GITHUB_ENV
-
       - name: Build
         run: npm run build
 

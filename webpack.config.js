@@ -2,6 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const Dotenv = require('dotenv-webpack');
 
 module.exports = {
     entry: {
@@ -40,10 +41,7 @@ module.exports = {
         ]
     },
     plugins: [
-        new webpack.DefinePlugin({
-            'process.env.SUPABASE_URL': JSON.stringify(process.env.SUPABASE_URL),
-            'process.env.SUPABASE_ANON_KEY': JSON.stringify(process.env.SUPABASE_ANON_KEY)
-        }),
+        new Dotenv(),
         new HtmlWebpackPlugin({
             template: './index.html',
             filename: 'index.html',
