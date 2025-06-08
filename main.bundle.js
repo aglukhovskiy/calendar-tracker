@@ -8281,8 +8281,8 @@ const createClient = (supabaseUrl, supabaseKey, options) => {
 ;// ./config.js
 // Получите эти значения из настроек вашего проекта в Supabase
 // Project Settings -> API -> Project URL и anon/public key
-const SUPABASE_URL = SUPABASE_URL || '';
-const SUPABASE_ANON_KEY = SUPABASE_ANON_KEY || '';
+const SUPABASE_URL = "https://mdzamxwkylxcqxyshxfi.supabase.co" || 0;
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kemFteHdreWx4Y3F4eXNoeGZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg5ODU2MDksImV4cCI6MjA2NDU2MTYwOX0.9rNKeuKixlvOTigZKPLurGozMhzJ9X_u7ujJXvSaz7A" || 0;
 
 // Имена таблиц в базе данных
 const TABLES = {
@@ -8295,8 +8295,10 @@ const TABLES = {
 
 
 // Проверяем наличие необходимых переменных
-if (false) // removed by dead control flow
-{}
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  console.error('Ошибка: SUPABASE_URL и SUPABASE_ANON_KEY должны быть определены');
+  throw new Error('SUPABASE_URL и SUPABASE_ANON_KEY должны быть определены');
+}
 
 // Initialize Supabase client
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
