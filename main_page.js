@@ -542,12 +542,20 @@ async function loadEvents(forWeekStart) {
         const weekEnd = new Date(weekStart);
         weekEnd.setDate(weekEnd.getDate() + 6);
         
-        console.log('[LOAD EVENTS] Загрузка событий с', formatDate(weekStart), 'по', formatDate(weekEnd));
+        console.log('[LOAD EVENTS] Загрузка событий:', {
+            weekStart: weekStart.toISOString(),
+            weekEnd: weekEnd.toISOString(),
+            currentWeekStart: currentWeekStart.toISOString()
+        });
         
         // Загружаем события из базы данных
         calendarEvents = await db.getCalendarEvents(weekStart, weekEnd);
         
-        console.log('[LOAD EVENTS] Загружено событий:', calendarEvents.length);
+        console.log('[LOAD EVENTS] Загружено событий:', calendarEvents.map(event => ({
+            id: event.id,
+            date: event.date,
+            title: event.title
+        })));
         
         // Отрисовываем события
         renderEvents();
@@ -656,31 +664,52 @@ function renderEvents() {
     weekGridContainer.querySelectorAll('.calendar-event').forEach(el => el.remove());
 
     const weekDates = getWeekDates(currentWeekStart);
-    console.log('[RENDER EVENTS] Даты недели:', weekDates.map(d => formatDate(d)));
+    console.log('[RENDER EVENTS] Даты недели:', weekDates.map(d => ({
+        date: d.toISOString(),
+        formatted: formatDate(d)
+    })));
 
     // --- 1. Отрисовка ОБЫЧНЫХ и ПРОЕКТНЫХ событий ---
     const filteredEvents = calendarEvents.filter(event => {
         const isRegular = event.type === 'regular';
         const eventDate = new Date(event.date);
-        const isInWeek = weekDates.some(d => {
-            const weekDate = new Date(d);
-            return weekDate.toISOString().split('T')[0] === eventDate.toISOString().split('T')[0];
-        });
         
         console.log('[RENDER EVENTS] Проверка события:', {
             id: event.id,
             date: event.date,
-            type: event.type,
-            isRegular,
-            isInWeek,
             eventDate: eventDate.toISOString(),
-            weekDates: weekDates.map(d => d.toISOString())
+            type: event.type,
+            isRegular
+        });
+        
+        const isInWeek = weekDates.some(d => {
+            const weekDate = new Date(d);
+            const eventDateStr = eventDate.toISOString().split('T')[0];
+            const weekDateStr = weekDate.toISOString().split('T')[0];
+            const matches = eventDateStr === weekDateStr;
+            
+            console.log('[RENDER EVENTS] Сравнение дат:', {
+                eventDateStr,
+                weekDateStr,
+                matches
+            });
+            
+            return matches;
+        });
+        
+        console.log('[RENDER EVENTS] Результат фильтрации:', {
+            id: event.id,
+            isInWeek
         });
         
         return !isRegular && isInWeek;
     });
 
-    console.log('[RENDER EVENTS] Отфильтрованные события:', filteredEvents);
+    console.log('[RENDER EVENTS] Отфильтрованные события:', filteredEvents.map(event => ({
+        id: event.id,
+        date: event.date,
+        title: event.title
+    })));
 
     filteredEvents.forEach(event => {
         const dayColumn = weekGridContainer.querySelector(`.day-column[data-date="${event.date}"]`);
