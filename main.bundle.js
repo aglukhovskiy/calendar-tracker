@@ -10087,8 +10087,9 @@ async function openEventModal(eventId = null, dateStr = null, hour = null) {
     deleteButton.style.display = 'block';
     saveButton.textContent = 'Сохранить изменения';
 
-    // Сохраняем ID события для последующего сохранения
+    // Сохраняем ID события и дату для последующего сохранения
     modal.dataset.eventId = eventId;
+    modal.dataset.eventDate = event.date;
   } else {
     // Создание нового события
     if (dateStr && hour !== null) {
@@ -10108,6 +10109,9 @@ async function openEventModal(eventId = null, dateStr = null, hour = null) {
     deleteButton.style.display = 'none';
     saveButton.textContent = 'Создать событие';
     delete modal.dataset.eventId;
+
+    // Сохраняем дату для нового события
+    modal.dataset.eventDate = dateStr || formatDate(new Date());
   }
   modal.style.display = 'block';
 }
@@ -10134,12 +10138,21 @@ async function saveEvent(eventData) {
   try {
     const modal = document.getElementById('event-modal');
     const eventId = modal.dataset.eventId;
+    const eventDate = modal.dataset.eventDate;
+    if (!eventDate) {
+      throw new Error('Дата события не указана');
+    }
+    const eventDataToSave = {
+      ...eventData,
+      date: eventDate,
+      id: eventId || generateUUID()
+    };
     if (eventId) {
       // Обновление существующего события
-      await db.updateCalendarEvent(eventId, eventData);
+      await db.updateCalendarEvent(eventId, eventDataToSave);
     } else {
       // Создание нового события
-      await db.createCalendarEvent(eventData);
+      await db.createCalendarEvent(eventDataToSave);
     }
 
     // Перезагружаем события и обновляем отображение
@@ -10149,7 +10162,7 @@ async function saveEvent(eventData) {
     closeEventModal();
   } catch (error) {
     console.error('[SAVE EVENT] Ошибка при сохранении события:', error);
-    alert('Ошибка при сохранении события. Пожалуйста, попробуйте еще раз.');
+    alert('Ошибка при сохранении события: ' + error.message);
   }
 }
 async function deleteEvent(eventId) {
