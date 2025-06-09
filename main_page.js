@@ -2153,12 +2153,3 @@ async function saveDayDetails(date, detailsToSave) {
         throw error;
     }
 }
-
-function closeDayDetailModal() {
-    console.log('[CLOSE DAY DETAIL] Закрытие модального окна деталей дня');
-    const modal = document.getElementById('day-detail-modal');
-    if (modal) {
-        modal.style.display = 'none';
-    }
-}
-
