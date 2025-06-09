@@ -10452,7 +10452,7 @@ async function initialLoad() {
     renderWeekGrid(currentWeekStart);
     renderTimeSlots();
     renderDaysHeader(currentWeekStart);
-    renderEvents(calendarEvents);
+    renderEvents(calendarEvents, currentWeekStart);
     scrollToWorkingHours();
     console.log('[INITIAL LOAD] initialLoad завершен.');
   } catch (error) {
