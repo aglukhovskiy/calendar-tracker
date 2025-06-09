@@ -8651,66 +8651,43 @@ let dayDetailsManager = null; // Экземпляр класса DayDetails
 
 // ==== UTILS ====
 function formatDate(date) {
-  const d = new Date(date);
-  let month = '' + (d.getMonth() + 1);
-  let day = '' + d.getDate();
-  const year = d.getFullYear();
-  if (month.length < 2) month = '0' + month;
-  if (day.length < 2) day = '0' + day;
-  return [year, month, day].join('-');
+  return date.toISOString().split('T')[0];
 }
 function pad(x) {
   return x.toString().padStart(2, '0');
 }
 function getStartOfWeek(date) {
-  let d = new Date(date);
-  let day = d.getDay();
-  let diff = d.getDate() - day + (day === 0 ? -6 : 1);
-  d.setDate(diff);
-  d.setHours(0, 0, 0, 0);
-  return d;
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  return new Date(d.setDate(diff));
 }
 function getWeekDates(startDate) {
-  let week = [];
+  const dates = [];
   for (let i = 0; i < 7; i++) {
-    let d = new Date(startDate);
-    d.setDate(d.getDate() + i);
-    week.push(new Date(d));
+    const date = new Date(startDate);
+    date.setDate(date.getDate() + i);
+    dates.push(date);
   }
-  return week;
+  return dates;
 }
 function minutesSinceMidnight(dateObj) {
   return dateObj.getHours() * 60 + dateObj.getMinutes();
 }
 function localIso(dt) {
-  return dt.getFullYear() + '-' + pad(dt.getMonth() + 1) + '-' + pad(dt.getDate()) + 'T' + pad(dt.getHours()) + ':' + pad(dt.getMinutes());
+  return dt.toISOString().slice(0, 19).replace('T', ' ');
 }
 function localToDate(str) {
-  if (!str) {
-    console.error('[localToDate] Пустая строка времени');
-    return new Date('Invalid');
-  }
-
-  // Если время приходит в формате "HH:mm" или "HH:mm:ss"
-  if (str.length >= 5 && str[2] === ':') {
-    const [hours, minutes] = str.split(':').map(Number);
-    const date = new Date();
-    date.setHours(hours, minutes, 0, 0);
-    return date;
-  }
-
-  // Если время приходит в формате "YYYY-MM-DD HH:mm" или "YYYY-MM-DD HH:mm:ss"
-  if (str.length >= 16 && str[10] === ' ') {
-    const [datePart, timePart] = str.split(' ');
-    const [year, month, day] = datePart.split('-').map(Number);
-    const [hours, minutes] = timePart.split(':').map(Number);
-    return new Date(year, month - 1, day, hours, minutes);
-  }
-  console.error('[localToDate] Неизвестный формат времени:', str);
-  return new Date('Invalid');
+  return new Date(str.replace(' ', 'T'));
 }
-function getLocalDateString(dt) {
-  return `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}`;
+
+// ==== MODAL FUNCTIONS ====
+function closeDayDetailModal() {
+  console.log('[CLOSE DAY DETAIL] Закрытие модального окна деталей дня');
+  const modal = document.getElementById('day-detail-modal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
 }
 
 // Функция для правильной обработки строк CSV
@@ -10305,62 +10282,110 @@ async function handleRegularEventToggle(instanceId, newCompletionState) {
   });
 }
 function initializeEventHandlers() {
-  // Инициализация DOM элементов
-  if (!initializeElements()) {
-    console.error('Не удалось инициализировать DOM элементы');
-    return;
+  // Обработчики для модального окна деталей дня
+  const dayDetailModal = document.getElementById('day-detail-modal');
+  const closeDayDetailBtn = document.getElementById('close-day-detail');
+  const saveDayDetailBtn = document.getElementById('save-day-detail');
+  if (closeDayDetailBtn) {
+    closeDayDetailBtn.addEventListener('click', closeDayDetailModal);
   }
-
-  // Слушатели событий для калорий
-  [dom_elements_elements.caloriesMorningInput, dom_elements_elements.caloriesAfternoonInput, dom_elements_elements.caloriesEveningInput].forEach(input => {
-    if (input) input.addEventListener('input', updateTotalCaloriesDisplay);
-  });
-
-  // Слушатели событий для кнопок
-  if (dom_elements_elements.saveDayDetailsBtn) {
-    dom_elements_elements.saveDayDetailsBtn.addEventListener('click', async () => {
-      const dateStr = dom_elements_elements.dayDetailModalDateDisplay.textContent;
-      if (!dateStr) {
-        alert("Ошибка: не удалось определить дату для сохранения.");
+  if (saveDayDetailBtn) {
+    saveDayDetailBtn.addEventListener('click', async () => {
+      const modal = document.getElementById('day-detail-modal');
+      const date = modal.dataset.date;
+      if (!date) {
+        console.error('[SAVE DAY DETAIL] Дата не указана');
         return;
       }
-      const detailsPayload = {
-        calories: {
-          morning: parseInt(dom_elements_elements.caloriesMorningInput.value, 10) || 0,
-          afternoon: parseInt(dom_elements_elements.caloriesAfternoonInput.value, 10) || 0,
-          evening: parseInt(dom_elements_elements.caloriesEveningInput.value, 10) || 0
-        },
-        comment: dom_elements_elements.commentInput.value.trim()
+      const notesInput = document.getElementById('day-notes');
+      const moodSelect = document.getElementById('day-mood');
+      const productivitySelect = document.getElementById('day-productivity');
+      const detailsToSave = {
+        notes: notesInput ? notesInput.value : '',
+        mood: moodSelect ? moodSelect.value : 'neutral',
+        productivity: productivitySelect ? productivitySelect.value : 'medium'
       };
-      await saveDayDetails(dateStr, detailsPayload);
-      closeDayDetailModal();
+      try {
+        await saveDayDetails(date, detailsToSave);
+        closeDayDetailModal();
+      } catch (error) {
+        console.error('[SAVE DAY DETAIL] Ошибка при сохранении:', error);
+        alert('Ошибка при сохранении деталей дня: ' + error.message);
+      }
     });
   }
-  if (dom_elements_elements.cancelDayDetailsBtn) {
-    dom_elements_elements.cancelDayDetailsBtn.addEventListener('click', closeDayDetailModal);
+
+  // Обработчики для модального окна событий
+  const eventModal = document.getElementById('event-modal');
+  const closeEventBtn = document.getElementById('close-event');
+  const saveEventBtn = document.getElementById('save-event');
+  const deleteEventBtn = document.getElementById('delete-event');
+  if (closeEventBtn) {
+    closeEventBtn.addEventListener('click', closeEventModal);
+  }
+  if (saveEventBtn) {
+    saveEventBtn.addEventListener('click', async () => {
+      const modal = document.getElementById('event-modal');
+      const eventId = modal.dataset.eventId;
+      const eventDate = modal.dataset.eventDate;
+      if (!eventDate) {
+        console.error('[SAVE EVENT] Дата события не указана');
+        return;
+      }
+      const titleInput = document.getElementById('event-title');
+      const startTimeInput = document.getElementById('event-start');
+      const endTimeInput = document.getElementById('event-end');
+      const projectSelect = document.getElementById('select-project');
+      const eventData = {
+        title: titleInput ? titleInput.value : '',
+        start_time: startTimeInput ? startTimeInput.value : '',
+        end_time: endTimeInput ? endTimeInput.value : '',
+        project_id: projectSelect ? projectSelect.value : '',
+        date: eventDate
+      };
+      try {
+        await saveEvent(eventData);
+        closeEventModal();
+      } catch (error) {
+        console.error('[SAVE EVENT] Ошибка при сохранении:', error);
+        alert('Ошибка при сохранении события: ' + error.message);
+      }
+    });
+  }
+  if (deleteEventBtn) {
+    deleteEventBtn.addEventListener('click', async () => {
+      const modal = document.getElementById('event-modal');
+      const eventId = modal.dataset.eventId;
+      if (!eventId) {
+        console.error('[DELETE EVENT] ID события не указан');
+        return;
+      }
+      if (confirm('Вы уверены, что хотите удалить это событие?')) {
+        try {
+          await deleteEvent(eventId);
+          closeEventModal();
+        } catch (error) {
+          console.error('[DELETE EVENT] Ошибка при удалении:', error);
+          alert('Ошибка при удалении события: ' + error.message);
+        }
+      }
+    });
   }
 
-  // ... rest of the event handlers ...
-
-  // Обработчик клика по событию
-  document.addEventListener('click', async e => {
-    const eventElement = e.target.closest('.calendar-event');
-    if (eventElement) {
-      const eventId = eventElement.dataset.id;
-      const instanceId = eventElement.dataset.instanceId;
-      const projectId = eventElement.dataset.projectId;
-      const completed = eventElement.dataset.completed === 'true';
-      console.log('[EVENT HANDLER] Клик по событию:', {
-        eventId,
-        instanceId,
-        projectId,
-        completed
-      });
-      if (eventId) {
-        await openEventModal(eventId);
+  // Обработчики для сетки времени
+  const timeGrid = document.getElementById('time-grid');
+  if (timeGrid) {
+    timeGrid.addEventListener('click', e => {
+      const hourCell = e.target.closest('.hour-cell');
+      if (hourCell) {
+        const hour = parseFloat(hourCell.dataset.hour);
+        const dateStr = hourCell.closest('.day-column').dataset.date;
+        if (!isNaN(hour) && dateStr) {
+          openEventModal(null, dateStr, hour);
+        }
       }
-    }
-  });
+    });
+  }
 }
 
 // Инициализация после загрузки DOM
@@ -10391,11 +10416,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 function updateTotalCaloriesDisplay() {
-  if (!dom_elements_elements.totalCaloriesValueSpan || !dom_elements_elements.caloriesMorningInput || !dom_elements_elements.caloriesAfternoonInput || !dom_elements_elements.caloriesEveningInput) return;
-  const morning = parseInt(dom_elements_elements.caloriesMorningInput.value) || 0;
-  const afternoon = parseInt(dom_elements_elements.caloriesAfternoonInput.value) || 0;
-  const evening = parseInt(dom_elements_elements.caloriesEveningInput.value) || 0;
-  dom_elements_elements.totalCaloriesValueSpan.textContent = (morning + afternoon + evening).toString();
+  if (!elements.totalCaloriesValueSpan || !elements.caloriesMorningInput || !elements.caloriesAfternoonInput || !elements.caloriesEveningInput) return;
+  const morning = parseInt(elements.caloriesMorningInput.value) || 0;
+  const afternoon = parseInt(elements.caloriesAfternoonInput.value) || 0;
+  const evening = parseInt(elements.caloriesEveningInput.value) || 0;
+  elements.totalCaloriesValueSpan.textContent = (morning + afternoon + evening).toString();
 }
 async function initialLoad() {
   console.log('[INITIAL LOAD] Начало initialLoad...');
