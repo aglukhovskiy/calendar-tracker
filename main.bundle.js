@@ -8626,24 +8626,19 @@ function initializeElements() {
 
 
 
-// === Globals ===
-let calendarEvents = [];
+// === GLOBALS ===
 let projects = [];
-console.log('Global projects initialized:', projects);
+let calendarEvents = [];
 let selectedProjectId = null;
-let regularEventsConfig = (/* unused pure expression or super */ null && ([])); // Хранит конфигурации регулярных событий
-// stopwatch.startTimestamp будет хранить время начала в виде timestamp (Date.now())
-// stopwatch.elapsed не используется активно, если startTimeStamp есть, его можно вычислять
+let currentWeekStart = getStartOfWeek(new Date());
 let stopwatch = {
   isRunning: false,
-  startTimestamp: null,
-  elapsed: 0,
-  liveEventId: null,
-  projectId: null
+  startTime: null,
+  elapsedTime: 0,
+  liveEventId: null
 };
 let stopwatchInterval = null;
 let currentDate = new Date();
-let currentWeekStart = getStartOfWeek(currentDate);
 let editingEventId = null;
 let allDayDetailsData = {}; // Кеш для данных о калориях и комментариях
 const ALL_DAY_DETAILS_KEY = 'allDayDetails';
@@ -8835,9 +8830,9 @@ function updateStopwatchUI() {
     return;
   }
   let displayTime = '00:00:00';
-  if (stopwatch.isRunning && stopwatch.startTimestamp) {
+  if (stopwatch.isRunning && stopwatch.startTime) {
     const now = Date.now();
-    const elapsed = now - stopwatch.startTimestamp;
+    const elapsed = now - stopwatch.startTime;
     const totalSeconds = Math.floor(elapsed / 1000);
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor(totalSeconds % 3600 / 60);
@@ -8862,7 +8857,7 @@ function persistStopwatchState() {
   storage_storage.set({
     stopwatch: {
       isRunning: stopwatch.isRunning,
-      startTimestamp: stopwatch.startTimestamp,
+      startTime: stopwatch.startTime,
       projectId: stopwatch.projectId,
       liveEventId: stopwatch.liveEventId,
       // ДОБАВЛЕНО: сохраняем флаги синхронизации
@@ -8874,9 +8869,9 @@ function persistStopwatchState() {
 // ==== Функции для работы со секундомером ====
 
 async function syncLiveCalendarEvent() {
-  if (!stopwatch.isRunning || !stopwatch.startTimestamp) return;
+  if (!stopwatch.isRunning || !stopwatch.startTime) return;
   const now = new Date();
-  const startTimeObj = new Date(stopwatch.startTimestamp);
+  const startTimeObj = new Date(stopwatch.startTime);
 
   // Локальные данные для обновления UI и массива calendarEvents
   const localEventData = {
@@ -8979,9 +8974,9 @@ function tick() {
 function startStopwatch() {
   if (!stopwatch.isRunning) {
     stopwatch.isRunning = true;
-    stopwatch.startTimestamp = Date.now();
+    stopwatch.startTime = Date.now();
     stopwatch.projectId = selectedProjectId;
-    stopwatch.liveEventId = `local-live-${stopwatch.startTimestamp}`;
+    stopwatch.liveEventId = `local-live-${stopwatch.startTime}`;
     stopwatch.isSyncedWithSupabase = false;
     stopwatch.lastSupabaseSync = 0;
     persistStopwatchState();
@@ -9005,7 +9000,7 @@ async function stopOrPauseStopwatch(isStoppingCompletely = true) {
   stopwatchInterval = null;
   stopwatch.isRunning = false;
   const finalEndTime = new Date();
-  const finalEventTitle = (projects.find(p => p.id === stopwatch.projectId)?.name || 'Работа') + ` (${formatDuration(finalEndTime - stopwatch.startTimestamp)})`;
+  const finalEventTitle = (projects.find(p => p.id === stopwatch.projectId)?.name || 'Работа') + ` (${formatDuration(finalEndTime - stopwatch.startTime)})`;
 
   // Финализация события в БД
   if (stopwatch.isSyncedWithSupabase && stopwatch.liveEventId) {
@@ -9025,8 +9020,8 @@ async function stopOrPauseStopwatch(isStoppingCompletely = true) {
     try {
       await db.createCalendarEvent({
         title: finalEventTitle,
-        date: getLocalDateString(new Date(stopwatch.startTimestamp)),
-        start_time: localIso(new Date(stopwatch.startTimestamp)).split('T')[1],
+        date: getLocalDateString(new Date(stopwatch.startTime)),
+        start_time: localIso(new Date(stopwatch.startTime)).split('T')[1],
         end_time: localIso(finalEndTime).split('T')[1],
         project_id: stopwatch.projectId,
         type: stopwatch.projectId ? 'project' : 'event',
@@ -9051,7 +9046,7 @@ async function stopOrPauseStopwatch(isStoppingCompletely = true) {
 
   // Сбрасываем состояние секундомера, если это полный стоп
   if (isStoppingCompletely) {
-    stopwatch.startTimestamp = null;
+    stopwatch.startTime = null;
     stopwatch.projectId = null;
     stopwatch.liveEventId = null;
     stopwatch.isSyncedWithSupabase = false;
