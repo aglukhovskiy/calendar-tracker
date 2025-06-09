@@ -22,7 +22,15 @@ let dayDetailsManager = null; // Экземпляр класса DayDetails
 
 // ==== UTILS ====
 function formatDate(date) {
-    return date.toISOString().split('T')[0];
+    if (!(date instanceof Date) || isNaN(date.getTime())) {
+        console.error('[FORMAT DATE] Некорректная дата:', date);
+        return '';
+    }
+    
+    const year = date.getFullYear();
+    const month = pad(date.getMonth() + 1);
+    const day = pad(date.getDate());
+    return `${year}-${month}-${day}`;
 }
 
 function pad(x) { return x.toString().padStart(2, '0'); }
