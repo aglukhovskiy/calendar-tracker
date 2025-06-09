@@ -10285,6 +10285,39 @@ async function handleRegularEventToggle(instanceId, newCompletionState) {
   });
 }
 function initializeEventHandlers() {
+  // Обработчики для кнопок навигации по неделям
+  const prevWeekBtn = document.getElementById('prev-week');
+  const currentWeekBtn = document.getElementById('current-week');
+  const nextWeekBtn = document.getElementById('next-week');
+  if (prevWeekBtn) {
+    prevWeekBtn.addEventListener('click', () => {
+      currentDate.setDate(currentDate.getDate() - 7);
+      currentWeekStart = getStartOfWeek(currentDate);
+      renderDaysHeader(currentWeekStart);
+      renderWeekGrid(currentWeekStart);
+      renderEvents(calendarEvents, currentWeekStart);
+    });
+  }
+  if (currentWeekBtn) {
+    currentWeekBtn.addEventListener('click', () => {
+      currentDate = new Date();
+      currentDate.setHours(0, 0, 0, 0);
+      currentWeekStart = getStartOfWeek(currentDate);
+      renderDaysHeader(currentWeekStart);
+      renderWeekGrid(currentWeekStart);
+      renderEvents(calendarEvents, currentWeekStart);
+    });
+  }
+  if (nextWeekBtn) {
+    nextWeekBtn.addEventListener('click', () => {
+      currentDate.setDate(currentDate.getDate() + 7);
+      currentWeekStart = getStartOfWeek(currentDate);
+      renderDaysHeader(currentWeekStart);
+      renderWeekGrid(currentWeekStart);
+      renderEvents(calendarEvents, currentWeekStart);
+    });
+  }
+
   // Обработчики для модального окна деталей дня
   const dayDetailModal = document.getElementById('day-detail-modal');
   const closeDayDetailBtn = document.getElementById('close-day-detail');
@@ -10449,9 +10482,9 @@ async function initialLoad() {
     // Рендеринг UI
     renderProjectSelectAndList();
     renderProjectsList();
+    renderDaysHeader(currentWeekStart); // Сначала рендерим заголовки дней
     renderWeekGrid(currentWeekStart);
     renderTimeSlots();
-    renderDaysHeader(currentWeekStart);
     renderEvents(calendarEvents, currentWeekStart);
     scrollToWorkingHours();
     console.log('[INITIAL LOAD] initialLoad завершен.');
