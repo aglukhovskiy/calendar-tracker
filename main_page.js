@@ -22,72 +22,47 @@ let dayDetailsManager = null; // Экземпляр класса DayDetails
 
 // ==== UTILS ====
 function formatDate(date) {
-    const d = new Date(date);
-    let month = '' + (d.getMonth() + 1);
-    let day = '' + d.getDate();
-    const year = d.getFullYear();
-    if (month.length < 2) month = '0' + month;
-    if (day.length < 2) day = '0' + day;
-    return [year, month, day].join('-');
+    return date.toISOString().split('T')[0];
 }
 
 function pad(x) { return x.toString().padStart(2, '0'); }
 
 function getStartOfWeek(date) {
-    let d = new Date(date);
-    let day = d.getDay();
-    let diff = d.getDate() - day + (day === 0 ? -6 : 1);
-    d.setDate(diff);
-    d.setHours(0,0,0,0);
-    return d;
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    return new Date(d.setDate(diff));
 }
 
 function getWeekDates(startDate) {
-    let week = [];
-    for(let i=0;i<7;i++) {
-        let d=new Date(startDate);
-        d.setDate(d.getDate()+i);
-        week.push(new Date(d));
+    const dates = [];
+    for (let i = 0; i < 7; i++) {
+        const date = new Date(startDate);
+        date.setDate(date.getDate() + i);
+        dates.push(date);
     }
-    return week;
+    return dates;
 }
 
 function minutesSinceMidnight(dateObj) {
-    return dateObj.getHours()*60 + dateObj.getMinutes();
+    return dateObj.getHours() * 60 + dateObj.getMinutes();
 }
 
 function localIso(dt) {
-    return dt.getFullYear() + '-' + pad(dt.getMonth()+1) + '-' + pad(dt.getDate()) + 'T' + pad(dt.getHours()) + ':' + pad(dt.getMinutes());
+    return dt.toISOString().slice(0, 19).replace('T', ' ');
 }
 
 function localToDate(str) {
-    if (!str) {
-        console.error('[localToDate] Пустая строка времени');
-        return new Date('Invalid');
-    }
-    
-    // Если время приходит в формате "HH:mm" или "HH:mm:ss"
-    if (str.length >= 5 && str[2] === ':') {
-        const [hours, minutes] = str.split(':').map(Number);
-        const date = new Date();
-        date.setHours(hours, minutes, 0, 0);
-        return date;
-    }
-    
-    // Если время приходит в формате "YYYY-MM-DD HH:mm" или "YYYY-MM-DD HH:mm:ss"
-    if (str.length >= 16 && str[10] === ' ') {
-        const [datePart, timePart] = str.split(' ');
-        const [year, month, day] = datePart.split('-').map(Number);
-        const [hours, minutes] = timePart.split(':').map(Number);
-        return new Date(year, month - 1, day, hours, minutes);
-    }
-    
-    console.error('[localToDate] Неизвестный формат времени:', str);
-    return new Date('Invalid');
+    return new Date(str.replace(' ', 'T'));
 }
 
-function getLocalDateString(dt) {
-    return `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`;
+// ==== MODAL FUNCTIONS ====
+function closeDayDetailModal() {
+    console.log('[CLOSE DAY DETAIL] Закрытие модального окна деталей дня');
+    const modal = document.getElementById('day-detail-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
 }
 
 // Функция для правильной обработки строк CSV
