@@ -9642,11 +9642,19 @@ function renderProjectStats(projId) {
     `;
 }
 function renderDaysHeader(weekStart) {
+  console.log('[RENDER DAYS HEADER] Начало выполнения функции');
+  console.log('[RENDER DAYS HEADER] weekStart:', weekStart);
   const daysHeader = document.getElementById('days-header');
-  if (!daysHeader) return;
+  console.log('[RENDER DAYS HEADER] daysHeader элемент:', daysHeader);
+  if (!daysHeader) {
+    console.error('[RENDER DAYS HEADER] Элемент days-header не найден!');
+    return;
+  }
   daysHeader.innerHTML = '';
   const weekDates = getWeekDates(weekStart);
-  weekDates.forEach(date => {
+  console.log('[RENDER DAYS HEADER] Даты недели:', weekDates);
+  weekDates.forEach((date, index) => {
+    console.log(`[RENDER DAYS HEADER] Обработка дня ${index + 1}:`, date);
     const dayColumn = document.createElement('div');
     dayColumn.className = 'day-column';
     const dayHeader = document.createElement('div');
@@ -9659,8 +9667,6 @@ function renderDaysHeader(weekStart) {
     const dayNumber = document.createElement('div');
     dayNumber.className = 'day-number';
     dayNumber.textContent = date.getDate();
-
-    // Добавляем обработчик клика на заголовок дня
     dayHeader.addEventListener('click', () => {
       console.log('[DAY HEADER] Клик по заголовку дня:', formatDate(date));
       openDayDetailModal(formatDate(date));
@@ -9670,6 +9676,7 @@ function renderDaysHeader(weekStart) {
     dayColumn.appendChild(dayHeader);
     daysHeader.appendChild(dayColumn);
   });
+  console.log('[RENDER DAYS HEADER] Завершение функции');
 }
 
 // ==== Календарь — выбор даты (Date Picker) ====
@@ -10473,8 +10480,12 @@ async function initialLoad() {
 
     // Загрузка событий для текущей недели
     const weekDates = getWeekDates(currentWeekStart);
+    console.log('[INITIAL LOAD] Текущая неделя:', weekDates);
     const startDate = weekDates[0];
     const endDate = weekDates[weekDates.length - 1];
+    console.log('[INITIAL LOAD] Вызов renderDaysHeader с датой:', currentWeekStart);
+    renderDaysHeader(currentWeekStart);
+    console.log('[INITIAL LOAD] renderDaysHeader выполнен');
     console.log('[INITIAL LOAD] Loading events from', startDate, 'to', endDate);
     calendarEvents = await db.getCalendarEvents(startDate, endDate);
     console.log('[INITIAL LOAD] Calendar events loaded:', calendarEvents);
