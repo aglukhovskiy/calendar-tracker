@@ -8406,7 +8406,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 console.log('[SUPABASE] Client initialized successfully');
 
 // Database operations
-const db = {
+const supabase_db = {
   // Events
   async getEvents(date) {
     console.log('Fetching events for date:', date);
@@ -10468,7 +10468,7 @@ async function initialLoad() {
     console.log('[INITIAL LOAD] Загружены конфигурации регулярных событий:', regularEventsConfig?.length || 0);
 
     // Загрузка проектов
-    projects = await supabase.getProjects();
+    projects = await db.getProjects();
     console.log('[INITIAL LOAD] Projects loaded:', projects);
 
     // Загрузка событий для текущей недели
