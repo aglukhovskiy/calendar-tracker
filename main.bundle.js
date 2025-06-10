@@ -8907,7 +8907,7 @@ async function syncLiveCalendarEvent() {
     if (!stopwatch.isSyncedWithSupabase) {
       // Если событие еще не создано в БД
       console.log("[SYNC LIVE EVENT] Создание нового live-события в Supabase...");
-      const createdEvent = await supabase.createCalendarEvent({
+      const createdEvent = await db.createCalendarEvent({
         title: localEventData.title,
         date: localEventData.date,
         start_time: localEventData.startTime.split('T')[1],
@@ -8935,7 +8935,7 @@ async function syncLiveCalendarEvent() {
     } else if (Date.now() - stopwatch.lastSupabaseSync > 15000) {
       // Обновляем БД не чаще чем раз в 15 секунд
       console.log(`[SYNC LIVE EVENT] Периодическое обновление live-события ${stopwatch.liveEventId} в Supabase...`);
-      await supabase.updateCalendarEvent(stopwatch.liveEventId, {
+      await db.updateCalendarEvent(stopwatch.liveEventId, {
         end_time: localEventData.endTime.split('T')[1]
         // Можно обновлять и title, если нужно
       });
@@ -9008,7 +9008,7 @@ async function stopOrPauseStopwatch(isStoppingCompletely = true) {
   if (stopwatch.isSyncedWithSupabase && stopwatch.liveEventId) {
     console.log(`[FINALIZE EVENT] Финализация события ${stopwatch.liveEventId} в Supabase...`);
     try {
-      await supabase.updateCalendarEvent(stopwatch.liveEventId, {
+      await db.updateCalendarEvent(stopwatch.liveEventId, {
         title: finalEventTitle,
         end_time: localIso(finalEndTime).split('T')[1],
         is_live: false // <-- Самое важное!
@@ -9020,7 +9020,7 @@ async function stopOrPauseStopwatch(isStoppingCompletely = true) {
   } else if (stopwatch.liveEventId.startsWith('local-live-')) {
     console.log("[FINALIZE EVENT] Создание финализированного события, которое не успело синхронизироваться...");
     try {
-      await supabase.createCalendarEvent({
+      await db.createCalendarEvent({
         title: finalEventTitle,
         date: getLocalDateString(new Date(stopwatch.startTime)),
         start_time: localIso(new Date(stopwatch.startTime)).split('T')[1],
@@ -9096,7 +9096,7 @@ async function loadEvents(forWeekStart) {
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekEnd.getDate() + 6);
     console.log('[LOAD EVENTS] Загрузка событий с', weekStart.toISOString(), 'по', weekEnd.toISOString());
-    const events = await supabase.getCalendarEvents(weekStart, weekEnd);
+    const events = await db.getCalendarEvents(weekStart, weekEnd);
     console.log('[LOAD EVENTS] Загружено событий:', events.length);
     renderEvents(events, weekStart);
   } catch (error) {
@@ -9542,10 +9542,10 @@ if (addProjectBtn && newProjectNameInput) {
       };
 
       // Вызываем метод из вашего db объекта
-      const createdProject = await supabase.createProject(projectDataForSupabase);
+      const createdProject = await db.createProject(projectDataForSupabase);
       if (!createdProject || !createdProject.id) {
         alert("Не удалось создать проект. Сервер не вернул данные о созданном проекте.");
-        console.error('[ADD PROJECT] Supabase.createProject не вернул ожидаемый объект:', createdProject);
+        console.error('[ADD PROJECT] db.createProject не вернул ожидаемый объект:', createdProject);
         return;
       }
       console.log('[ADD PROJECT] Проект успешно создан в Supabase:', createdProject);
@@ -10076,7 +10076,7 @@ async function openEventModal(eventId = null, dateStr = null, hour = null) {
     weekEnd.setDate(weekEnd.getDate() + 6);
 
     // Загружаем события за всю неделю
-    const events = await supabase.getCalendarEvents(weekStart, weekEnd);
+    const events = await db.getCalendarEvents(weekStart, weekEnd);
     const event = events.find(e => e.id === eventId);
     if (!event) {
       console.error('[OPEN EVENT MODAL] Событие не найдено:', eventId);
@@ -10152,10 +10152,10 @@ async function saveEvent(eventData) {
     };
     if (eventId) {
       // Обновление существующего события
-      await supabase.updateCalendarEvent(eventId, eventDataToSave);
+      await db.updateCalendarEvent(eventId, eventDataToSave);
     } else {
       // Создание нового события
-      await supabase.createCalendarEvent(eventDataToSave);
+      await db.createCalendarEvent(eventDataToSave);
     }
 
     // Перезагружаем события и обновляем отображение
