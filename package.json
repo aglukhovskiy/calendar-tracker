@@ -4,7 +4,8 @@
   "description": "Browser extension with Supabase integration",
   "main": "background.js",
   "dependencies": {
-    "@supabase/supabase-js": "^2.39.0"
+    "@supabase/supabase-js": "^2.39.0",
+    "dotenv": "^16.5.0"
   },
   "devDependencies": {
     "@babel/core": "^7.27.4",

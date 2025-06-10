@@ -1,7 +1,9 @@
+require('dotenv').config();
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const Dotenv = require('dotenv-webpack');
 
 // Получаем переменные окружения
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -50,9 +52,10 @@ module.exports = {
         ]
     },
     plugins: [
+        new Dotenv(),
         new webpack.DefinePlugin({
-            'window.SUPABASE_URL': JSON.stringify(supabaseUrl),
-            'window.SUPABASE_ANON_KEY': JSON.stringify(supabaseAnonKey)
+            'process.env.SUPABASE_URL': JSON.stringify(process.env.SUPABASE_URL),
+            'process.env.SUPABASE_ANON_KEY': JSON.stringify(process.env.SUPABASE_ANON_KEY)
         }),
         new HtmlWebpackPlugin({
             template: './index.html',

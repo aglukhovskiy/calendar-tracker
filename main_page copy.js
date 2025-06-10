@@ -1,949 +1,3 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Недельный календарь с секундомером</title>
-    <base href="/calendar-tracker/">
-    <link rel="stylesheet" href="main_page.css">
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1>Недельный календарь</h1>
-            <div class="controls">
-                <button id="prev-week">◀️ Предыдущая неделя</button>
-                <button id="current-week">Текущая неделя</button>
-                <button id="next-week">Следующая неделя ▶️</button>
-                <button id="open-date-picker">📅 Выбрать дату</button>
-                <button id="export-csv">Экспорт в CSV</button>
-                <button id="import-csv">Импорт из CSV</button>
-            </div>
-        </header>
-
-        <div class="main-content">
-            <div class="calendar-container">
-                <div class="calendar-header-row">
-                    <div class="time-header"></div>
-                    <div class="days-header"></div>
-                </div>
-                <div class="calendar-body-container">
-                    <!-- Контейнер для скролла, включающий и временную шкалу, и сетку недели -->
-                    <div id="week-grid-scroll-container">
-                        <div class="scrollable-content">
-                            <!-- Контейнер для временных слотов -->
-                            <div class="time-slots-container"></div>
-                            
-                            <!-- Сетка недели -->
-                            <div class="week-grid" id="week-grid"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>            
-
-            <div class="pomodoro-sidebar">
-                <div class="timer-section">
-                    <div id="sidebar-timer-display" class="timer-display">00:00:00</div>
-                    <div class="timer-controls">
-                        <button id="start-pomodoro">Старт</button>
-                        <button id="pause-pomodoro">Пауза</button>
-                        <button id="stop-pomodoro">Стоп</button>
-                    </div>
-                </div>
-                
-                <div class="pomodoro-container">
-                    <div class="project-management">
-                        <h3>Управление проектами</h3>
-                        <div class="form-group">
-                            <label for="project-name">Название проекта:</label>
-                            <input type="text" id="project-name" placeholder="Введите название проекта">
-                        </div>
-                        <button id="add-project">Добавить проект</button>
-                        
-                        <div class="projects-list" id="projects-list">
-                            <!-- Список проектов будет добавлен через JavaScript -->
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="select-project">Выбрать проект для работы:</label>
-                            <select id="select-project">
-                                <option value="">Выберите проект...</option>
-                                <!-- Опции проектов будут добавлены через JavaScript -->
-                            </select>
-                        </div>
-                        
-                        <!-- ===== НАЧАЛО НОВОГО БЛОКА ДЛЯ РЕГУЛЯРНЫХ СОБЫТИЙ ===== -->
-                        <div class="regular-event-management">
-                            <h3>Регулярные события</h3>
-                            <div class="form-group">
-                                <label for="regular-event-name">Название задачи:</label>
-                                <input type="text" id="regular-event-name" placeholder="Например, 'Утренняя зарядка'">
-                            </div>
-                            <div class="form-group">
-                                <label for="regular-event-start-time">Время начала:</label>
-                                <input type="time" id="regular-event-start-time" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="regular-event-end-time">Время окончания:</label>
-                                <input type="time" id="regular-event-end-time" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Дни недели:</label>
-                                <div id="regular-event-weekdays" class="weekday-selector">
-                                    <span data-day="1" class="weekday-btn">Пн</span>
-                                    <span data-day="2" class="weekday-btn">Вт</span>
-                                    <span data-day="3" class="weekday-btn">Ср</span>
-                                    <span data-day="4" class="weekday-btn">Чт</span>
-                                    <span data-day="5" class="weekday-btn">Пт</span>
-                                    <span data-day="6" class="weekday-btn">Сб</span>
-                                    <span data-day="0" class="weekday-btn">Вс</span>
-                                </div>
-                            </div>
-                            <button id="add-regular-event">Добавить регулярное событие</button>
-                        </div>
-                        <!-- ===== КОНЕЦ НОВОГО БЛОКА ===== -->
-                        <div class="project-stats" id="project-stats">
-                            <!-- Статистика проекта будет добавлена через JavaScript -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Модальное окно для создания/редактирования события -->
-    <div id="event-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h3 id="event-modal-header">Создать событие</h3> <!-- ДОБАВЛЕН ID -->
-            <form id="event-form">
-                <div class="form-group">
-                    <label for="event-title">Название события:</label>
-                    <input type="text" id="event-title" required>
-                </div>
-                <div class="form-group">
-                    <label for="event-date">Дата:</label>
-                    <input type="date" id="event-date" required readonly>
-                </div>
-                <div class="form-group">
-                    <label for="event-start">Время начала:</label>
-                    <input type="time" id="event-start" required>
-                </div>
-                <div class="form-group">
-                    <label for="event-end">Время окончания:</label>
-                    <input type="time" id="event-end" required>
-                </div>
-                <div class="form-group">
-                    <label for="event-description">Описание:</label>
-                    <textarea id="event-description"></textarea>
-                </div>
-                <div class="modal-buttons">
-                    <button type="submit" id="save-event">Сохранить</button>
-                    <button type="button" id="delete-event" style="display: none;">Удалить</button>
-                    <button type="button" id="cancel-event">Отмена</button>
-                </div>
-            </form>
-            <div id="regular-event-details" style="display: none;">
-                <h3 id="regular-event-modal-title" style="margin-top: 0;">Название регулярного события</h3>
-                <p>Статус: <strong id="regular-event-modal-status">Не выполнено</strong></p>
-                <div class="modal-actions">
-                    <button id="toggle-completion-btn" class="button-primary">Отметить как выполненное</button>
-                    <button id="regular-event-cancel-btn" class="button-secondary">Закрыть</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Модальное окно для выбора даты -->
-    <div id="date-picker-modal" class="date-picker-modal">
-        <div class="date-picker-content">
-            <span class="close-modal">&times;</span>
-            <div class="month-selector">
-                <span class="month-nav" id="prev-month">◀</span>
-                <span class="month-title" id="month-title">Месяц Год</span>
-                <span class="month-nav" id="next-month">▶</span>
-            </div>
-            <div class="weekday-header" id="weekday-header">
-                <!-- Дни недели будут добавлены через JavaScript -->
-            </div>
-            <div class="calendar-grid" id="calendar-grid">
-                <!-- Дни месяца будут добавлены через JavaScript -->
-            </div>
-            <div class="modal-buttons">
-                <button id="date-picker-cancel">Отмена</button>
-                <button id="date-picker-today">Сегодня</button>
-                <button id="date-picker-select">Выбрать</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Модальное окно для детальной информации о дне -->
-    <div id="day-detail-modal" class="day-detail-modal">
-        <div class="day-detail-content">
-            <span class="close-modal">&times;</span>
-            <h2 id="day-detail-header">Детали дня: <span id="day-detail-modal-date-display"></span></h2>
-            <div class="calories-inputs">
-                <div class="form-group">
-                    <label for="calories-morning">Калории утром:</label>
-                    <input type="number" id="calories-morning" min="0" placeholder="0">
-                </div>
-                <div class="form-group">
-                    <label for="calories-afternoon">Калории днем:</label>
-                    <input type="number" id="calories-afternoon" min="0" placeholder="0">
-                </div>
-                <div class="form-group">
-                    <label for="calories-evening">Калории вечером:</label>
-                    <input type="number" id="calories-evening" min="0" placeholder="0">
-                </div>
-            </div>
-            <div class="total-calories">Всего калорий: <span id="total-calories-value">0</span></div>
-            <div class="form-group day-comment">
-                <label for="day-comment">Комментарий к дню:</label>
-                <textarea id="day-comment" rows="3" placeholder="Введите комментарий..."></textarea>
-            </div>
-            <div class="modal-buttons">
-                <button type="button" id="day-detail-cancel">Отмена</button>
-                <button type="button" id="day-detail-save">Сохранить</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="main.bundle.js"></script>
-    <script src="dayDetails.bundle.js"></script>
-</body>
-</html>
-
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    line-height: 1.6;
-    color: #222;
-    background-color: #f7f9fb;
-}
-
-.container {
-    width: 100%;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-header {
-    margin-bottom: 20px;
-}
-
-h1 {
-    margin-bottom: 15px;
-    color: #1a1a1a;
-}
-
-.controls {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-}
-
-button {
-    padding: 8px 16px;
-    background-color: #e3f0ff;
-    color: #1976d2;
-    border: 1px solid #b6d4fa;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s, border 0.2s;
-    font-weight: 500;
-}
-
-button:hover {
-    background-color: #d0e7ff;
-    color: #125ea7;
-    border-color: #90c2f7;
-}
-
-button:disabled {
-    background-color: #f0f0f0;
-    color: #b0b0b0;
-    border-color: #e0e0e0;
-    cursor: not-allowed;
-}
-
-/* === ОСНОВНОЙ LAYOUT === */
-.main-content {
-    display: flex;
-    gap: 24px;
-    flex-wrap: nowrap;
-}
-
-.calendar-container {
-    flex: 1;
-    min-width: 0;
-    border-radius: 8px;
-    background: #fff;
-    border: 1px solid #e0e4ea;
-    box-shadow: 0 2px 8px rgba(60, 120, 200, 0.04);
-    padding: 0;
-    overflow: hidden;
-}
-
-.pomodoro-sidebar {
-    width: 320px;
-    flex-shrink: 0;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(60,120,200,0.07);
-    padding: 24px 18px;
-    color: #222;
-}
-
-/* === ШАПКА КАЛЕНДАРЯ === */
-.calendar-header-row {
-    display: flex;
-    height: 60px;
-}
-
-.time-header {
-    width: 60px;
-    min-width: 60px;
-    max-width: 60px;
-    flex: none !important;
-}
-
-.days-header {
-    flex: 1;
-    display: flex;
-    background: #f0f4fa;
-    border-bottom: 1px solid #e0e4ea;
-}
-
-.day-header {
-    flex: 1;
-    border-right: 1px solid #e0e4ea;
-    background: #f0f4fa;
-    color: #1976d2;
-    text-align: center;
-    font-weight: bold;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    cursor: pointer;
-    position: relative;
-    padding: 5px;
-    min-height: 60px;
-    transition: background 0.2s;
-}
-
-.day-header:last-child { 
-    border-right: none; 
-}
-
-.day-header:hover {
-    background-color: #e3f0ff;
-}
-
-.day-name {
-    font-weight: bold;
-    color: #1976d2;
-    margin-bottom: 2px;
-}
-
-.day-date {
-    font-size: 12px;
-    color: #8a99a8;
-    margin-bottom: 15px;
-}
-
-.day-header-icons {
-    position: absolute;
-    right: 5px;
-    top: 5px;
-    display: flex;
-    gap: 5px;
-    font-size: 14px;
-    align-items: center;
-    background: rgba(227, 240, 255, 0.9);
-    padding: 2px 4px;
-    border-radius: 4px;
-}
-
-.calories-icon {
-    color: #ff9800;
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    white-space: nowrap;
-}
-
-.comment-icon {
-    color: #4caf50;
-}
-
-/* === ТЕЛО КАЛЕНДАРЯ === */
-.calendar-body-container {
-    display: flex;
-    height: 768px;
-}
-
-/* === ВАЖНО: КОНТЕЙНЕР ДЛЯ ПРОКРУТКИ === */
-#week-grid-scroll-container {
-    flex: 1;
-    overflow-y: auto;
-    width: 100%;
-}
-
-/* === СОДЕРЖИМОЕ, КОТОРОЕ СКРОЛЛИТСЯ === */
-.scrollable-content {
-    display: flex;
-    width: 100%;
-}
-
-/* === КОЛОНКА ВРЕМЕНИ === */
-.time-slots-container {
-    width: 60px;
-    min-width: 60px;
-    flex-shrink: 0;
-    background: #f4f4f7;
-    border-right: 1px solid #e3e4ea;
-}
-
-.time-slot {
-    height: 48px;
-    min-height: 48px;
-    max-height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding-right: 10px;
-    color: #999;
-    font-size: 13px;
-    border-bottom: 1px solid #e0e4ea;
-    background: #f7f9fb;
-}
-
-/* === СЕТКА ДНЕЙ === */
-.week-grid {
-    flex: 1;
-    display: flex;
-}
-
-.day-column {
-    flex: 1;
-    min-width: 0;
-    position: relative;
-    border-right: 1px solid #e0e4ea;
-}
-
-.day-column:last-child {
-    border-right: none;
-}
-
-.hour-cell {
-    height: 48px;
-    min-height: 48px;
-    max-height: 48px;
-    border-bottom: 1px solid #e0e4ea;
-    position: relative;
-}
-
-/* === СОБЫТИЯ === */
-.calendar-event {
-    position: absolute;
-    left: 3px;
-    right: 3px;
-    border-radius: 6px;
-    background: #e6eaf6;
-    color: #222;
-    font-size: 13px;
-    z-index: 10;
-    box-shadow: 0 2px 6px rgba(180,190,210,.09);
-    padding: 2px 12px 2px 6px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.calendar-event:hover {
-    background-color: #e0e0e0;
-    z-index: 11;
-}
-
-.calendar-event.project-event {
-    background: #1976d2;
-    color: #fff;
-    font-weight: 500;
-}
-
-.calendar-event.project-event:hover {
-    background-color: #355bb2;
-}
-
-.event-title {
-    font-weight: bold;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    width: 100%;
-    margin-bottom: 0;
-    padding: 0 2px;
-}
-
-.event-description {
-    font-size: 11px;
-    color: #666;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.calendar-event.project-event .event-description {
-    color: rgba(255, 255, 255, 0.8);
-}
-
-/* === ИНДИКАТОР ТЕКУЩЕГО ВРЕМЕНИ === */
-.current-time-indicator {
-    position: absolute;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background-color: #1976d2;
-    z-index: 5;
-    pointer-events: none;
-    border-radius: 2px;
-}
-
-/* === ТАЙМЕР И СЕКУНДОМЕР === */
-.timer-display, #sidebar-timer-display {
-    font-size: 2.5rem;
-    text-align: center;
-    margin: 20px 0;
-    font-weight: bold;
-    color: #1976d2 !important;
-    background: #e3f0ff;
-    border-radius: 8px;
-    text-shadow: 0 1px 6px #fff, 0 0 2px #b6d4fa;
-    box-shadow: 0 1px 4px #e3f0ff;
-}
-
-.timer-controls {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-.timer-paused { 
-    color:#ffd600 !important;
-}
-
-#start-pomodoro, #pause-pomodoro, #stop-pomodoro {
-    background-color: #e3f0ff !important;
-    color: #1976d2 !important;
-    border: 1px solid #b6d4fa !important;
-    border-radius: 6px !important;
-    font-weight: 500;
-    min-width: 80px;
-    padding: 8px 0;
-    font-size: 1.1em;
-    transition: background 0.2s, color 0.2s, border 0.2s;
-}
-
-#start-pomodoro:hover, #pause-pomodoro:hover, #stop-pomodoro:hover {
-    background-color: #d0e7ff !important;
-    color: #125ea7 !important;
-    border-color: #90c2f7 !important;
-}
-
-#start-pomodoro:disabled, #pause-pomodoro:disabled, #stop-pomodoro:disabled {
-    background-color: #f0f0f0 !important;
-    color: #b0b0b0 !important;
-    border-color: #e0e0e0 !important;
-}
-
-/* === УПРАВЛЕНИЕ ПРОЕКТАМИ === */
-.project-management {
-    margin-bottom: 20px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #e0e4ea;
-    background: transparent;
-}
-
-.project-management h3 {
-    color: #1976d2;
-    margin-bottom: 15px;
-}
-
-#project-stats {
-    margin-top: 15px;
-    padding: 10px;
-    background-color: #f7f9fb;
-    border-radius: 6px;
-    font-size: 14px;
-    color: #1976d2;
-    box-shadow: none;
-    border: 1px solid #e0e4ea;
-}
-
-.project-stats-item { 
-    margin-bottom: 5px; 
-    color: #1976d2; 
-}
-
-#add-project {
-    background-color: #e3f0ff !important;
-    color: #1976d2 !important;
-    border: 1px solid #b6d4fa !important;
-    border-radius: 6px;
-    font-weight: 500;
-    transition: background 0.2s, color 0.2s, border 0.2s;
-    box-shadow: none;
-}
-
-#add-project:hover {
-    background-color: #d0e7ff !important;
-    color: #125ea7 !important;
-    border-color: #90c2f7 !important;
-}
-
-#add-project:disabled {
-    background-color: #f0f0f0 !important;
-    color: #b0b0b0 !important;
-    border-color: #e0e0e0 !important;
-}
-
-/* === РЕГУЛЯРНЫЕ СОБЫТИЯ === */
-.regular-event-management {
-    margin-top: 25px;
-    padding-top: 20px;
-    border-top: 1px solid #e0e4ea;
-}
-
-.regular-event-management h3 {
-    color: #4caf50;
-    margin-bottom: 15px;
-}
-
-.weekday-selector {
-    display: flex;
-    justify-content: space-between;
-    gap: 5px;
-}
-
-.weekday-btn {
-    flex: 1;
-    text-align: center;
-    padding: 8px 4px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.2s, color 0.2s;
-    user-select: none;
-}
-
-.weekday-btn.selected {
-    background-color: #4caf50;
-    color: white;
-    border-color: #4caf50;
-}
-
-.calendar-event.regular {
-    background-color: #e0e0e0;
-    color: #555;
-    border: 1px dashed #b0b0b0;
-    transition: background-color 0.3s, border-color 0.3s;
-}
-
-.calendar-event.regular.completed {
-    background-color: #28a745;
-    border-color: #208335;
-    color: white;
-    opacity: 0.8;
-}
-
-.calendar-event.regular.not-completed {
-    background-color: #dc3545;
-    border-color: #b32a38;
-    color: white;
-}
-
-/* === ПУЛЬСАЦИЯ АКТИВНОГО СОБЫТИЯ === */
-.calendar-event.live {
-    animation: pulsate-override 1.8s infinite ease-in-out !important;
-    z-index: 10 !important;
-}
-
-@keyframes pulsate-override {
-  0% {
-    transform: scale(1.0);
-    box-shadow: 0 0 8px 3px rgba(255, 215, 0, 0.7);
-  }
-  50% {
-    transform: scale(1.03);
-    box-shadow: 0 0 16px 8px rgba(255, 190, 0, 0.8);
-  }
-  100% {
-    transform: scale(1.0);
-    box-shadow: 0 0 8px 3px rgba(255, 215, 0, 0.7);
-  }
-}
-
-/* === СЕГОДНЯШНИЙ ДЕНЬ === */
-.day-header.today-header, .day-column.current-day {
-    background: #b6d4fa !important;
-    border: 2px solid #1976d2 !important;
-    box-shadow: 0 0 0 2px #e3f0ff;
-    color: #0d305a !important;
-    z-index: 2;
-}
-
-.day-header.today-header .day-name, 
-.day-header.today-header .day-date, 
-.day-header.today-header .day-header-icons {
-    color: #0d305a !important;
-}
-
-/* === ФОРМЫ И ПОЛЯ ВВОДА === */
-.form-group {
-    margin-bottom: 15px;
-}
-
-label {
-    display: block;
-    margin-bottom: 5px;
-    color: #222;
-}
-
-input, textarea, select {
-    width: 100%;
-    padding: 8px;
-    background: #fff;
-    color: #222;
-    border: 1px solid #b6d4fa;
-    border-radius: 6px;
-    font-weight: 500;
-}
-
-input:focus, textarea:focus, select:focus {
-    border-color: #1976d2;
-    box-shadow: 0 0 3px #b6d4fa;
-}
-
-/* === МОДАЛЬНЫЕ ОКНА === */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-}
-
-.modal-content {
-    position: relative;
-    background-color: #fff;
-    margin: 10% auto;
-    padding: 20px;
-    width: 90%;
-    max-width: 500px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.close-modal {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 24px;
-    cursor: pointer;
-    color: #aaa;
-    z-index: 1001;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: background-color 0.3s;
-}
-
-.close-modal:hover {
-    color: #333;
-    background-color: rgba(0, 0, 0, 0.1);
-}
-
-.modal-buttons { 
-    margin-top: 17px; 
-}
-
-/* === ДЕТАЛИ ДНЯ (МОДАЛЬНОЕ ОКНО) === */
-.day-detail-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(200, 220, 255, 0.25);
-    z-index: 1000;
-}
-
-.day-detail-content {
-    position: relative;
-    background-color: #fff;
-    margin: 7% auto;
-    padding: 24px;
-    width: 90%;
-    max-width: 500px;
-    border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(60, 120, 200, 0.10);
-}
-
-.calories-inputs {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.day-comment {
-    margin-top: 20px;
-}
-
-.day-comment textarea {
-    min-height: 100px;
-    resize: vertical;
-    background: #f7f9fb;
-    border: 1px solid #e0e4ea;
-    border-radius: 6px;
-    color: #222;
-    padding: 8px;
-}
-
-.total-calories {
-    text-align: center;
-    font-size: 1.2em;
-    margin: 15px 0;
-    color: #ff9800;
-    font-weight: bold;
-}
-
-/* === ВЫБОР ДАТЫ (МОДАЛЬНОЕ ОКНО) === */
-.date-picker-modal {
-    display: none;
-    position: fixed !important;
-    z-index: 100;
-    left: 0; 
-    top: 0; 
-    right: 0; 
-    bottom: 0;
-    width: 100vw; 
-    height: 100vh;
-    background: rgba(0,0,0,0.6) !important;
-}
-
-.date-picker-content {
-    background: #fff;
-    border-radius: 9px;
-    margin: 50px auto;
-    max-width: 320px;
-    width: 95vw;
-    padding: 24px;
-    position: relative;
-    top: 50%;
-    transform: translateY(-50%);
-    box-shadow: 0 5px 16px rgba(0,0,0,0.3);
-}
-
-#prev-month, #next-month {
-    cursor: pointer;
-    padding: 4px 10px;
-    background-color: #e3f0ff;
-    border-radius: 3px;
-    font-weight: bold;
-    color: #1976d2;
-}
-
-#month-title {
-    font-weight: bold;
-    font-size: 1.2em;
-    flex: none;
-}
-
-#prev-month { 
-    order: 0; 
-}
-
-#month-title { 
-    order: 1; 
-}
-
-#next-month { 
-    order: 2; 
-}
-
-/* === РЕГУЛЯРНЫЕ СОБЫТИЯ (МОДАЛЬНОЕ ОКНО) === */
-#regular-event-details {
-    padding: 20px 25px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-#regular-event-modal-title {
-    font-size: 1.4em;
-    font-weight: 600;
-    margin-bottom: 5px;
-    color: #222;
-}
-
-#regular-event-details p {
-    font-size: 1em;
-    margin: 0;
-    color: #333;
-}
-
-#regular-event-details p strong {
-    color: #1976d2;
-    font-weight: bold;
-}
-
-/* === АДАПТИВНОСТЬ === */
-@media (max-width: 1100px) {
-    .main-content {
-        flex-direction: column;
-    }
-    .pomodoro-sidebar {
-        width: 100%;
-        margin-top: 20px;
-    }
-}
-
-/* === СКРОЛЛБАР === */
-#week-grid-scroll-container::-webkit-scrollbar {
-    width: 8px;
-}
-
-#week-grid-scroll-container::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-
-#week-grid-scroll-container::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 4px;
-}
-
 import { db } from './supabase';
 import { storage } from './storage';
 import { elements, initializeElements } from './dom-elements';
@@ -1576,7 +630,13 @@ function renderEvents(events, weekStart) {
                     <div class="event-title">${event.title || 'Без названия'}</div>
                 </div>
             `;
-            
+
+            eventElement.addEventListener('click', (e) => {
+                e.stopPropagation(); // Останавливаем всплытие, чтобы не сработал клик на ячейке часа
+                console.log(`Клик по событию ID: ${event.id}`);
+                openEventModal(event.id); // Открываем модалку для редактирования
+            });
+
             const dayColumn = document.querySelector(`.day-column[data-date="${formatDate(eventDate)}"]`);
             if (dayColumn) {
                 dayColumn.appendChild(eventElement);
@@ -1589,64 +649,6 @@ function renderEvents(events, weekStart) {
         }
     });
 }
-
-// ==== Инициализация ====
-document.addEventListener('DOMContentLoaded', async () => {
-    console.log("DOM полностью загружен, начинаем инициализацию...");
-
-    await initialLoad();
-
-    // Слушатель изменений в storage только если мы в контексте расширения
-    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
-        storage.onChanged.addListener(async (changes, area) => {
-            if (area === "local") {
-                let eventsRefreshNeeded = false;
-                let projectsRefreshNeeded = false;
-                let dayHeadersRefreshNeeded = false;
-                let projectStatsRefreshNeeded = false;
-
-                if ('calendarEvents' in changes) {
-                    calendarEvents = changes.calendarEvents.newValue || [];
-                    console.log("[ON CHANGED] calendarEvents changed, new count:", calendarEvents.length);
-                    eventsRefreshNeeded = true;
-                    projectStatsRefreshNeeded = true; 
-                }
-                if ('projects' in changes) {
-                    projects = changes.projects.newValue || [];
-                    projectsRefreshNeeded = true;
-                    projectStatsRefreshNeeded = true; 
-                }
-                if ('selectedProjectId' in changes) {
-                    selectedProjectId = changes.selectedProjectId.newValue || null;
-                    projectStatsRefreshNeeded = true;
-                    if (selectProjectSel) selectProjectSel.value = selectedProjectId || "";
-                }
-                if (ALL_DAY_DETAILS_KEY in changes) {
-                    allDayDetailsData = changes[ALL_DAY_DETAILS_KEY].newValue || {};
-                    dayHeadersRefreshNeeded = true;
-                }
-
-                // Apply refreshes
-                if (projectsRefreshNeeded) {
-                    renderProjectSelectAndList();
-                    renderProjectsList();
-                }
-                if (eventsRefreshNeeded) {
-                    renderEvents();
-                }
-                if (dayHeadersRefreshNeeded) {
-                    renderDaysHeader(currentWeekStart);
-                }
-                if (projectStatsRefreshNeeded) {
-                    renderProjectStats(selectedProjectId);
-                }
-            }
-        });
-    }
-
-    // ... existing code ...
-}); // Закрываем DOMContentLoaded
-
 
 // UI / DOM
 const timerDisplay = document.getElementById('sidebar-timer-display');
@@ -2751,194 +1753,6 @@ async function handleRegularEventToggle(instanceId, newCompletionState) {
     storage.set({ calendarEvents });
 }
 
-
-function initializeEventHandlers() {
-    // Обработчики для кнопок навигации по неделям
-    const prevWeekBtn = document.getElementById('prev-week');
-    const currentWeekBtn = document.getElementById('current-week');
-    const nextWeekBtn = document.getElementById('next-week');
-    
-    if (prevWeekBtn) {
-        prevWeekBtn.addEventListener('click', () => {
-            currentDate.setDate(currentDate.getDate() - 7);
-            currentWeekStart = getStartOfWeek(currentDate);
-            renderDaysHeader(currentWeekStart);
-            renderWeekGrid(currentWeekStart);
-            renderEvents(calendarEvents, currentWeekStart);
-        });
-    }
-    
-    if (currentWeekBtn) {
-        currentWeekBtn.addEventListener('click', () => {
-            currentDate = new Date();
-            currentDate.setHours(0, 0, 0, 0);
-            currentWeekStart = getStartOfWeek(currentDate);
-            renderDaysHeader(currentWeekStart);
-            renderWeekGrid(currentWeekStart);
-            renderEvents(calendarEvents, currentWeekStart);
-        });
-    }
-    
-    if (nextWeekBtn) {
-        nextWeekBtn.addEventListener('click', () => {
-            currentDate.setDate(currentDate.getDate() + 7);
-            currentWeekStart = getStartOfWeek(currentDate);
-            renderDaysHeader(currentWeekStart);
-            renderWeekGrid(currentWeekStart);
-            renderEvents(calendarEvents, currentWeekStart);
-        });
-    }
-    
-    // Обработчики для модального окна деталей дня
-    const dayDetailModal = document.getElementById('day-detail-modal');
-    const closeDayDetailBtn = document.getElementById('close-day-detail');
-    const saveDayDetailBtn = document.getElementById('save-day-detail');
-    
-    if (closeDayDetailBtn) {
-        closeDayDetailBtn.addEventListener('click', closeDayDetailModal);
-    }
-    
-    if (saveDayDetailBtn) {
-        saveDayDetailBtn.addEventListener('click', async () => {
-            const modal = document.getElementById('day-detail-modal');
-            const date = modal.dataset.date;
-            
-            if (!date) {
-                console.error('[SAVE DAY DETAIL] Дата не указана');
-                return;
-            }
-            
-            const notesInput = document.getElementById('day-notes');
-            const moodSelect = document.getElementById('day-mood');
-            const productivitySelect = document.getElementById('day-productivity');
-            
-            const detailsToSave = {
-                notes: notesInput ? notesInput.value : '',
-                mood: moodSelect ? moodSelect.value : 'neutral',
-                productivity: productivitySelect ? productivitySelect.value : 'medium'
-            };
-            
-            try {
-                await saveDayDetails(date, detailsToSave);
-                closeDayDetailModal();
-            } catch (error) {
-                console.error('[SAVE DAY DETAIL] Ошибка при сохранении:', error);
-                alert('Ошибка при сохранении деталей дня: ' + error.message);
-            }
-        });
-    }
-    
-    // Обработчики для модального окна событий
-    const eventModal = document.getElementById('event-modal');
-    const closeEventBtn = document.getElementById('close-event');
-    const saveEventBtn = document.getElementById('save-event');
-    const deleteEventBtn = document.getElementById('delete-event');
-    
-    if (closeEventBtn) {
-        closeEventBtn.addEventListener('click', closeEventModal);
-    }
-    
-    if (saveEventBtn) {
-        saveEventBtn.addEventListener('click', async () => {
-            const modal = document.getElementById('event-modal');
-            const eventId = modal.dataset.eventId;
-            const eventDate = modal.dataset.eventDate;
-            
-            if (!eventDate) {
-                console.error('[SAVE EVENT] Дата события не указана');
-                return;
-            }
-            
-            const titleInput = document.getElementById('event-title');
-            const startTimeInput = document.getElementById('event-start');
-            const endTimeInput = document.getElementById('event-end');
-            const projectSelect = document.getElementById('select-project');
-            
-            const eventData = {
-                title: titleInput ? titleInput.value : '',
-                start_time: startTimeInput ? startTimeInput.value : '',
-                end_time: endTimeInput ? endTimeInput.value : '',
-                project_id: projectSelect ? projectSelect.value : '',
-                date: eventDate
-            };
-            
-            try {
-                await saveEvent(eventData);
-                closeEventModal();
-            } catch (error) {
-                console.error('[SAVE EVENT] Ошибка при сохранении:', error);
-                alert('Ошибка при сохранении события: ' + error.message);
-            }
-        });
-    }
-    
-    if (deleteEventBtn) {
-        deleteEventBtn.addEventListener('click', async () => {
-            const modal = document.getElementById('event-modal');
-            const eventId = modal.dataset.eventId;
-            
-            if (!eventId) {
-                console.error('[DELETE EVENT] ID события не указан');
-                return;
-            }
-            
-            if (confirm('Вы уверены, что хотите удалить это событие?')) {
-                try {
-                    await deleteEvent(eventId);
-                    closeEventModal();
-                } catch (error) {
-                    console.error('[DELETE EVENT] Ошибка при удалении:', error);
-                    alert('Ошибка при удалении события: ' + error.message);
-                }
-            }
-        });
-    }
-    
-    // Обработчики для сетки времени
-    const timeGrid = document.getElementById('time-grid');
-    if (timeGrid) {
-        timeGrid.addEventListener('click', (e) => {
-            const hourCell = e.target.closest('.hour-cell');
-            if (hourCell) {
-                const hour = parseFloat(hourCell.dataset.hour);
-                const dateStr = hourCell.closest('.day-column').dataset.date;
-                if (!isNaN(hour) && dateStr) {
-                    openEventModal(null, dateStr, hour);
-                }
-            }
-        });
-    }
-}
-
-// Инициализация после загрузки DOM
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('=== Проверка элементов при инициализации ===');
-    console.log('regular-event-time до инициализации:', document.getElementById('regular-event-time'));
-    console.log('regular-event-name до инициализации:', document.getElementById('regular-event-name'));
-    
-    // Проверяем родительский контейнер
-    const container = document.querySelector('.regular-event-management');
-    console.log('Контейнер регулярных событий:', container);
-    if (container) {
-        console.log('HTML контейнера:', container.innerHTML);
-    }
-    
-    initializeEventHandlers(); // ЭТОТ ВЫЗОВ ДОЛЖЕН БЫТЬ ПЕРВЫМ
-    initialLoad();
-    
-    // Проверяем состояние после инициализации
-    console.log('=== Состояние после инициализации ===');
-    console.log('regular-event-time после инициализации:', document.getElementById('regular-event-time'));
-    console.log('regular-event-name после инициализации:', document.getElementById('regular-event-name'));
-    
-    // Проверяем родительский контейнер снова
-    const containerAfter = document.querySelector('.regular-event-management');
-    console.log('Контейнер регулярных событий после инициализации:', containerAfter);
-    if (containerAfter) {
-        console.log('HTML контейнера после инициализации:', containerAfter.innerHTML);
-    }
-});
-
 function updateTotalCaloriesDisplay() {
     if (!elements.totalCaloriesValueSpan || !elements.caloriesMorningInput || 
         !elements.caloriesAfternoonInput || !elements.caloriesEveningInput) return;
@@ -2975,7 +1789,6 @@ async function initialLoad() {
         renderDaysHeader(currentWeekStart); // Сначала рендерим заголовки дней
         renderWeekGrid(currentWeekStart);
         renderTimeSlots();
-        renderEvents(calendarEvents, currentWeekStart);
         scrollToWorkingHours();
         
         console.log('[INITIAL LOAD] initialLoad завершен.');
@@ -3145,3 +1958,97 @@ async function saveDayDetails(date, detailsToSave) {
         throw error;
     }
 }
+
+// ==== ЕДИНАЯ ТОЧКА ВХОДА ====
+
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("DOM загружен. Начинаем единую инициализацию...");
+
+    // 1. Инициализируем обработчики событий (клики по кнопкам, сетке и т.д.)
+    initializeAllEventListeners(); 
+
+    // 2. Загружаем данные и рендерим интерфейс
+    // Эта функция уже содержит всё необходимое для первоначальной отрисовки
+    initialLoad(); 
+
+    console.log("Единая инициализация завершена.");
+});
+
+// Новая функция для сбора всех обработчиков в одном месте
+function initializeAllEventListeners() {
+    console.log("Назначение всех обработчиков событий...");
+
+    // Кнопки навигации по неделям
+    document.getElementById('prev-week')?.addEventListener('click', () => {
+        currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+        refreshCalendarView();
+    });
+    document.getElementById('current-week')?.addEventListener('click', () => {
+        currentWeekStart = getStartOfWeek(new Date());
+        refreshCalendarView();
+    });
+    document.getElementById('next-week')?.addEventListener('click', () => {
+        currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+        refreshCalendarView();
+    });
+    
+    // Кнопки открытия модальных окон
+    document.getElementById('open-date-picker')?.addEventListener('click', openDatePicker);
+
+    // Обработчик клика по сетке для СОЗДАНИЯ новых событий
+    // Важно: вешаем на родительский контейнер week-grid
+    const weekGrid = document.getElementById('week-grid');
+    if (weekGrid) {
+        weekGrid.addEventListener('click', (e) => {
+            // Если клик был по самому событию, то ничего не делаем
+            // (у события будет свой обработчик)
+            if (e.target.closest('.calendar-event')) {
+                return;
+            }
+
+            // Если клик был по ячейке часа
+            const hourCell = e.target.closest('.hour-cell');
+            if (hourCell) {
+                const hour = parseFloat(hourCell.dataset.hour);
+                const dayColumn = hourCell.closest('.day-column');
+                const dateStr = dayColumn ? dayColumn.dataset.date : null;
+                
+                if (!isNaN(hour) && dateStr) {
+                    console.log(`Клик для создания события: Дата=${dateStr}, Час=${hour}`);
+                    openEventModal(null, dateStr, hour);
+                }
+            }
+        });
+    }
+
+    // Обработчик сохранения события в модальном окне
+    document.getElementById('save-event')?.addEventListener('click', async (e) => {
+        e.preventDefault();
+        // Здесь оставляем существующую логику из вашего обработчика saveEventBtn
+        // ... (код из вашего `saveEventBtn.addEventListener`)
+    });
+
+    // Добавьте сюда остальные обработчики (удаление, отмена, проекты и т.д.)
+    // Например:
+    document.getElementById('delete-event')?.addEventListener('click', async() => { /* ... */ });
+    document.getElementById('cancel-event')?.addEventListener('click', closeEventModal);
+    document.getElementById('add-project')?.addEventListener('click', async () => { /* ... */ });
+
+    // Универсальные обработчики закрытия модальных окон
+    document.querySelectorAll('.close-modal').forEach(btn => {
+        btn.addEventListener('click', function() {
+            this.closest('.modal, .date-picker-modal, .day-detail-modal').style.display = 'none';
+        });
+    });
+
+    console.log("Все обработчики событий назначены.");
+}
+
+// Новая функция для обновления всего вида календаря
+function refreshCalendarView() {
+    console.log("Обновление вида календаря для недели, начинающейся с", currentWeekStart);
+    renderDaysHeader(currentWeekStart);
+    renderWeekGrid(currentWeekStart); // Эта функция уже вызывает renderEvents
+}
+
+// Также удалите функцию initializeEventHandlers(), она больше не нужна в старом виде.
