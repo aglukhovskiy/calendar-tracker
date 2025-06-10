@@ -2,6 +2,11 @@ import { db } from './supabase';
 import { storage } from './storage';
 import { elements, initializeElements } from './dom-elements';
 
+// Инициализация Supabase
+const supabaseUrl = 'https://your-project.supabase.co';
+const supabaseKey = 'your-anon-key';
+const supabase = db.createClient(supabaseUrl, supabaseKey);
+
 // === GLOBALS ===
 let projects = [];
 let calendarEvents = [];
@@ -2172,18 +2177,8 @@ async function loadDayDetails(dateStr) {
     console.log('[LOAD DAY DETAILS] Загрузка деталей для дня:', dateStr);
     
     try {
-        const { data, error } = await supabase
-            .from('day_details')
-            .select('*')
-            .eq('date', dateStr)
-            .single();
-            
-        if (error) {
-            console.error('[LOAD DAY DETAILS] Ошибка при загрузке деталей:', error);
-            return {};
-        }
-        
-        return data || {};
+        const details = await db.getDayDetails(dateStr);
+        return details || {};
     } catch (error) {
         console.error('[LOAD DAY DETAILS] Ошибка при загрузке деталей:', error);
         return {};
@@ -2194,17 +2189,7 @@ async function saveDayDetails(date, detailsToSave) {
     console.log('[SAVE DAY DETAILS] Сохранение деталей для дня:', date, detailsToSave);
     
     try {
-        const { error } = await supabase
-            .from('day_details')
-            .upsert({
-                date: date,
-                ...detailsToSave
-            });
-            
-        if (error) {
-            throw error;
-        }
-        
+        await db.saveDayDetails(date, detailsToSave);
         console.log('[SAVE DAY DETAILS] Детали успешно сохранены');
     } catch (error) {
         console.error('[SAVE DAY DETAILS] Ошибка при сохранении деталей:', error);
