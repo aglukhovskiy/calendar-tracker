@@ -1,6 +1,7 @@
 import { storage } from './storage';
 import { elements, initializeElements } from './dom-elements';
 import { supabase } from './supabase';
+import { db } from './supabase.js';
 
 // === GLOBALS ===
 let projects = [];
