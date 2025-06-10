@@ -10387,7 +10387,7 @@ function initializeEventHandlers() {
   }
 
   // Обработчики для сетки времени
-  const timeGrid = document.getElementById('time-grid');
+  const timeGrid = document.getElementById('week-grid');
   if (timeGrid) {
     timeGrid.addEventListener('click', e => {
       const hourCell = e.target.closest('.hour-cell');
