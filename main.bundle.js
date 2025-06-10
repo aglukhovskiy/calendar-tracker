@@ -9315,13 +9315,13 @@ const datePickerTodayBtn = document.getElementById('date-picker-today');
 const datePickerCancelBtn = document.getElementById('date-picker-cancel');
 const weekdayHeader = document.getElementById('weekday-header');
 const dayDetailModal = document.getElementById('day-detail-modal');
-const dayDetailModalDateDisplay = document.getElementById('day-detail-date');
+const dayDetailModalDateDisplay = document.getElementById('day-detail-modal-date-display');
 const caloriesMorningInput = document.getElementById('calories-morning');
 const caloriesAfternoonInput = document.getElementById('calories-afternoon');
 const caloriesEveningInput = document.getElementById('calories-evening');
 const commentInput = document.getElementById('day-comment');
-const saveDayDetailsBtn = document.getElementById('save-day-details');
-const cancelDayDetailsBtn = document.getElementById('cancel-day-details');
+const saveDayDetailsBtn = document.getElementById('day-detail-save');
+const cancelDayDetailsBtn = document.getElementById('day-detail-cancel');
 const totalCaloriesValueSpan = document.getElementById('total-calories-value');
 const regularEventDetails = document.getElementById('regular-event-details');
 const regularEventModalTitle = document.getElementById('regular-event-modal-title');
@@ -10354,92 +10354,36 @@ function initializeEventHandlers() {
 
   // Обработчики для модального окна деталей дня
   const dayDetailModal = document.getElementById('day-detail-modal');
-  const closeDayDetailBtn = document.getElementById('close-day-detail');
-  const saveDayDetailBtn = document.getElementById('save-day-detail');
+  const closeDayDetailBtn = dayDetailModal.querySelector('.close-modal');
+  const saveDayDetailBtn = document.getElementById('day-detail-save');
+  const cancelDayDetailBtn = document.getElementById('day-detail-cancel');
   if (closeDayDetailBtn) {
     closeDayDetailBtn.addEventListener('click', closeDayDetailModal);
   }
   if (saveDayDetailBtn) {
-    saveDayDetailBtn.addEventListener('click', async () => {
-      const modal = document.getElementById('day-detail-modal');
-      const date = modal.dataset.date;
-      if (!date) {
-        console.error('[SAVE DAY DETAIL] Дата не указана');
-        return;
-      }
-      const notesInput = document.getElementById('day-notes');
-      const moodSelect = document.getElementById('day-mood');
-      const productivitySelect = document.getElementById('day-productivity');
-      const detailsToSave = {
-        notes: notesInput ? notesInput.value : '',
-        mood: moodSelect ? moodSelect.value : 'neutral',
-        productivity: productivitySelect ? productivitySelect.value : 'medium'
-      };
-      try {
-        await saveDayDetails(date, detailsToSave);
-        closeDayDetailModal();
-      } catch (error) {
-        console.error('[SAVE DAY DETAIL] Ошибка при сохранении:', error);
-        alert('Ошибка при сохранении деталей дня: ' + error.message);
-      }
-    });
+    saveDayDetailBtn.addEventListener('click', saveDayDetails);
+  }
+  if (cancelDayDetailBtn) {
+    cancelDayDetailBtn.addEventListener('click', closeDayDetailModal);
   }
 
   // Обработчики для модального окна событий
   const eventModal = document.getElementById('event-modal');
-  const closeEventBtn = document.getElementById('close-event');
+  const closeEventBtn = eventModal.querySelector('.close-modal');
   const saveEventBtn = document.getElementById('save-event');
   const deleteEventBtn = document.getElementById('delete-event');
+  const cancelEventBtn = document.getElementById('cancel-event');
   if (closeEventBtn) {
     closeEventBtn.addEventListener('click', closeEventModal);
   }
   if (saveEventBtn) {
-    saveEventBtn.addEventListener('click', async () => {
-      const modal = document.getElementById('event-modal');
-      const eventId = modal.dataset.eventId;
-      const eventDate = modal.dataset.eventDate;
-      if (!eventDate) {
-        console.error('[SAVE EVENT] Дата события не указана');
-        return;
-      }
-      const titleInput = document.getElementById('event-title');
-      const startTimeInput = document.getElementById('event-start');
-      const endTimeInput = document.getElementById('event-end');
-      const projectSelect = document.getElementById('select-project');
-      const eventData = {
-        title: titleInput ? titleInput.value : '',
-        start_time: startTimeInput ? startTimeInput.value : '',
-        end_time: endTimeInput ? endTimeInput.value : '',
-        project_id: projectSelect ? projectSelect.value : '',
-        date: eventDate
-      };
-      try {
-        await saveEvent(eventData);
-        closeEventModal();
-      } catch (error) {
-        console.error('[SAVE EVENT] Ошибка при сохранении:', error);
-        alert('Ошибка при сохранении события: ' + error.message);
-      }
-    });
+    saveEventBtn.addEventListener('click', saveEvent);
   }
   if (deleteEventBtn) {
-    deleteEventBtn.addEventListener('click', async () => {
-      const modal = document.getElementById('event-modal');
-      const eventId = modal.dataset.eventId;
-      if (!eventId) {
-        console.error('[DELETE EVENT] ID события не указан');
-        return;
-      }
-      if (confirm('Вы уверены, что хотите удалить это событие?')) {
-        try {
-          await deleteEvent(eventId);
-          closeEventModal();
-        } catch (error) {
-          console.error('[DELETE EVENT] Ошибка при удалении:', error);
-          alert('Ошибка при удалении события: ' + error.message);
-        }
-      }
-    });
+    deleteEventBtn.addEventListener('click', deleteEvent);
+  }
+  if (cancelEventBtn) {
+    cancelEventBtn.addEventListener('click', closeEventModal);
   }
 
   // Обработчики для сетки времени
