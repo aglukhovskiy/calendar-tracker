@@ -10152,10 +10152,18 @@ async function saveEvent(eventData) {
     if (!eventDate) {
       throw new Error('Дата события не указана');
     }
+
+    // Создаем объект только с нужными полями
     const eventDataToSave = {
-      ...eventData,
+      id: eventId || generateUUID(),
+      title: eventData.title,
+      description: eventData.description || '',
       date: eventDate,
-      id: eventId || generateUUID()
+      start_time: eventData.startTime.split('T')[1],
+      end_time: eventData.endTime.split('T')[1],
+      project_id: eventData.project_id || null,
+      type: eventData.type || 'event',
+      is_live: false
     };
     if (eventId) {
       // Обновление существующего события
