@@ -8303,7 +8303,7 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
 }
 
 // Initialize Supabase client
-const supabase_supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 console.log('[SUPABASE] Client initialized successfully');
 
 // Database operations
@@ -8315,7 +8315,7 @@ const db = {
       const {
         data,
         error
-      } = await supabase_supabase.from('events').select('*').eq('date', date);
+      } = await supabase.from('events').select('*').eq('date', date);
       if (error) {
         console.error('Error fetching events:', error);
         throw error;
@@ -8331,7 +8331,7 @@ const db = {
     const {
       data,
       error
-    } = await supabase_supabase.from('events').insert([event]).select();
+    } = await supabase.from('events').insert([event]).select();
     if (error) throw error;
     return data[0];
   },
@@ -8339,14 +8339,14 @@ const db = {
     const {
       data,
       error
-    } = await supabase_supabase.from('events').update(updates).eq('id', id).select();
+    } = await supabase.from('events').update(updates).eq('id', id).select();
     if (error) throw error;
     return data[0];
   },
   async deleteEvent(id) {
     const {
       error
-    } = await supabase_supabase.from('events').delete().eq('id', id);
+    } = await supabase.from('events').delete().eq('id', id);
     if (error) throw error;
   },
   // Pomodoro sessions
@@ -8354,7 +8354,7 @@ const db = {
     const {
       data,
       error
-    } = await supabase_supabase.from('pomodoro_sessions').select('*').eq('date', date);
+    } = await supabase.from('pomodoro_sessions').select('*').eq('date', date);
     if (error) throw error;
     return data;
   },
@@ -8362,7 +8362,7 @@ const db = {
     const {
       data,
       error
-    } = await supabase_supabase.from('pomodoro_sessions').insert([session]).select();
+    } = await supabase.from('pomodoro_sessions').insert([session]).select();
     if (error) throw error;
     return data[0];
   },
@@ -8373,7 +8373,7 @@ const db = {
       const {
         data,
         error
-      } = await supabase_supabase.from('projects').select('*');
+      } = await supabase.from('projects').select('*');
       if (error) {
         console.error('Error fetching projects:', error);
         throw error;
@@ -8389,14 +8389,14 @@ const db = {
     const {
       data,
       error
-    } = await supabase_supabase.from('projects').insert([project]).select();
+    } = await supabase.from('projects').insert([project]).select();
     if (error) throw error;
     return data[0];
   },
   async deleteProject(projectId) {
     const {
       error
-    } = await supabase_supabase.from('projects').delete().eq('id', projectId);
+    } = await supabase.from('projects').delete().eq('id', projectId);
     if (error) throw error;
     return true;
   },
@@ -8414,7 +8414,7 @@ const db = {
       const {
         data,
         error
-      } = await supabase_supabase.from('calendar_events').select('*').gte('date', startDateISO).lte('date', endDateISO).order('date', {
+      } = await supabase.from('calendar_events').select('*').gte('date', startDateISO).lte('date', endDateISO).order('date', {
         ascending: true
       }).order('start_time', {
         ascending: true
@@ -8434,7 +8434,7 @@ const db = {
     const {
       data,
       error
-    } = await supabase_supabase.from('calendar_events').insert([eventData]).select().single();
+    } = await supabase.from('calendar_events').insert([eventData]).select().single();
     if (error) throw error;
     return data;
   },
@@ -8442,14 +8442,14 @@ const db = {
     const {
       data,
       error
-    } = await supabase_supabase.from('calendar_events').update(eventData).eq('id', eventId).select().single();
+    } = await supabase.from('calendar_events').update(eventData).eq('id', eventId).select().single();
     if (error) throw error;
     return data;
   },
   async deleteCalendarEvent(eventId) {
     const {
       error
-    } = await supabase_supabase.from('calendar_events').delete().eq('id', eventId);
+    } = await supabase.from('calendar_events').delete().eq('id', eventId);
     if (error) throw error;
     return true;
   },
@@ -8458,7 +8458,7 @@ const db = {
     const {
       data,
       error
-    } = await supabase_supabase.from('day_details').select('*').eq('date', date).single();
+    } = await supabase.from('day_details').select('*').eq('date', date).single();
     if (error && error.code !== 'PGRST116') throw error;
     return data || null;
   },
@@ -8466,7 +8466,7 @@ const db = {
     const {
       data,
       error
-    } = await supabase_supabase.from('day_details').upsert([dayData], {
+    } = await supabase.from('day_details').upsert([dayData], {
       onConflict: 'date'
     }).select().single();
     if (error) throw error;
@@ -8476,21 +8476,21 @@ const db = {
   async syncCalendarData() {
     const {
       data: syncData
-    } = await supabase_supabase.from('sync_status').select('last_sync').single();
+    } = await supabase.from('sync_status').select('last_sync').single();
     const lastSync = syncData?.last_sync || new Date(0).toISOString();
     const {
       data: events,
       error: eventsError
-    } = await supabase_supabase.from('calendar_events').select('*').gt('updated_at', lastSync);
+    } = await supabase.from('calendar_events').select('*').gt('updated_at', lastSync);
     if (eventsError) throw eventsError;
-    await supabase_supabase.from('sync_status').upsert([{
+    await supabase.from('sync_status').upsert([{
       last_sync: new Date().toISOString()
     }]);
     return events || [];
   },
   // Export/Import
   async exportCalendarData(startDate, endDate) {
-    const [events, dayDetails] = await Promise.all([this.getCalendarEvents(startDate, endDate), supabase_supabase.from('day_details').select('*').gte('date', startDate).lte('date', endDate).then(({
+    const [events, dayDetails] = await Promise.all([this.getCalendarEvents(startDate, endDate), supabase.from('day_details').select('*').gte('date', startDate).lte('date', endDate).then(({
       data
     }) => data || [])]);
     return {
@@ -8506,7 +8506,7 @@ const db = {
     if (events && events.length > 0) {
       const {
         error: eventsError
-      } = await supabase_supabase.from('calendar_events').upsert(events, {
+      } = await supabase.from('calendar_events').upsert(events, {
         onConflict: 'id'
       });
       if (eventsError) throw eventsError;
@@ -8514,7 +8514,7 @@ const db = {
     if (dayDetails && dayDetails.length > 0) {
       const {
         error: detailsError
-      } = await supabase_supabase.from('day_details').upsert(dayDetails, {
+      } = await supabase.from('day_details').upsert(dayDetails, {
         onConflict: 'date'
       });
       if (detailsError) throw detailsError;
@@ -8625,6 +8625,11 @@ function initializeElements() {
 
 
 
+
+// Инициализация Supabase
+const supabaseUrl = 'https://your-project.supabase.co';
+const supabaseKey = 'your-anon-key';
+const main_page_supabase = db.createClient(supabaseUrl, supabaseKey);
 
 // === GLOBALS ===
 let projects = [];
@@ -10603,15 +10608,8 @@ async function openDayDetailModal(dateStr) {
 async function loadDayDetails(dateStr) {
   console.log('[LOAD DAY DETAILS] Загрузка деталей для дня:', dateStr);
   try {
-    const {
-      data,
-      error
-    } = await supabase.from('day_details').select('*').eq('date', dateStr).single();
-    if (error) {
-      console.error('[LOAD DAY DETAILS] Ошибка при загрузке деталей:', error);
-      return {};
-    }
-    return data || {};
+    const details = await db.getDayDetails(dateStr);
+    return details || {};
   } catch (error) {
     console.error('[LOAD DAY DETAILS] Ошибка при загрузке деталей:', error);
     return {};
@@ -10620,15 +10618,7 @@ async function loadDayDetails(dateStr) {
 async function saveDayDetails(date, detailsToSave) {
   console.log('[SAVE DAY DETAILS] Сохранение деталей для дня:', date, detailsToSave);
   try {
-    const {
-      error
-    } = await supabase.from('day_details').upsert({
-      date: date,
-      ...detailsToSave
-    });
-    if (error) {
-      throw error;
-    }
+    await db.saveDayDetails(date, detailsToSave);
     console.log('[SAVE DAY DETAILS] Детали успешно сохранены');
   } catch (error) {
     console.error('[SAVE DAY DETAILS] Ошибка при сохранении деталей:', error);
