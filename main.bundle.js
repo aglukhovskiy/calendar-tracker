@@ -10481,7 +10481,7 @@ async function initialLoad() {
     renderDaysHeader(currentWeekStart);
     console.log('[INITIAL LOAD] renderDaysHeader выполнен');
     console.log('[INITIAL LOAD] Loading events from', startDate, 'to', endDate);
-    calendarEvents = await supabase.getCalendarEvents(startDate, endDate);
+    calendarEvents = await db.getCalendarEvents(startDate, endDate);
     console.log('[INITIAL LOAD] Calendar events loaded:', calendarEvents);
 
     // Рендеринг UI
