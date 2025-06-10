@@ -9197,7 +9197,30 @@ function renderEvents(events, weekStart) {
 // ==== Инициализация ====
 document.addEventListener('DOMContentLoaded', async () => {
   console.log("DOM полностью загружен, начинаем инициализацию...");
+  console.log('=== Проверка элементов при инициализации ===');
+  console.log('regular-event-time до инициализации:', document.getElementById('regular-event-time'));
+  console.log('regular-event-name до инициализации:', document.getElementById('regular-event-name'));
+
+  // Проверяем родительский контейнер
+  const container = document.querySelector('.regular-event-management');
+  console.log('Контейнер регулярных событий:', container);
+  if (container) {
+    console.log('HTML контейнера:', container.innerHTML);
+  }
+  initializeEventHandlers(); // ЭТОТ ВЫЗОВ ДОЛЖЕН БЫТЬ ПЕРВЫМ
   await initialLoad();
+
+  // Проверяем состояние после инициализации
+  console.log('=== Состояние после инициализации ===');
+  console.log('regular-event-time после инициализации:', document.getElementById('regular-event-time'));
+  console.log('regular-event-name после инициализации:', document.getElementById('regular-event-name'));
+
+  // Проверяем родительский контейнер снова
+  const containerAfter = document.querySelector('.regular-event-management');
+  console.log('Контейнер регулярных событий после инициализации:', containerAfter);
+  if (containerAfter) {
+    console.log('HTML контейнера после инициализации:', containerAfter.innerHTML);
+  }
 
   // Слушатель изменений в storage только если мы в контексте расширения
   if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
@@ -9245,9 +9268,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
   }
-
-  // ... existing code ...
-}); // Закрываем DOMContentLoaded
+});
 
 // UI / DOM
 const timerDisplay = document.getElementById('sidebar-timer-display');
@@ -10430,34 +10451,6 @@ function initializeEventHandlers() {
     });
   }
 }
-
-// Инициализация после загрузки DOM
-document.addEventListener('DOMContentLoaded', () => {
-  console.log('=== Проверка элементов при инициализации ===');
-  console.log('regular-event-time до инициализации:', document.getElementById('regular-event-time'));
-  console.log('regular-event-name до инициализации:', document.getElementById('regular-event-name'));
-
-  // Проверяем родительский контейнер
-  const container = document.querySelector('.regular-event-management');
-  console.log('Контейнер регулярных событий:', container);
-  if (container) {
-    console.log('HTML контейнера:', container.innerHTML);
-  }
-  initializeEventHandlers(); // ЭТОТ ВЫЗОВ ДОЛЖЕН БЫТЬ ПЕРВЫМ
-  initialLoad();
-
-  // Проверяем состояние после инициализации
-  console.log('=== Состояние после инициализации ===');
-  console.log('regular-event-time после инициализации:', document.getElementById('regular-event-time'));
-  console.log('regular-event-name после инициализации:', document.getElementById('regular-event-name'));
-
-  // Проверяем родительский контейнер снова
-  const containerAfter = document.querySelector('.regular-event-management');
-  console.log('Контейнер регулярных событий после инициализации:', containerAfter);
-  if (containerAfter) {
-    console.log('HTML контейнера после инициализации:', containerAfter.innerHTML);
-  }
-});
 function updateTotalCaloriesDisplay() {
   if (!elements.totalCaloriesValueSpan || !elements.caloriesMorningInput || !elements.caloriesAfternoonInput || !elements.caloriesEveningInput) return;
   const morning = parseInt(elements.caloriesMorningInput.value) || 0;
