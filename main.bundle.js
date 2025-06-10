@@ -9644,10 +9644,10 @@ function renderProjectStats(projId) {
 function renderDaysHeader(weekStart) {
   console.log('[RENDER DAYS HEADER] Начало выполнения функции');
   console.log('[RENDER DAYS HEADER] weekStart:', weekStart);
-  const daysHeader = document.getElementById('days-header');
+  const daysHeader = document.querySelector('.days-header');
   console.log('[RENDER DAYS HEADER] daysHeader элемент:', daysHeader);
   if (!daysHeader) {
-    console.error('[RENDER DAYS HEADER] Элемент days-header не найден!');
+    console.error('[RENDER DAYS HEADER] Элемент .days-header не найден!');
     return;
   }
   daysHeader.innerHTML = '';
