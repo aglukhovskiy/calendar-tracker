@@ -1,11 +1,6 @@
-import { db } from './supabase';
 import { storage } from './storage';
 import { elements, initializeElements } from './dom-elements';
-
-// Инициализация Supabase
-const supabaseUrl = 'https://your-project.supabase.co';
-const supabaseKey = 'your-anon-key';
-const supabase = db.createClient(supabaseUrl, supabaseKey);
+import { supabase } from './supabase';
 
 // === GLOBALS ===
 let projects = [];
@@ -330,7 +325,7 @@ async function syncLiveCalendarEvent() {
         if (!stopwatch.isSyncedWithSupabase) {
             // Если событие еще не создано в БД
             console.log("[SYNC LIVE EVENT] Создание нового live-события в Supabase...");
-            const createdEvent = await db.createCalendarEvent({
+            const createdEvent = await supabase.createCalendarEvent({
                 title: localEventData.title,
                 date: localEventData.date,
                 start_time: localEventData.startTime.split('T')[1],
@@ -359,7 +354,7 @@ async function syncLiveCalendarEvent() {
             }
         } else if (Date.now() - stopwatch.lastSupabaseSync > 15000) { // Обновляем БД не чаще чем раз в 15 секунд
             console.log(`[SYNC LIVE EVENT] Периодическое обновление live-события ${stopwatch.liveEventId} в Supabase...`);
-            await db.updateCalendarEvent(stopwatch.liveEventId, {
+            await supabase.updateCalendarEvent(stopwatch.liveEventId, {
                 end_time: localEventData.endTime.split('T')[1]
                 // Можно обновлять и title, если нужно
             });
@@ -438,7 +433,7 @@ async function stopOrPauseStopwatch(isStoppingCompletely = true) {
     if (stopwatch.isSyncedWithSupabase && stopwatch.liveEventId) {
         console.log(`[FINALIZE EVENT] Финализация события ${stopwatch.liveEventId} в Supabase...`);
         try {
-            await db.updateCalendarEvent(stopwatch.liveEventId, {
+            await supabase.updateCalendarEvent(stopwatch.liveEventId, {
                 title: finalEventTitle,
                 end_time: localIso(finalEndTime).split('T')[1],
                 is_live: false // <-- Самое важное!
@@ -450,7 +445,7 @@ async function stopOrPauseStopwatch(isStoppingCompletely = true) {
     } else if (stopwatch.liveEventId.startsWith('local-live-')) {
         console.log("[FINALIZE EVENT] Создание финализированного события, которое не успело синхронизироваться...");
         try {
-            await db.createCalendarEvent({
+            await supabase.createCalendarEvent({
                 title: finalEventTitle,
                 date: getLocalDateString(new Date(stopwatch.startTime)),
                 start_time: localIso(new Date(stopwatch.startTime)).split('T')[1],
@@ -534,7 +529,7 @@ async function loadEvents(forWeekStart) {
         
         console.log('[LOAD EVENTS] Загрузка событий с', weekStart.toISOString(), 'по', weekEnd.toISOString());
         
-        const events = await db.getCalendarEvents(weekStart, weekEnd);
+        const events = await supabase.getCalendarEvents(weekStart, weekEnd);
         console.log('[LOAD EVENTS] Загружено событий:', events.length);
         
         renderEvents(events, weekStart);
@@ -1001,7 +996,7 @@ if (addProjectBtn && newProjectNameInput) {
             };
 
             // Вызываем метод из вашего db объекта
-            const createdProject = await db.createProject(projectDataForSupabase);
+            const createdProject = await supabase.createProject(projectDataForSupabase);
 
             if (!createdProject || !createdProject.id) {
                 alert("Не удалось создать проект. Сервер не вернул данные о созданном проекте.");
@@ -1578,7 +1573,7 @@ async function openEventModal(eventId = null, dateStr = null, hour = null) {
         weekEnd.setDate(weekEnd.getDate() + 6);
         
         // Загружаем события за всю неделю
-        const events = await db.getCalendarEvents(weekStart, weekEnd);
+        const events = await supabase.getCalendarEvents(weekStart, weekEnd);
         const event = events.find(e => e.id === eventId);
             
         if (!event) {
@@ -1670,10 +1665,10 @@ async function saveEvent(eventData) {
         
         if (eventId) {
             // Обновление существующего события
-            await db.updateCalendarEvent(eventId, eventDataToSave);
+            await supabase.updateCalendarEvent(eventId, eventDataToSave);
         } else {
             // Создание нового события
-            await db.createCalendarEvent(eventDataToSave);
+            await supabase.createCalendarEvent(eventDataToSave);
         }
         
         // Перезагружаем события и обновляем отображение
@@ -2022,7 +2017,7 @@ async function initialLoad() {
         console.log('[INITIAL LOAD] Загружены конфигурации регулярных событий:', regularEventsConfig?.length || 0);
         
         // Загрузка проектов
-        projects = await db.getProjects();
+        projects = await supabase.getProjects();
         console.log('[INITIAL LOAD] Projects loaded:', projects);
 
         // Загрузка событий для текущей недели
@@ -2037,7 +2032,7 @@ async function initialLoad() {
         console.log('[INITIAL LOAD] renderDaysHeader выполнен');
         
         console.log('[INITIAL LOAD] Loading events from', startDate, 'to', endDate);
-        calendarEvents = await db.getCalendarEvents(startDate, endDate);
+        calendarEvents = await supabase.getCalendarEvents(startDate, endDate);
         console.log('[INITIAL LOAD] Calendar events loaded:', calendarEvents);
         
         // Рендеринг UI
@@ -2177,8 +2172,18 @@ async function loadDayDetails(dateStr) {
     console.log('[LOAD DAY DETAILS] Загрузка деталей для дня:', dateStr);
     
     try {
-        const details = await db.getDayDetails(dateStr);
-        return details || {};
+        const { data, error } = await supabase
+            .from('day_details')
+            .select('*')
+            .eq('date', dateStr)
+            .single();
+            
+        if (error) {
+            console.error('[LOAD DAY DETAILS] Ошибка при загрузке деталей:', error);
+            return {};
+        }
+        
+        return data || {};
     } catch (error) {
         console.error('[LOAD DAY DETAILS] Ошибка при загрузке деталей:', error);
         return {};
@@ -2189,7 +2194,17 @@ async function saveDayDetails(date, detailsToSave) {
     console.log('[SAVE DAY DETAILS] Сохранение деталей для дня:', date, detailsToSave);
     
     try {
-        await db.saveDayDetails(date, detailsToSave);
+        const { error } = await supabase
+            .from('day_details')
+            .upsert({
+                date: date,
+                ...detailsToSave
+            });
+            
+        if (error) {
+            throw error;
+        }
+        
         console.log('[SAVE DAY DETAILS] Детали успешно сохранены');
     } catch (error) {
         console.error('[SAVE DAY DETAILS] Ошибка при сохранении деталей:', error);
