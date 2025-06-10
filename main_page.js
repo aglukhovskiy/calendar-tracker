@@ -2017,7 +2017,7 @@ async function initialLoad() {
         console.log('[INITIAL LOAD] Загружены конфигурации регулярных событий:', regularEventsConfig?.length || 0);
         
         // Загрузка проектов
-        projects = await supabase.getProjects();
+        projects = await db.getProjects();
         console.log('[INITIAL LOAD] Projects loaded:', projects);
 
         // Загрузка событий для текущей недели
