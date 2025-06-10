@@ -631,6 +631,12 @@ function renderEvents(events, weekStart) {
                     <div class="event-title">${event.title || 'Без названия'}</div>
                 </div>
             `;
+
+            eventElement.addEventListener('click', (e) => {
+                e.stopPropagation(); // Останавливаем всплытие, чтобы не сработал клик на ячейке часа
+                console.log(`Клик по событию ID: ${event.id}`);
+                openEventModal(event.id); // Открываем модалку для редактирования
+            });
             
             const dayColumn = document.querySelector(`.day-column[data-date="${formatDate(eventDate)}"]`);
             if (dayColumn) {
