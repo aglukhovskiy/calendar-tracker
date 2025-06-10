@@ -8406,7 +8406,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 console.log('[SUPABASE] Client initialized successfully');
 
 // Database operations
-const supabase_db = {
+const db = {
   // Events
   async getEvents(date) {
     console.log('Fetching events for date:', date);
@@ -8622,6 +8622,7 @@ const supabase_db = {
   }
 };
 ;// ./main_page.js
+
 
 
 
