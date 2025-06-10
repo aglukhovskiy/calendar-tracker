@@ -9182,6 +9182,8 @@ function renderEvents(events, weekStart) {
                     <div class="event-title">${event.title || 'Без названия'}</div>
                 </div>
             `;
+
+      // Добавляем обработчик клика для события
       eventElement.addEventListener('click', e => {
         e.stopPropagation(); // Останавливаем всплытие, чтобы не сработал клик на ячейке часа
         console.log(`Клик по событию ID: ${event.id}`);
@@ -9195,7 +9197,7 @@ function renderEvents(events, weekStart) {
         console.error('[RENDER EVENTS] Не найден столбец для даты:', formatDate(eventDate));
       }
     } catch (error) {
-      console.error('[RENDER EVENTS] Ошибка при обработке события:', error, event);
+      console.error('[RENDER EVENTS] Ошибка при рендеринге события:', error);
     }
   });
 }
@@ -10426,19 +10428,15 @@ async function initialLoad() {
     console.log('[INITIAL LOAD] Текущая неделя:', weekDates);
     const startDate = weekDates[0];
     const endDate = weekDates[weekDates.length - 1];
-    console.log('[INITIAL LOAD] Вызов renderDaysHeader с датой:', currentWeekStart);
-    renderDaysHeader(currentWeekStart);
-    console.log('[INITIAL LOAD] renderDaysHeader выполнен');
     console.log('[INITIAL LOAD] Loading events from', startDate, 'to', endDate);
     calendarEvents = await db.getCalendarEvents(startDate, endDate);
     console.log('[INITIAL LOAD] Calendar events loaded:', calendarEvents);
 
-    // Рендеринг UI
+    // Рендеринг UI в правильном порядке
     renderProjectSelectAndList();
     renderProjectsList();
-    renderDaysHeader(currentWeekStart); // Сначала рендерим заголовки дней
-    renderWeekGrid(currentWeekStart);
-    renderTimeSlots();
+    renderDaysHeader(currentWeekStart);
+    renderWeekGrid(currentWeekStart); // Эта функция также вызывает renderTimeSlots
     renderEvents(calendarEvents, currentWeekStart);
     scrollToWorkingHours();
     console.log('[INITIAL LOAD] initialLoad завершен.');
