@@ -22,6 +22,8 @@ let allDayDetailsData = {}; // Кеш для данных о калориях и
 const ALL_DAY_DETAILS_KEY = 'allDayDetails';
 let dayDetailsManager = null; // Экземпляр класса DayDetails
 
+const HOUR_CELL_HEIGHT = 48; // Высота ячейки часа в пикселях (должна совпадать с CSS)
+
 // ==== UTILS ====
 function formatDate(date) {
     if (!(date instanceof Date) || isNaN(date.getTime())) {
@@ -65,6 +67,17 @@ function localIso(dt) {
 
 function localToDate(str) {
     return new Date(str.replace(' ', 'T'));
+}
+
+function getLocalDateString(dateObj) {
+    if (!(dateObj instanceof Date) || isNaN(dateObj.getTime())) {
+        console.error('[getLocalDateString] Передана некорректная дата:', dateObj);
+        return null;
+    }
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 }
 
 // ==== MODAL FUNCTIONS ====
@@ -292,84 +305,215 @@ function persistStopwatchState() {
 }
 // ==== Функции для работы со секундомером ====
 
-async function syncLiveCalendarEvent() {
-    if (!stopwatch.isRunning || !stopwatch.startTime) return;
+// Константы для синхронизации
+const SYNC_RETRY_DELAY = 2000; // 2 секунды
+const MAX_SYNC_RETRIES = 3;
 
-    const now = new Date();
-    const startTimeObj = new Date(stopwatch.startTime);
-
-    // Локальные данные для обновления UI и массива calendarEvents
-    const localEventData = {
-        id: stopwatch.liveEventId, // На старте это временный ID, потом будет заменен на ID из Supabase
-        title: (projects.find(p => p.id === stopwatch.projectId)?.name || 'Работа') + ` (${formatDuration(now - startTimeObj)})`,
-        date: getLocalDateString(startTimeObj),
-        startTime: localIso(startTimeObj),
-        endTime: localIso(now),
-        projectId: stopwatch.projectId,
-        type: stopwatch.projectId ? 'project' : 'event',
-        is_live: true
-    };
-
-    // --- Локальное обновление и ререндер ---
-    // Это происходит каждую секунду, обеспечивая плавный UI
-    const existingEventIndex = calendarEvents.findIndex(ev => ev.id === stopwatch.liveEventId);
-    if (existingEventIndex > -1) {
-        calendarEvents[existingEventIndex] = { ...calendarEvents[existingEventIndex], ...localEventData };
-    } else {
-        // Если локального события нет, добавляем его
-        calendarEvents.push(localEventData);
-    }
-    renderEvents(); // Перерисовываем UI мгновенно
-
-    // --- Синхронизация с Supabase ---
+// Функция для синхронизации с Supabase с повторными попытками
+async function syncWithSupabaseWithRetry(operation, retryCount = 0) {
     try {
-        if (!stopwatch.isSyncedWithSupabase) {
-            // Если событие еще не создано в БД
-            console.log("[SYNC LIVE EVENT] Создание нового live-события в Supabase...");
-            const createdEvent = await db.createCalendarEvent({
-                title: localEventData.title,
-                date: localEventData.date,
-                start_time: localEventData.startTime.split('T')[1],
-                end_time: localEventData.endTime.split('T')[1],
-                project_id: localEventData.projectId,
-                type: localEventData.type,
-                is_live: true
-            });
-
-            if (createdEvent && createdEvent.id) {
-                // Успешно создали! Обновляем ID в локальном состоянии.
-                const oldId = stopwatch.liveEventId;
-                stopwatch.liveEventId = createdEvent.id; // Заменяем временный ID на настоящий
-                stopwatch.isSyncedWithSupabase = true;  // Флаг, что событие создано в БД
-                stopwatch.lastSupabaseSync = Date.now(); // Время последней синхронизации с БД
-
-                // Заменяем ID и в локальном массиве событий
-                const eventToUpdate = calendarEvents.find(ev => ev.id === oldId);
-                if (eventToUpdate) eventToUpdate.id = stopwatch.liveEventId;
-                
-                persistStopwatchState(); // Сохраняем новое состояние секундомера с настоящим ID
-                console.log(`[SYNC LIVE EVENT] Событие создано с ID: ${stopwatch.liveEventId}`);
-            } else {
-                console.error("[SYNC LIVE EVENT] Не удалось создать live-событие в Supabase.");
-                return; // Прерываем, попробуем на следующей итерации
-            }
-        } else if (Date.now() - stopwatch.lastSupabaseSync > 15000) { // Обновляем БД не чаще чем раз в 15 секунд
-            console.log(`[SYNC LIVE EVENT] Периодическое обновление live-события ${stopwatch.liveEventId} в Supabase...`);
-            await db.updateCalendarEvent(stopwatch.liveEventId, {
-                end_time: localEventData.endTime.split('T')[1]
-                // Можно обновлять и title, если нужно
-            });
-            stopwatch.lastSupabaseSync = Date.now(); // Обновляем время синхронизации
-            persistStopwatchState();
-            console.log("[SYNC LIVE EVENT] Live-событие обновлено в Supabase.");
-        }
+        return await operation();
     } catch (error) {
-        console.error("[SYNC LIVE EVENT] Ошибка при синхронизации с Supabase:", error);
-        // В случае ошибки, isSyncedWithSupabase останется false, и мы попробуем создать снова
-        stopwatch.isSyncedWithSupabase = false;
+        console.error(`[SYNC] Ошибка синхронизации (попытка ${retryCount + 1}/${MAX_SYNC_RETRIES}):`, error);
+        
+        if (retryCount < MAX_SYNC_RETRIES - 1) {
+            console.log(`[SYNC] Повторная попытка через ${SYNC_RETRY_DELAY}мс...`);
+            await new Promise(resolve => setTimeout(resolve, SYNC_RETRY_DELAY));
+            return syncWithSupabaseWithRetry(operation, retryCount + 1);
+        }
+        
+        throw error;
     }
 }
 
+// Обновляем функцию syncLiveCalendarEvent
+async function syncLiveCalendarEvent() {
+    if (!stopwatch.isRunning || !stopwatch.liveEventId) {
+        console.log('[SYNC LIVE EVENT] Секундомер не запущен или нет активного события');
+        return;
+    }
+
+    const now = Date.now();
+    if (now - stopwatch.lastSupabaseSync < 5000) {
+        return;
+    }
+
+    console.log('[SYNC LIVE EVENT] Начало синхронизации с Supabase');
+    
+    try {
+        const elapsedMinutes = Math.floor((now - stopwatch.startTime) / 60000);
+        const event = calendarEvents.find(e => e.id === stopwatch.liveEventId);
+        
+        if (!event) {
+            console.error('[SYNC LIVE EVENT] Событие не найдено в локальном состоянии');
+            return;
+        }
+
+        await syncWithSupabaseWithRetry(async () => {
+            const { data, error } = await supabase
+                .from('calendar_events')
+                .update({
+                    duration: elapsedMinutes,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', stopwatch.liveEventId);
+
+            if (error) throw error;
+            
+            stopwatch.lastSupabaseSync = now;
+            persistStopwatchState();
+            
+            console.log('[SYNC LIVE EVENT] Синхронизация успешна');
+        });
+    } catch (error) {
+        console.error('[SYNC LIVE EVENT] Ошибка синхронизации:', error);
+        // Не выбрасываем ошибку, чтобы не прерывать работу секундомера
+    }
+}
+
+// Обновляем функцию createCalendarEvent
+async function createCalendarEvent(eventData) {
+    console.log('[CREATE EVENT] Создание события:', eventData);
+    
+    try {
+        // Проверяем обязательные поля
+        if (!eventData.title || !eventData.date || !eventData.start_time || !eventData.end_time) {
+            throw new Error('Не все обязательные поля заполнены');
+        }
+
+        // Проверяем пересечение с существующими событиями
+        const hasOverlap = calendarEvents.some(event => 
+            event.date === eventData.date && 
+            event.start_time < eventData.end_time && 
+            event.end_time > eventData.start_time
+        );
+
+        if (hasOverlap) {
+            throw new Error('Событие пересекается с существующим');
+        }
+
+        // Создаем событие в базе данных
+        const newEvent = await syncWithSupabaseWithRetry(async () => {
+            const { data, error } = await supabase
+                .from('calendar_events')
+                .insert([{
+                    ...eventData,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                }])
+                .select()
+                .single();
+
+            if (error) throw error;
+            return data;
+        });
+
+        // Добавляем в локальное состояние
+        calendarEvents.push(newEvent);
+        
+        // Перерисовываем события
+        renderEvents(calendarEvents, currentWeekStart);
+        
+        console.log('[CREATE EVENT] Событие успешно создано');
+        return newEvent;
+    } catch (error) {
+        console.error('[CREATE EVENT] Ошибка при создании события:', error);
+        throw error;
+    }
+}
+
+// Обновляем функцию updateCalendarEvent
+async function updateCalendarEvent(eventId, updates) {
+    console.log('[UPDATE EVENT] Обновление события:', { eventId, updates });
+    
+    try {
+        // Проверяем существование события
+        const eventIndex = calendarEvents.findIndex(e => e.id === eventId);
+        if (eventIndex === -1) {
+            throw new Error('Событие не найдено');
+        }
+
+        // Проверяем пересечение с другими событиями
+        if (updates.start_time || updates.end_time) {
+            const event = calendarEvents[eventIndex];
+            const startTime = updates.start_time || event.start_time;
+            const endTime = updates.end_time || event.end_time;
+            
+            const hasOverlap = calendarEvents.some((e, index) => 
+                index !== eventIndex &&
+                e.date === event.date && 
+                e.start_time < endTime && 
+                e.end_time > startTime
+            );
+
+            if (hasOverlap) {
+                throw new Error('Обновление создаст пересечение с существующим событием');
+            }
+        }
+
+        // Обновляем в базе данных
+        const updatedEvent = await syncWithSupabaseWithRetry(async () => {
+            const { data, error } = await supabase
+                .from('calendar_events')
+                .update({
+                    ...updates,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', eventId)
+                .select()
+                .single();
+
+            if (error) throw error;
+            return data;
+        });
+
+        // Обновляем локальное состояние
+        calendarEvents[eventIndex] = updatedEvent;
+        
+        // Перерисовываем события
+        renderEvents(calendarEvents, currentWeekStart);
+        
+        console.log('[UPDATE EVENT] Событие успешно обновлено');
+        return updatedEvent;
+    } catch (error) {
+        console.error('[UPDATE EVENT] Ошибка при обновлении события:', error);
+        throw error;
+    }
+}
+
+// Обновляем функцию deleteCalendarEvent
+async function deleteCalendarEvent(eventId) {
+    console.log('[DELETE EVENT] Удаление события:', eventId);
+    
+    try {
+        // Проверяем существование события
+        const eventIndex = calendarEvents.findIndex(e => e.id === eventId);
+        if (eventIndex === -1) {
+            throw new Error('Событие не найдено');
+        }
+
+        // Удаляем из базы данных
+        await syncWithSupabaseWithRetry(async () => {
+            const { error } = await supabase
+                .from('calendar_events')
+                .delete()
+                .eq('id', eventId);
+
+            if (error) throw error;
+        });
+
+        // Удаляем из локального состояния
+        calendarEvents.splice(eventIndex, 1);
+        
+        // Перерисовываем события
+        renderEvents(calendarEvents, currentWeekStart);
+        
+        console.log('[DELETE EVENT] Событие успешно удалено');
+    } catch (error) {
+        console.error('[DELETE EVENT] Ошибка при удалении события:', error);
+        throw error;
+    }
+}
 
 // Вспомогательная функция для форматирования длительности
 function formatDuration(ms) {
@@ -434,16 +578,24 @@ async function stopOrPauseStopwatch(isStoppingCompletely = true) {
     if (stopwatch.isSyncedWithSupabase && stopwatch.liveEventId) {
         console.log(`[FINALIZE EVENT] Финализация события ${stopwatch.liveEventId} в Supabase...`);
         try {
-            await db.updateCalendarEvent(stopwatch.liveEventId, {
-                title: finalEventTitle,
-                end_time: localIso(finalEndTime).split('T')[1],
-                is_live: false // <-- Самое важное!
-            });
-            console.log(`[FINALIZE EVENT] Событие успешно финализировано.`);
+            // Проверяем, не было ли событие уже финализировано
+            const existingEvent = await db.getCalendarEvent(stopwatch.liveEventId);
+            if (existingEvent && existingEvent.is_live) {
+                await db.updateCalendarEvent(stopwatch.liveEventId, {
+                    title: finalEventTitle,
+                    end_time: localIso(finalEndTime).split('T')[1],
+                    is_live: false
+                });
+                console.log(`[FINALIZE EVENT] Событие успешно финализировано.`);
+            } else {
+                console.log(`[FINALIZE EVENT] Событие уже было финализировано ранее.`);
+            }
         } catch (error) {
             console.error(`[FINALIZE EVENT] Ошибка при финализации события:`, error);
+            // Продолжаем выполнение, так как локальное состояние уже обновлено
         }
-    } else if (stopwatch.liveEventId.startsWith('local-live-')) {
+    } else if (stopwatch.startTime) {
+        // Если событие не успело синхронизироваться, создаем его как финализированное
         console.log("[FINALIZE EVENT] Создание финализированного события, которое не успело синхронизироваться...");
         try {
             await db.createCalendarEvent({
@@ -455,23 +607,20 @@ async function stopOrPauseStopwatch(isStoppingCompletely = true) {
                 type: stopwatch.projectId ? 'project' : 'event',
                 is_live: false
             });
-             console.log(`[FINALIZE EVENT] Несинхронизированное событие создано как финализированное.`);
+            console.log(`[FINALIZE EVENT] Несинхронизированное событие создано как финализированное.`);
         } catch (error) {
-             console.error(`[FINALIZE EVENT] Ошибка при создании финализированного события:`, error);
+            console.error(`[FINALIZE EVENT] Ошибка при создании финализированного события:`, error);
         }
     }
 
-    // Обновляем локальные данные. Загрузка всех событий надежнее.
-    // await loadEvents(currentWeekStart);
     // Обновляем локальные данные
     const event = calendarEvents.find(ev => ev.id === stopwatch.liveEventId);
     if (event) {
         event.endTime = localIso(finalEndTime);
-        event.is_live = false; 
-        event.isLive = false;  // Добавленная строка
+        event.is_live = false;
+        event.isLive = false;
         renderEvents();
     }
-
 
     // Сбрасываем состояние секундомера, если это полный стоп
     if (isStoppingCompletely) {
@@ -482,8 +631,8 @@ async function stopOrPauseStopwatch(isStoppingCompletely = true) {
         stopwatch.lastSupabaseSync = 0;
     }
 
-    // ИЗМЕНЕНО: Обновляем UI после всех операций
-    updateStopwatchUI(); 
+    // Обновляем UI после всех операций
+    updateStopwatchUI();
     persistStopwatchState();
 
     // Обновляем кнопки
@@ -542,15 +691,6 @@ async function loadEvents(forWeekStart) {
 function renderEvents(events, weekStart) {
     const weekDates = getWeekDates(weekStart);
     console.log('[RENDER EVENTS] Даты недели:', weekDates.map(d => formatDate(d)));
-    
-    // Получаем высоту ячейки часа
-    const hourCell = document.querySelector('.hour-cell');
-    if (!hourCell) {
-        console.error('[RENDER EVENTS] Не найдена ячейка часа для определения высоты');
-        return;
-    }
-    const HOUR_CELL_HEIGHT = hourCell.offsetHeight;
-    console.log('[RENDER EVENTS] Высота ячейки часа:', HOUR_CELL_HEIGHT);
     
     // Очищаем существующие события
     document.querySelectorAll('.calendar-event').forEach(el => el.remove());
@@ -656,79 +796,19 @@ function renderEvents(events, weekStart) {
 document.addEventListener('DOMContentLoaded', async () => {
     console.log("DOM полностью загружен, начинаем инициализацию...");
     
-    console.log('=== Проверка элементов при инициализации ===');
-    console.log('regular-event-time до инициализации:', document.getElementById('regular-event-time'));
-    console.log('regular-event-name до инициализации:', document.getElementById('regular-event-name'));
-    
-    // Проверяем родительский контейнер
-    const container = document.querySelector('.regular-event-management');
-    console.log('Контейнер регулярных событий:', container);
-    if (container) {
-        console.log('HTML контейнера:', container.innerHTML);
+    // Инициализируем DOM элементы
+    if (!initializeElements()) {
+        console.error('Не удалось инициализировать все необходимые DOM элементы');
+        return;
     }
     
-    initializeEventHandlers(); // ЭТОТ ВЫЗОВ ДОЛЖЕН БЫТЬ ПЕРВЫМ
+    // Инициализируем обработчики событий
+    initializeEventHandlers();
+    
+    // Загружаем начальные данные
     await initialLoad();
     
-    // Проверяем состояние после инициализации
-    console.log('=== Состояние после инициализации ===');
-    console.log('regular-event-time после инициализации:', document.getElementById('regular-event-time'));
-    console.log('regular-event-name после инициализации:', document.getElementById('regular-event-name'));
-    
-    // Проверяем родительский контейнер снова
-    const containerAfter = document.querySelector('.regular-event-management');
-    console.log('Контейнер регулярных событий после инициализации:', containerAfter);
-    if (containerAfter) {
-        console.log('HTML контейнера после инициализации:', containerAfter.innerHTML);
-    }
-
-    // Слушатель изменений в storage только если мы в контексте расширения
-    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
-        storage.onChanged.addListener(async (changes, area) => {
-            if (area === "local") {
-                let eventsRefreshNeeded = false;
-                let projectsRefreshNeeded = false;
-                let dayHeadersRefreshNeeded = false;
-                let projectStatsRefreshNeeded = false;
-
-                if ('calendarEvents' in changes) {
-                    calendarEvents = changes.calendarEvents.newValue || [];
-                    console.log("[ON CHANGED] calendarEvents changed, new count:", calendarEvents.length);
-                    eventsRefreshNeeded = true;
-                    projectStatsRefreshNeeded = true; 
-                }
-                if ('projects' in changes) {
-                    projects = changes.projects.newValue || [];
-                    projectsRefreshNeeded = true;
-                    projectStatsRefreshNeeded = true; 
-                }
-                if ('selectedProjectId' in changes) {
-                    selectedProjectId = changes.selectedProjectId.newValue || null;
-                    projectStatsRefreshNeeded = true;
-                    if (selectProjectSel) selectProjectSel.value = selectedProjectId || "";
-                }
-                if (ALL_DAY_DETAILS_KEY in changes) {
-                    allDayDetailsData = changes[ALL_DAY_DETAILS_KEY].newValue || {};
-                    dayHeadersRefreshNeeded = true;
-                }
-
-                // Apply refreshes
-                if (projectsRefreshNeeded) {
-                    renderProjectSelectAndList();
-                    renderProjectsList();
-                }
-                if (eventsRefreshNeeded) {
-                    renderEvents();
-                }
-                if (dayHeadersRefreshNeeded) {
-                    renderDaysHeader(currentWeekStart);
-                }
-                if (projectStatsRefreshNeeded) {
-                    renderProjectStats(selectedProjectId);
-                }
-            }
-        });
-    }
+    // Остальной код инициализации...
 });
 
 
@@ -1857,87 +1937,126 @@ async function handleRegularEventToggle(instanceId, newCompletionState) {
 
 function initializeEventHandlers() {
     // Обработчики для кнопок навигации по неделям
-    const prevWeekBtn = document.getElementById('prev-week');
-    const currentWeekBtn = document.getElementById('current-week');
-    const nextWeekBtn = document.getElementById('next-week');
-    
-    if (prevWeekBtn) {
-        prevWeekBtn.addEventListener('click', () => {
+    if (elements.prevWeekBtn) {
+        elements.prevWeekBtn.addEventListener('click', () => {
             currentDate.setDate(currentDate.getDate() - 7);
             currentWeekStart = getStartOfWeek(currentDate);
-            renderDaysHeader(currentWeekStart);
-            renderWeekGrid(currentWeekStart);
-            renderEvents(calendarEvents, currentWeekStart);
+            updateWeekView(currentWeekStart);
         });
     }
     
-    if (currentWeekBtn) {
-        currentWeekBtn.addEventListener('click', () => {
+    if (elements.currentWeekBtn) {
+        elements.currentWeekBtn.addEventListener('click', () => {
             currentDate = new Date();
             currentDate.setHours(0, 0, 0, 0);
             currentWeekStart = getStartOfWeek(currentDate);
-            renderDaysHeader(currentWeekStart);
-            renderWeekGrid(currentWeekStart);
-            renderEvents(calendarEvents, currentWeekStart);
+            updateWeekView(currentWeekStart);
         });
     }
     
-    if (nextWeekBtn) {
-        nextWeekBtn.addEventListener('click', () => {
+    if (elements.nextWeekBtn) {
+        elements.nextWeekBtn.addEventListener('click', () => {
             currentDate.setDate(currentDate.getDate() + 7);
             currentWeekStart = getStartOfWeek(currentDate);
-            renderDaysHeader(currentWeekStart);
-            renderWeekGrid(currentWeekStart);
-            renderEvents(calendarEvents, currentWeekStart);
+            updateWeekView(currentWeekStart);
         });
     }
     
     // Обработчики для модального окна деталей дня
-    const dayDetailModal = document.getElementById('day-detail-modal');
-    const closeDayDetailBtn = dayDetailModal.querySelector('.close-modal');
-    const saveDayDetailBtn = document.getElementById('day-detail-save');
-    const cancelDayDetailBtn = document.getElementById('day-detail-cancel');
-
-    if (closeDayDetailBtn) {
-        closeDayDetailBtn.addEventListener('click', closeDayDetailModal);
+    if (elements.dayDetailModal) {
+        const closeDayDetailBtn = elements.dayDetailModal.querySelector('.close-modal');
+        if (closeDayDetailBtn) {
+            closeDayDetailBtn.addEventListener('click', closeDayDetailModal);
+        }
     }
-    if (saveDayDetailBtn) {
-        saveDayDetailBtn.addEventListener('click', saveDayDetails);
+    
+    if (elements.saveDayDetailsBtn) {
+        elements.saveDayDetailsBtn.addEventListener('click', saveDayDetails);
     }
-    if (cancelDayDetailBtn) {
-        cancelDayDetailBtn.addEventListener('click', closeDayDetailModal);
+    
+    if (elements.cancelDayDetailsBtn) {
+        elements.cancelDayDetailsBtn.addEventListener('click', closeDayDetailModal);
     }
 
     // Обработчики для модального окна событий
-    const eventModal = document.getElementById('event-modal');
-    const closeEventBtn = eventModal.querySelector('.close-modal');
-    const saveEventBtn = document.getElementById('save-event');
-    const deleteEventBtn = document.getElementById('delete-event');
-    const cancelEventBtn = document.getElementById('cancel-event');
-
-    if (closeEventBtn) {
-        closeEventBtn.addEventListener('click', closeEventModal);
+    if (elements.eventModal) {
+        const closeEventBtn = elements.eventModal.querySelector('.close-modal');
+        if (closeEventBtn) {
+            closeEventBtn.addEventListener('click', closeEventModal);
+        }
     }
-    if (saveEventBtn) {
-        saveEventBtn.addEventListener('click', saveEvent);
+    
+    if (elements.saveEventBtn) {
+        elements.saveEventBtn.addEventListener('click', saveEvent);
     }
-    if (deleteEventBtn) {
-        deleteEventBtn.addEventListener('click', deleteEvent);
+    
+    if (elements.deleteEventBtn) {
+        elements.deleteEventBtn.addEventListener('click', deleteEvent);
     }
-    if (cancelEventBtn) {
-        cancelEventBtn.addEventListener('click', closeEventModal);
+    
+    if (elements.cancelEventBtn) {
+        elements.cancelEventBtn.addEventListener('click', closeEventModal);
     }
     
     // Обработчики для сетки времени
-    const timeGrid = document.getElementById('week-grid');
-    if (timeGrid) {
-        timeGrid.addEventListener('click', (e) => {
+    if (elements.weekGrid) {
+        elements.weekGrid.addEventListener('click', (e) => {
             const hourCell = e.target.closest('.hour-cell');
             if (hourCell) {
                 const hour = parseFloat(hourCell.dataset.hour);
                 const dateStr = hourCell.closest('.day-column').dataset.date;
                 if (!isNaN(hour) && dateStr) {
                     openEventModal(null, dateStr, hour);
+                }
+            }
+        });
+    }
+    
+    // Слушатель изменений в storage только если мы в контексте расширения
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
+        storage.onChanged.addListener(async (changes, area) => {
+            if (area === "local") {
+                let eventsRefreshNeeded = false;
+                let projectsRefreshNeeded = false;
+                let dayHeadersRefreshNeeded = false;
+                let projectStatsRefreshNeeded = false;
+
+                if ('calendarEvents' in changes) {
+                    calendarEvents = changes.calendarEvents.newValue || [];
+                    console.log("[ON CHANGED] calendarEvents changed, new count:", calendarEvents.length);
+                    eventsRefreshNeeded = true;
+                    projectStatsRefreshNeeded = true; 
+                }
+                if ('projects' in changes) {
+                    projects = changes.projects.newValue || [];
+                    projectsRefreshNeeded = true;
+                    projectStatsRefreshNeeded = true; 
+                }
+                if ('selectedProjectId' in changes) {
+                    selectedProjectId = changes.selectedProjectId.newValue || null;
+                    projectStatsRefreshNeeded = true;
+                    if (elements.eventModalProjectSelect) {
+                        elements.eventModalProjectSelect.value = selectedProjectId || "";
+                    }
+                }
+                if (ALL_DAY_DETAILS_KEY in changes) {
+                    allDayDetailsData = changes[ALL_DAY_DETAILS_KEY].newValue || {};
+                    dayHeadersRefreshNeeded = true;
+                }
+
+                // Apply refreshes
+                if (projectsRefreshNeeded) {
+                    renderProjectSelectAndList();
+                    renderProjectsList();
+                }
+                if (eventsRefreshNeeded) {
+                    renderEvents();
+                }
+                if (dayHeadersRefreshNeeded) {
+                    renderDaysHeader(currentWeekStart);
+                }
+                if (projectStatsRefreshNeeded) {
+                    renderProjectStats(selectedProjectId);
                 }
             }
         });
@@ -1966,6 +2085,43 @@ async function initialLoad() {
         projects = await db.getProjects();
         console.log('[INITIAL LOAD] Projects loaded:', projects);
 
+        // Проверка состояния секундомера
+        const { stopwatch: savedStopwatch } = await storage.get('stopwatch');
+        if (savedStopwatch?.isRunning && savedStopwatch?.liveEventId) {
+            console.log('[INITIAL LOAD] Обнаружен запущенный секундомер, проверяем состояние...');
+            try {
+                // Проверяем состояние события в базе
+                const event = await db.getCalendarEvent(savedStopwatch.liveEventId);
+                if (event && event.is_live) {
+                    console.log('[INITIAL LOAD] Событие все еще активно, восстанавливаем секундомер');
+                    stopwatch = savedStopwatch;
+                    startStopwatch();
+                } else {
+                    console.log('[INITIAL LOAD] Событие уже финализировано, сбрасываем состояние');
+                    stopwatch = {
+                        isRunning: false,
+                        startTime: null,
+                        elapsedTime: 0,
+                        liveEventId: null,
+                        isSyncedWithSupabase: false,
+                        lastSupabaseSync: 0
+                    };
+                    persistStopwatchState();
+                }
+            } catch (error) {
+                console.error('[INITIAL LOAD] Ошибка при проверке состояния события:', error);
+                stopwatch = {
+                    isRunning: false,
+                    startTime: null,
+                    elapsedTime: 0,
+                    liveEventId: null,
+                    isSyncedWithSupabase: false,
+                    lastSupabaseSync: 0
+                };
+                persistStopwatchState();
+            }
+        }
+
         // Загрузка событий для текущей недели
         const weekDates = getWeekDates(currentWeekStart);
         console.log('[INITIAL LOAD] Текущая неделя:', weekDates);
@@ -1977,13 +2133,13 @@ async function initialLoad() {
         calendarEvents = await db.getCalendarEvents(startDate, endDate);
         console.log('[INITIAL LOAD] Calendar events loaded:', calendarEvents);
         
+        // Генерируем регулярные события для текущей недели
+        await generateRegularEventsForWeek(currentWeekStart);
+        
         // Рендеринг UI в правильном порядке
         renderProjectSelectAndList();
         renderProjectsList();
-        renderDaysHeader(currentWeekStart);
-        renderWeekGrid(currentWeekStart); // Эта функция также вызывает renderTimeSlots
-        renderEvents(calendarEvents, currentWeekStart);
-        scrollToWorkingHours();
+        await updateWeekView(currentWeekStart);
         
         console.log('[INITIAL LOAD] initialLoad завершен.');
     } catch (error) {
@@ -1991,10 +2147,75 @@ async function initialLoad() {
     }
 }
 
+// Функция для проверки и синхронизации высоты элементов
+function validateAndSyncHeights() {
+    const timeSlotsContainer = elements.timeSlotsContainer;
+    const weekGrid = elements.weekGrid;
+    
+    if (!timeSlotsContainer || !weekGrid) {
+        console.error('[VALIDATE HEIGHTS] Не найдены необходимые элементы');
+        return false;
+    }
+
+    // Проверяем высоту ячеек времени
+    const timeSlots = timeSlotsContainer.querySelectorAll('.time-slot');
+    const hourCells = weekGrid.querySelectorAll('.hour-cell');
+    
+    if (timeSlots.length !== hourCells.length) {
+        console.error('[VALIDATE HEIGHTS] Несоответствие количества ячеек:', {
+            timeSlots: timeSlots.length,
+            hourCells: hourCells.length
+        });
+        return false;
+    }
+
+    // Проверяем высоту каждой ячейки
+    for (let i = 0; i < timeSlots.length; i++) {
+        const timeSlotHeight = timeSlots[i].offsetHeight;
+        const hourCellHeight = hourCells[i].offsetHeight;
+        
+        if (timeSlotHeight !== HOUR_CELL_HEIGHT || hourCellHeight !== HOUR_CELL_HEIGHT) {
+            console.error('[VALIDATE HEIGHTS] Несоответствие высоты ячеек:', {
+                index: i,
+                timeSlotHeight,
+                hourCellHeight,
+                expectedHeight: HOUR_CELL_HEIGHT
+            });
+            return false;
+        }
+    }
+
+    return true;
+}
+
+// Функция для синхронизации скролла
+function syncScroll() {
+    const scrollContainer = document.getElementById('week-grid-scroll-container');
+    if (!scrollContainer) return;
+
+    // Синхронизируем скролл всех элементов внутри scrollable-content
+    const scrollableContent = scrollContainer.querySelector('.scrollable-content');
+    if (!scrollableContent) return;
+
+    const elements = scrollableContent.children;
+    let lastScrollTop = 0;
+
+    scrollContainer.addEventListener('scroll', () => {
+        const currentScrollTop = scrollContainer.scrollTop;
+        if (currentScrollTop !== lastScrollTop) {
+            for (let i = 0; i < elements.length; i++) {
+                elements[i].scrollTop = currentScrollTop;
+            }
+            lastScrollTop = currentScrollTop;
+        }
+    });
+}
+
+// Обновляем функцию renderWeekGrid
 function renderWeekGrid(weekStart) {
-    const weekGrid = document.getElementById('week-grid');
+    const weekGrid = elements.weekGrid;
     if (!weekGrid) {
-        console.error("Не найден элемент #week-grid");
+        console.error("[RENDER WEEK GRID] Не найден элемент #week-grid");
         return;
     }
 
@@ -2008,13 +2229,13 @@ function renderWeekGrid(weekStart) {
         dayColumn.className = 'day-column';
         const dateStr = formatDate(date);
         dayColumn.setAttribute('data-date', dateStr);
-        console.log('[RENDER WEEK GRID] Создана колонка для даты:', dateStr);
         
         // Создаем ячейки для каждого часа
         for (let hour = 0; hour <= 23; hour++) {
             const hourCell = document.createElement('div');
             hourCell.className = 'hour-cell';
             hourCell.setAttribute('data-hour', hour.toString());
+            hourCell.style.height = `${HOUR_CELL_HEIGHT}px`;
             
             // Обработчик клика для создания нового события
             hourCell.addEventListener('click', (e) => {
@@ -2031,20 +2252,51 @@ function renderWeekGrid(weekStart) {
     });
 
     // Создаем временные метки
-    const timeSlotsContainer = document.querySelector('.time-slots-container');
-    if (timeSlotsContainer) {
-        timeSlotsContainer.innerHTML = '';
+    if (elements.timeSlotsContainer) {
+        elements.timeSlotsContainer.innerHTML = '';
         for (let hour = 0; hour <= 23; hour++) {
             const timeSlot = document.createElement('div');
             timeSlot.className = 'time-slot';
+            timeSlot.style.height = `${HOUR_CELL_HEIGHT}px`;
             timeSlot.textContent = `${pad(hour)}:00`;
-            timeSlotsContainer.appendChild(timeSlot);
+            elements.timeSlotsContainer.appendChild(timeSlot);
         }
     }
 
-    loadEvents(weekStart);
-    setTimeout(scrollToWorkingHours, 5);
-    updateCurrentTimeIndicator();
+    // Проверяем и синхронизируем высоты
+    if (!validateAndSyncHeights()) {
+        console.error('[RENDER WEEK GRID] Ошибка валидации высот элементов');
+    }
+
+    // Инициализируем синхронизацию скролла
+    syncScroll();
+}
+
+// Обновляем функцию updateWeekView
+async function updateWeekView(weekStart) {
+    console.log('[UPDATE WEEK VIEW] Начало обновления вида недели...');
+    
+    try {
+        // Обновляем заголовки дней
+        renderDaysHeader(weekStart);
+        
+        // Рендерим сетку недели
+        renderWeekGrid(weekStart);
+        
+        // Загружаем и отображаем события
+        const events = await loadEvents(weekStart);
+        renderEvents(events, weekStart);
+        
+        // Скроллим к рабочим часам
+        scrollToWorkingHours();
+        
+        // Обновляем индикатор текущего времени
+        updateCurrentTimeIndicator();
+        
+        console.log('[UPDATE WEEK VIEW] Обновление вида недели завершено');
+    } catch (error) {
+        console.error('[UPDATE WEEK VIEW] Ошибка при обновлении вида недели:', error);
+    }
 }
 
 function renderTimeSlots() {
@@ -2078,7 +2330,7 @@ function scrollToWorkingHours() {
 async function openDayDetailModal(dateStr) {
     console.log('[OPEN DAY DETAIL] Открытие модального окна для дня:', dateStr);
     
-    const modal = document.getElementById('day-detail-modal');
+    const modal = elements.dayDetailModal;
     if (!modal) {
         console.error('[OPEN DAY DETAIL] Модальное окно не найдено');
         return;
@@ -2090,13 +2342,12 @@ async function openDayDetailModal(dateStr) {
         console.log('[OPEN DAY DETAIL] Загруженные детали:', details);
         
         // Заполняем форму
-        const notesInput = document.getElementById('day-notes');
-        const moodSelect = document.getElementById('day-mood');
-        const productivitySelect = document.getElementById('day-productivity');
-        
-        if (notesInput) notesInput.value = details.notes || '';
-        if (moodSelect) moodSelect.value = details.mood || 'neutral';
-        if (productivitySelect) productivitySelect.value = details.productivity || 'medium';
+        if (elements.dayDetailModalDateDisplay) elements.dayDetailModalDateDisplay.textContent = dateStr;
+        if (elements.caloriesMorningInput) elements.caloriesMorningInput.value = details.calories?.morning || 0;
+        if (elements.caloriesAfternoonInput) elements.caloriesAfternoonInput.value = details.calories?.afternoon || 0;
+        if (elements.caloriesEveningInput) elements.caloriesEveningInput.value = details.calories?.evening || 0;
+        if (elements.commentInput) elements.commentInput.value = details.comment || '';
+        if (elements.totalCaloriesValueSpan) elements.totalCaloriesValueSpan.textContent = ((details.calories?.morning || 0) + (details.calories?.afternoon || 0) + (details.calories?.evening || 0)).toString();
         
         // Сохраняем дату в dataset модального окна
         modal.dataset.date = dateStr;
@@ -2118,7 +2369,7 @@ async function loadDayDetails(dateStr) {
             .select('*')
             .eq('date', dateStr)
             .single();
-            
+        
         if (error) {
             console.error('[LOAD DAY DETAILS] Ошибка при загрузке деталей:', error);
             return {};
@@ -2141,7 +2392,7 @@ async function saveDayDetails(date, detailsToSave) {
                 date: date,
                 ...detailsToSave
             });
-            
+        
         if (error) {
             throw error;
         }
@@ -2149,6 +2400,366 @@ async function saveDayDetails(date, detailsToSave) {
         console.log('[SAVE DAY DETAILS] Детали успешно сохранены');
     } catch (error) {
         console.error('[SAVE DAY DETAILS] Ошибка при сохранении деталей:', error);
+        throw error;
+    }
+}
+
+// Добавляем обработчик beforeunload для финализации события при закрытии вкладки
+window.addEventListener('beforeunload', async (event) => {
+    if (stopwatch.isRunning) {
+        // Пытаемся финализировать событие перед закрытием
+        try {
+            await stopOrPauseStopwatch(true);
+        } catch (error) {
+            console.error('[BEFOREUNLOAD] Ошибка при финализации события:', error);
+        }
+    }
+});
+
+// Функция для проверки пересечения регулярных событий
+function checkRegularEventOverlap(newEvent, existingEvents) {
+    const newStartTime = new Date(`2000-01-01T${newEvent.start_time}`);
+    const newEndTime = new Date(`2000-01-01T${newEvent.end_time}`);
+    
+    return existingEvents.some(event => {
+        if (event.type !== 'regular') return false;
+        
+        const eventStartTime = new Date(`2000-01-01T${event.start_time}`);
+        const eventEndTime = new Date(`2000-01-01T${event.end_time}`);
+        
+        // Проверяем пересечение дней недели
+        const hasCommonDays = newEvent.weekdays.some(day => event.weekdays.includes(day));
+        if (!hasCommonDays) return false;
+        
+        // Проверяем пересечение времени
+        return (newStartTime < eventEndTime && newEndTime > eventStartTime);
+    });
+}
+
+// Функция для создания регулярного события
+async function createRegularEvent(eventData) {
+    console.log('[CREATE REGULAR EVENT] Создание регулярного события:', eventData);
+    
+    try {
+        // Проверяем обязательные поля
+        if (!eventData.name || !eventData.start_time || !eventData.end_time || !eventData.weekdays?.length) {
+            throw new Error('Не все обязательные поля заполнены');
+        }
+        
+        // Загружаем существующие регулярные события
+        const { regularEventsConfig } = await storage.get('regularEventsConfig');
+        const existingEvents = regularEventsConfig || [];
+        
+        // Проверяем пересечение с существующими событиями
+        if (checkRegularEventOverlap(eventData, existingEvents)) {
+            throw new Error('Событие пересекается с существующим регулярным событием');
+        }
+        
+        // Создаем новое событие
+        const newEvent = {
+            id: generateUUID(),
+            name: eventData.name,
+            start_time: eventData.start_time,
+            end_time: eventData.end_time,
+            weekdays: eventData.weekdays,
+            created_at: new Date().toISOString()
+        };
+        
+        // Добавляем в массив и сохраняем
+        existingEvents.push(newEvent);
+        await storage.set({ regularEventsConfig: existingEvents });
+        
+        // Генерируем события для текущей недели
+        await generateRegularEventsForWeek(currentWeekStart);
+        
+        console.log('[CREATE REGULAR EVENT] Регулярное событие успешно создано');
+        return newEvent;
+    } catch (error) {
+        console.error('[CREATE REGULAR EVENT] Ошибка при создании регулярного события:', error);
+        throw error;
+    }
+}
+
+// Функция для генерации регулярных событий на неделю
+async function generateRegularEventsForWeek(weekStart) {
+    console.log('[GENERATE REGULAR EVENTS] Генерация событий для недели:', formatDate(weekStart));
+    
+    try {
+        // Загружаем конфигурации регулярных событий
+        const { regularEventsConfig } = await storage.get('regularEventsConfig');
+        if (!regularEventsConfig?.length) return;
+        
+        // Получаем даты недели
+        const weekDates = getWeekDates(weekStart);
+        
+        // Для каждого регулярного события
+        for (const config of regularEventsConfig) {
+            // Для каждого дня недели в конфигурации
+            for (const weekday of config.weekdays) {
+                // Находим дату этого дня недели
+                const eventDate = weekDates.find(date => date.getDay() === parseInt(weekday));
+                if (!eventDate) continue;
+                
+                // Проверяем, нет ли уже такого события
+                const existingEvent = calendarEvents.find(ev => 
+                    ev.date === formatDate(eventDate) && 
+                    ev.start_time === config.start_time &&
+                    ev.type === 'regular'
+                );
+                
+                if (existingEvent) continue;
+                
+                // Создаем новое событие
+                const eventData = {
+                    title: config.name,
+                    date: formatDate(eventDate),
+                    start_time: config.start_time,
+                    end_time: config.end_time,
+                    type: 'regular',
+                    completed: false,
+                    instance_id: `regular-${config.id}-${formatDate(eventDate)}`
+                };
+                
+                // Сохраняем в базу
+                await db.createCalendarEvent(eventData);
+            }
+        }
+        
+        // Перезагружаем события для недели
+        await loadEvents(weekStart);
+        
+        console.log('[GENERATE REGULAR EVENTS] События успешно сгенерированы');
+    } catch (error) {
+        console.error('[GENERATE REGULAR EVENTS] Ошибка при генерации событий:', error);
+    }
+}
+
+// Обновляем функцию handleRegularEventToggle
+async function handleRegularEventToggle(instanceId, newCompletionState) {
+    console.log('[TOGGLE REGULAR EVENT] Изменение статуса события:', { instanceId, newCompletionState });
+    
+    try {
+        // Находим событие в базе
+        const event = await db.getCalendarEvent(instanceId);
+        if (!event) {
+            throw new Error('Событие не найдено');
+        }
+        
+        // Обновляем статус в базе
+        await db.updateCalendarEvent(instanceId, {
+            completed: newCompletionState
+        });
+        
+        // Обновляем локальное состояние
+        const localEvent = calendarEvents.find(ev => ev.id === instanceId);
+        if (localEvent) {
+            localEvent.completed = newCompletionState;
+        }
+        
+        // Перерисовываем события
+        renderEvents(calendarEvents, currentWeekStart);
+        
+        console.log('[TOGGLE REGULAR EVENT] Статус события успешно обновлен');
+    } catch (error) {
+        console.error('[TOGGLE REGULAR EVENT] Ошибка при обновлении статуса:', error);
+        throw error;
+    }
+}
+
+// Обновляем функцию initialLoad
+async function initialLoad() {
+    console.log('[INITIAL LOAD] Начало initialLoad...');
+    
+    try {
+        // Загрузка конфигураций регулярных событий
+        const { regularEventsConfig } = await storage.get('regularEventsConfig');
+        console.log('[INITIAL LOAD] Загружены конфигурации регулярных событий:', regularEventsConfig?.length || 0);
+        
+        // Загрузка проектов
+        projects = await db.getProjects();
+        console.log('[INITIAL LOAD] Projects loaded:', projects);
+
+        // Проверка состояния секундомера
+        const { stopwatch: savedStopwatch } = await storage.get('stopwatch');
+        if (savedStopwatch?.isRunning && savedStopwatch?.liveEventId) {
+            console.log('[INITIAL LOAD] Обнаружен запущенный секундомер, проверяем состояние...');
+            try {
+                // Проверяем состояние события в базе
+                const event = await db.getCalendarEvent(savedStopwatch.liveEventId);
+                if (event && event.is_live) {
+                    console.log('[INITIAL LOAD] Событие все еще активно, восстанавливаем секундомер');
+                    stopwatch = savedStopwatch;
+                    startStopwatch();
+                } else {
+                    console.log('[INITIAL LOAD] Событие уже финализировано, сбрасываем состояние');
+                    stopwatch = {
+                        isRunning: false,
+                        startTime: null,
+                        elapsedTime: 0,
+                        liveEventId: null,
+                        isSyncedWithSupabase: false,
+                        lastSupabaseSync: 0
+                    };
+                    persistStopwatchState();
+                }
+            } catch (error) {
+                console.error('[INITIAL LOAD] Ошибка при проверке состояния события:', error);
+                stopwatch = {
+                    isRunning: false,
+                    startTime: null,
+                    elapsedTime: 0,
+                    liveEventId: null,
+                    isSyncedWithSupabase: false,
+                    lastSupabaseSync: 0
+                };
+                persistStopwatchState();
+            }
+        }
+
+        // Загрузка событий для текущей недели
+        const weekDates = getWeekDates(currentWeekStart);
+        console.log('[INITIAL LOAD] Текущая неделя:', weekDates);
+        
+        const startDate = weekDates[0];
+        const endDate = weekDates[weekDates.length - 1];
+        
+        console.log('[INITIAL LOAD] Loading events from', startDate, 'to', endDate);
+        calendarEvents = await db.getCalendarEvents(startDate, endDate);
+        console.log('[INITIAL LOAD] Calendar events loaded:', calendarEvents);
+        
+        // Генерируем регулярные события для текущей недели
+        await generateRegularEventsForWeek(currentWeekStart);
+        
+        // Рендеринг UI в правильном порядке
+        renderProjectSelectAndList();
+        renderProjectsList();
+        await updateWeekView(currentWeekStart);
+        
+        console.log('[INITIAL LOAD] initialLoad завершен.');
+    } catch (error) {
+        console.error('[INITIAL LOAD] Error during initial load:', error);
+    }
+}
+
+// Добавляем функцию для валидации проекта
+function validateProject(project) {
+    if (!project.name) {
+        throw new Error('Название проекта обязательно');
+    }
+    
+    if (project.name.length > 50) {
+        throw new Error('Название проекта не должно превышать 50 символов');
+    }
+    
+    if (project.color && !/^#[0-9A-Fa-f]{6}$/.test(project.color)) {
+        throw new Error('Некорректный формат цвета');
+    }
+    
+    return true;
+}
+
+// Обновляем функцию createProject
+async function createProject(projectData) {
+    console.log('[CREATE PROJECT] Создание проекта:', projectData);
+    
+    try {
+        // Валидация данных проекта
+        validateProject(projectData);
+        
+        // Проверка на дубликаты
+        const existingProject = projects.find(p => p.name.toLowerCase() === projectData.name.toLowerCase());
+        if (existingProject) {
+            throw new Error('Проект с таким названием уже существует');
+        }
+        
+        // Создаем проект в базе данных
+        const newProject = await syncWithSupabaseWithRetry(async () => {
+            const { data, error } = await supabase
+                .from('projects')
+                .insert([{
+                    ...projectData,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                }])
+                .select()
+                .single();
+                
+            if (error) throw error;
+            return data;
+        });
+        
+        // Добавляем в локальное состояние
+        projects.push(newProject);
+        
+        // Обновляем UI
+        renderProjectSelectAndList();
+        renderProjectsList();
+        
+        console.log('[CREATE PROJECT] Проект успешно создан');
+        return newProject;
+    } catch (error) {
+        console.error('[CREATE PROJECT] Ошибка при создании проекта:', error);
+        throw error;
+    }
+}
+
+// Обновляем функцию updateProject
+async function updateProject(projectId, updates) {
+    console.log('[UPDATE PROJECT] Обновление проекта:', { projectId, updates });
+    
+    try {
+        // Проверяем существование проекта
+        const projectIndex = projects.findIndex(p => p.id === projectId);
+        if (projectIndex === -1) {
+            throw new Error('Проект не найден');
+        }
+        
+        // Валидация обновленных данных
+        validateProject({ ...projects[projectIndex], ...updates });
+        
+        // Проверка на дубликаты
+        if (updates.name) {
+            const existingProject = projects.find(p => 
+                p.id !== projectId && 
+                p.name.toLowerCase() === updates.name.toLowerCase()
+            );
+            if (existingProject) {
+                throw new Error('Проект с таким названием уже существует');
+            }
+        }
+        
+        // Обновляем в базе данных
+        const updatedProject = await syncWithSupabaseWithRetry(async () => {
+            const { data, error } = await supabase
+                .from('projects')
+                .update({
+                    ...updates,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', projectId)
+                .select()
+                .single();
+                
+            if (error) throw error;
+            return data;
+        });
+        
+        // Обновляем локальное состояние
+        projects[projectIndex] = updatedProject;
+        
+        // Обновляем UI
+        renderProjectSelectAndList();
+        renderProjectsList();
+        
+        // Если обновлен текущий проект, обновляем статистику
+        if (selectedProjectId === projectId) {
+            renderProjectStats(projectId);
+        }
+        
+        console.log('[UPDATE PROJECT] Проект успешно обновлен');
+        return updatedProject;
+    } catch (error) {
+        console.error('[UPDATE PROJECT] Ошибка при обновлении проекта:', error);
         throw error;
     }
 }
